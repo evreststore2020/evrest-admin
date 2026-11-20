@@ -250,7 +250,7 @@ function customers() {
   return [...map.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
 }
 let cQ = "", cType = "all";
-const CTYPES = ["عميل", "فني", "مهندس", "مقاول", "تاجر"];
+const CTYPES = ["عميل", "فني", "مهندس", "مقاول", "تاجر", "شركة"];
 const DRAFT = "everest-admin-draft", AUTH = "everest-admin-auth";
 
 let MODE = null, API = "", KEY = "", D = null, PUB = "", EVENTS = null, view = "home";
