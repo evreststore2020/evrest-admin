@@ -244,11 +244,13 @@ function customers() {
     let c = map.get(k); if (!c) map.set(k, c = {email: em, first: e.date, visits: 0, signup: null, name: "", phone: "", area: ""});
     c.last = e.date; c.visits++; if (e.name) c.name = e.name; if (e.phone) c.phone = e.phone; if (e.area) c.area = e.area;
     if (e.type === "signup") c.signup = e;
+    const t = ((e.details || "").match(/نوع العميل: *([^\n]+)/) || [])[1]; if (t) c.ctype = t.trim();
   }
   for (const c of map.values()) c.orders = (EVENTS || []).filter(e => !CUST(e.type) && c.email && emailOf(e).toLowerCase() === c.email).length;
   return [...map.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
 }
-let cQ = "";
+let cQ = "", cType = "all";
+const CTYPES = ["عميل", "فني", "مهندس", "مقاول", "تاجر"];
 const DRAFT = "everest-admin-draft", AUTH = "everest-admin-auth";
 
 let MODE = null, API = "", KEY = "", D = null, PUB = "", EVENTS = null, view = "home";
@@ -728,14 +730,16 @@ customers() {
   if (MODE !== "api") return `<div class="notice blue">العملاء المسجلين بيظهروا هنا لما المتجر يكون متوصّل بـ Supabase.</div>`;
   if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
   const all = customers(), day = 864e5;
-  const list = all.filter(c => !cQ || [c.name, c.email, c.phone, c.area, c.signup && c.signup.details].join(" ").toLowerCase().includes(cQ));
-  const info = c => (c.signup ? c.signup.details : "").split("\n").filter(l => l && !/^الإيميل:/.test(l)).join("\n");
+  const others = all.filter(c => !CTYPES.includes(c.ctype)).length;
+  const list = all.filter(c => (cType === "all" || (cType === "other" ? !CTYPES.includes(c.ctype) : c.ctype === cType)) && (!cQ ||[c.name, c.email, c.phone, c.area, c.signup && c.signup.details].join(" ").toLowerCase().includes(cQ)));
+  const info = c => (c.signup ? c.signup.details : "").split("\n").filter(l => l && !/^(الإيميل|نوع العميل):/.test(l)).join("\n");
   return `<div class="kpis">
     <div class="kpi"><small>إجمالي العملاء المسجلين</small><b>${num(all.length)}</b></div>
     <div class="kpi"><small>اتسجلوا آخر ٧ أيام</small><b>${num(all.filter(c => Date.now() - new Date(c.first) < 7 * day).length)}</b></div>
     <div class="kpi"><small>دخلوا النهارده</small><b>${num(all.filter(c => Date.now() - new Date(c.last) < day).length)}</b></div>
     <div class="kpi"><small>موافقين على العروض</small><b>${num(all.filter(c => /العروض: موافق/.test(c.signup ? c.signup.details : "")).length)}</b></div>
   </div>
+  <div class="filters">${[["all", "الكل", all.length], ...CTYPES.map(t => [t, t, all.filter(c => c.ctype === t).length]), ...(others ? [["other", "غير محدد", others]] : [])].map(([k, n, c]) => `<button class="chip ${cType === k ? "on" : ""}" data-ct="${esc(k)}">${esc(n)}<span class="n">${num(c)}</span></button>`).join("")}</div>
   <div class="toolbar">
     <input class="in" id="cQ" placeholder="ابحث بالاسم أو الإيميل أو الرقم أو المنطقة…" value="${esc(cQ)}">
     <button class="btn light" id="cRefresh">↻ تحديث</button>
@@ -744,7 +748,7 @@ customers() {
   ${list.length ? list.map(c => `<div class="ev ${c.signup && c.signup.status === "جديد" ? "new" : ""}">
     <div class="ty">👤</div>
     <div>
-      <div class="who"><b>${esc(c.name || "عميل")}</b>${c.email ? `<a dir="ltr" class="hint" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}${c.phone ? `<span dir="ltr" class="hint">${esc(c.phone)}</span>` : ""}</div>
+      <div class="who">${c.ctype ? `<span class="pill blue">${esc(c.ctype)}</span>` : ""}<b>${esc(c.name || "عميل")}</b>${c.email ? `<a dir="ltr" class="hint" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}${c.phone ? `<span dir="ltr" class="hint">${esc(c.phone)}</span>` : ""}</div>
       <div class="hint">اتسجّل ${ago(c.first)} · آخر دخول ${ago(c.last)} · ${num(c.visits)} ${c.visits > 1 ? "زيارات" : "زيارة"}${c.orders ? ` · <b>${num(c.orders)} طلب</b>` : ""}</div>
       ${c.area ? `<div class="hint">📍 ${esc(c.area)}</div>` : ""}
       ${info(c) ? `<pre>${esc(info(c))}</pre>` : ""}
@@ -948,12 +952,13 @@ events() {
   bindStatus();
 },
 customers() {
+  $$("[data-ct]").forEach(b => b.onclick = () => { cType = b.dataset.ct; go("customers") });
   const q = $("#cQ"); if (!q) return;
   q.oninput = () => { cQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("customers"); const n = $("#cQ"); n.focus(); n.setSelectionRange(pos, pos) };
   $("#cRefresh").onclick = () => { EVENTS = null; go("customers"); loadEvents() };
   $("#cCsv").onclick = () => {
     const cell = v => `"${String(v ?? "").replace(/"/g, '""').replace(/\n/g, " | ")}"`;
-    const rows = [["الاسم", "الإيميل", "الموبايل", "المنطقة", "بيانات إضافية", "أول تسجيل", "آخر دخول", "عدد الزيارات", "عدد الطلبات"]].concat(customers().map(c => [c.name, c.email, c.phone, c.area, (c.signup ? c.signup.details : "").split("\n").filter(l => !/^الإيميل:/.test(l)).join(" | "), new Date(c.first).toLocaleString("ar-EG"), new Date(c.last).toLocaleString("ar-EG"), c.visits, c.orders]));
+    const rows = [["الاسم", "النوع", "الإيميل", "الموبايل","المنطقة", "بيانات إضافية", "أول تسجيل", "آخر دخول", "عدد الزيارات", "عدد الطلبات"]].concat(customers().map(c => [c.name, c.ctype || "", c.email, c.phone, c.area, (c.signup ? c.signup.details : "").split("\n").filter(l => !/^(الإيميل|نوع العميل):/.test(l)).join(" | "), new Date(c.first).toLocaleString("ar-EG"), new Date(c.last).toLocaleString("ar-EG"), c.visits, c.orders]));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map(r => r.map(cell).join(",")).join("\r\n")], {type: "text/csv;charset=utf-8"}));
     a.download = "everest-customers.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   };
