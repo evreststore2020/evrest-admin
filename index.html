@@ -78,6 +78,17 @@ label.f > span b{color:var(--ink)}
 /* ===== عناصر ===== */
 .card{background:var(--card);padding:22px;border:1px solid var(--line)}
 .card h3{font-size:17px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.paycard{margin-top:10px;border:1px solid #cfd9ee;background:#f6f8fd;padding:12px 14px}
+.paycard.done{border-color:#bfe3cc;background:#f2fbf5}
+.pc-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.pc-grid label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
+.pc-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pc-rest{margin-inline-end:auto;font-size:14px}
+.pay-sws{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pay-sw{align-items:flex-start!important}
+.pay-sw span{display:flex;flex-direction:column;gap:2px}
+.pay-sw small{color:var(--muted);font-size:12px;font-weight:400}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}
 .kpi{background:#fff;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:4px;text-align:right;transition:.2s}
 button.kpi:hover{border-color:var(--ink)}
@@ -232,6 +243,14 @@ const priced = p => hasPack(p) ? p.packs.some(k => k.p != null) : p.price != nul
 const packLbl = k => `${num(k.s)} ${k.u === "كجم" ? "كجم" : "لتر"}${k.v ? " – " + k.v : ""}`;
 const TYPES = {order: ["🛒", "طلب شراء", "blue"], booking: ["📅", "حجز معاينة", "ok"], package: ["🏠", "طلب باقة", "warn"], wholesale: ["🏗️", "تسجيل مقاول", "grey"], colour_combo: ["🎨", "تنسيق ألوان", "grey"], contact: ["✉️", "تواصل", "grey"]};
 const STATUSES = ["جديد", "تم التواصل", "جاري التنفيذ", "مكتمل", "ملغي"];
+/* الدفع (لازم يطابق الافتراضي في assets/app.js) */
+const PAY_DEF = {instant: true, instapay: true, vf: true, cod: true, instapayUrl: "https://ipn.eg/S/hanynagehgreece/instapay/9oN3kI", instapayId: "", vfUrl: "http://vf.eg/vfcash?id=mt&qrId=cKYVtm", vfNumber: "", staleDays: 30};
+const payCfg = () => { const p = Object.assign({}, PAY_DEF, (D && D.settings && D.settings.pay) || {}); if (!p.instapayId) { const m = String(p.instapayUrl || "").match(/\/S\/([^/]+)\/instapay/i); if (m) p.instapayId = m[1] + "@instapay" } return p };
+const PAY_ST = ["لم يدفع", "دفع جزء", "مدفوع بالكامل"];
+const PAY_MODE = {instant: ["⚡", "دفع فوري", "ok"], confirm: ["🎨", "بعد التأكيد", "warn"], mixed: ["◐", "مخلوط", "blue"]};
+const PAY_METHOD = {instapay: "إنستاباي", vf: "فودافون كاش", cod: "كاش عند الاستلام"};
+const unpaid = e => e.pay && e.pay.status !== "مدفوع بالكامل" && e.status !== "ملغي" && e.status !== "مكتمل";
+const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
 /* تسجيلات ودخول العملاء ليها صفحة "العملاء" لوحدها ومش بتتحسب مع الطلبات */
 const CUST = t => t === "signup" || t === "login";
 const EVS = () => EVENTS ? EVENTS.filter(e => !CUST(e.type)) : null;
@@ -279,10 +298,11 @@ async function sbApi(action, x = {}) {
           let type = r.type, det = r.details || "";
           /* عملاء اتسجلوا قبل تحديث قاعدة البيانات بيتسجلوا كـ"تواصل" بعلامة */
           if (type === "contact" && /^(👤 تسجيل عميل|🔑 دخول عميل)/.test(det)) { type = det.startsWith("👤") ? "signup" : "login"; det = det.replace(/^[^\n]*\n?/, "") }
-          return {id: r.id, date: r.created_at, type, status: r.status, name: r.name || "", phone: r.phone || "", area: r.area || "", total: r.total ?? "", details: det};
+          return {id: r.id, date: r.created_at, type, status: r.status, name: r.name || "", phone: r.phone || "", area: r.area || "", total: r.total ?? "", details: det, pay: r.pay || null};
         })};
       }
       case "status": await SBC.update("orders", "id=eq." + encodeURIComponent(x.id), {status: String(x.status).slice(0, 30)}); return {ok: true};
+      case "pay": await SBC.update("orders", "id=eq." + encodeURIComponent(x.id), {pay: x.pay}); return {ok: true};
       case "deleteVideo": { const pre = SBC.publicUrl("videos", ""); if (String(x.src || "").startsWith(pre)) await SBC.removeFile("videos", x.src.slice(pre.length)); return {ok: true} }
       case "setKey": {
         try { await window.Supa(window.EVEREST_CONFIG).signIn(SBC.session.email, x.currentKey) } catch (e) { return {ok: false, error: "current"} }
@@ -524,10 +544,38 @@ function evCard(e) {
       <div class="who"><span class="pill ${t[2]}">${t[1]}</span><b>${esc(e.name || "زائر")}</b>${e.phone ? `<span dir="ltr" class="hint">${esc(e.phone)}</span>` : ""}<span class="hint">· ${ago(e.date)}</span>${e.total ? `<span class="pill grey">${money(e.total)}</span>` : ""}</div>
       ${e.area ? `<div class="hint">📍 ${esc(e.area)}</div>` : ""}
       ${e.details ? `<pre>${esc(e.details)}</pre>` : ""}
+      ${payHTML(e)}
     </div>
     <div class="acts">
       <select class="in" data-status="${esc(e.id)}">${STATUSES.map(s => `<option ${s === e.status ? "selected" : ""}>${s}</option>`).join("")}</select>
       ${e.phone ? `<a class="btn green sm" target="_blank" href="${waLink(e.phone, `أهلاً ${e.name || ""}، معاك إفرست للدهانات بخصوص ${t[1]} اللي بعته من الموقع.`)}">واتساب العميل</a><a class="btn light sm" href="tel:${esc(e.phone)}">اتصال</a>` : ""}
+    </div>
+  </div>`;
+}
+/* صندوق الدفع في كارت الطلب: الحالة + السعر النهائي + طلب الدفع على واتساب */
+function payHTML(e) {
+  const y = e.pay; if (!y) return "";
+  const md = PAY_MODE[y.mode] || ["•", y.mode || "-", "grey"], st = y.status || "لم يدفع";
+  const fin = y.final ?? (y.mode === "instant" ? e.total : ""), paid = +y.paid || 0;
+  const rest = fin !== "" && fin != null ? Math.max(0, +fin - paid) : null;
+  return `<div class="paycard ${st === "مدفوع بالكامل" ? "done" : ""}" data-payid="${esc(e.id)}">
+    <div class="pc-top">
+      <span class="pill ${md[2]}">${md[0]} ${md[1]}</span>
+      <span class="pill grey">${esc(PAY_METHOD[y.method] || y.method || "-")}</span>
+      ${y.no ? `<span class="pill grey" dir="ltr">${esc(y.no)}</span>` : ""}
+      ${y.mode === "mixed" ? `<span class="hint">${y.split === "now" ? "العميل اختار يدفع الجاهز الأول" : "العميل اختار يدفع كله بعد التأكيد"}</span>` : ""}
+      ${y.requested_at ? `<span class="hint">· اتبعت طلب دفع ${ago(y.requested_at)}</span>` : ""}
+    </div>
+    <div class="pc-grid">
+      <label><span>حالة الدفع</span><select class="in" data-pay-st>${PAY_ST.map(s => `<option ${s === st ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+      <label><span>${y.due_now ? `مطلوب وقت الطلب: <b>${money(y.due_now)}</b>` : "مطلوب وقت الطلب: —"}</span><span class="hint">${y.fixed ? "الجزء الثابت: " + money(y.fixed) : ""}</span></label>
+      <label><span>الإجمالي النهائي (بعد التأكيد)</span><input class="in" type="number" min="0" step="1" data-pay-final value="${esc(fin ?? "")}" placeholder="اكتب السعر النهائي"></label>
+      <label><span>المدفوع لحد دلوقتي</span><input class="in" type="number" min="0" step="1" data-pay-paid value="${paid || ""}" placeholder="0"></label>
+    </div>
+    <div class="pc-foot">
+      <span class="pc-rest">${rest == null ? "اكتب الإجمالي النهائي عشان تبعت طلب الدفع" : rest > 0 ? `المتبقي: <b>${money(rest)}</b>` : `<b style="color:var(--ok)">✓ مفيش متبقي</b>`}</span>
+      ${e.phone && y.method !== "cod" ? `<button class="btn sm" data-pay-req ${rest > 0 ? "" : "disabled"}>📲 ابعت طلب الدفع على واتساب</button>` : ""}
+      <button class="btn light sm" data-pay-save>حفظ</button>
     </div>
   </div>`;
 }
@@ -662,7 +710,7 @@ const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").repl
 const uniqueId = base => { let id = slug(base), n = 2; while (D.products.some(p => p.id === id)) id = slug(base) + "-" + n++; return id };
 
 /* ================= عناصر قابلة للتعديل (باقات/آراء/أكواد/إعدادات) ================= */
-function setPath(path, val) { const k = path.split("."); let o = D; for (let i = 0; i < k.length - 1; i++) o = o[k[i]]; o[k[k.length - 1]] = val }
+function setPath(path, val) { const k = path.split("."); let o = D; for (let i = 0; i < k.length - 1; i++) o = o[k[i]] = o[k[i]] || {}; o[k[k.length - 1]] = val }
 const fld = (path, label, val, type = "text", extra = "") => `<label class="f"><span>${label}</span><input class="in" type="${type}" data-p="${path}" ${type === "number" ? 'data-t="num"' : ""} value="${esc(val ?? "")}" ${extra}></label>`;
 document.addEventListener("input", e => {
   const el = e.target;
@@ -693,6 +741,9 @@ home() {
   return `
   ${IMPORT ? `<div class="notice blue">أول مرة مع Supabase: المنتجات والأسعار والإعدادات الحالية جاهزة للنقل. اضغط "حفظ على الموقع" عشان تتنقل كلها لقاعدة البيانات.</div>` : ""}
   ${dirty() ? `<div class="notice warn">● عندك تعديلات لسه ما اتنشرتش على الموقع.<button class="btn sm" onclick="$('#publishBtn').click()">${MODE === "api" ? "نشر الآن" : "تنزيل الملف"}</button></div>` : ""}
+  ${(() => { const P = payCfg(), age = daysSince(S.priceUpdated); return P.instant !== false && age != null && age >= (+P.staleDays || 30)
+    ? `<div class="notice warn">⚠ الأسعار آخر تحديث ليها من ${num(age)} يوم والدفع الفوري شغال. راجع الأسعار، أو اقفل الدفع الفوري مؤقتاً لحد ما تحدّثها.<button class="btn sm" data-go="products">مراجعة الأسعار</button><button class="btn light sm" data-go="settings">إعدادات الدفع</button></div>` : "" })()}
+  ${EVENTS && EVS().filter(unpaid).length ? `<div class="notice blue">💳 عندك ${num(EVS().filter(unpaid).length)} طلب مستني دفع.<button class="btn sm" data-go="events" data-etype="unpaid">عرضهم</button></div>` : ""}
   <div class="kpis">
     <button class="kpi" data-go="events" data-etype="all"><small>طلبات وحجوزات جديدة</small><b>${newEv == null ? "—" : num(newEv)}</b><span class="sub">${MODE === "api" ? "محتاجة تتواصل معاها" : "بتظهر هنا لما الموقع يبقى على الاستضافة"}</span></button>
     <button class="kpi" data-go="events" data-etype="order"><small>طلبات الشهر</small><b>${EVENTS ? num(ordersM.length) : "—"}</b><span class="sub">${EVENTS ? "بقيمة تقريبية " + money(sales) : ""}</span></button>
@@ -716,9 +767,9 @@ events() {
   if (MODE !== "api") return `<div class="notice blue">الطلبات والحجوزات حالياً بتوصلك على واتساب بس. لما الموقع يترفع على استضافة فيها PHP، كل طلب وحجز هيتسجل هنا وتقدر تتابع حالته.<button class="btn sm" data-go="guide">إزاي؟</button></div>`;
   if (!KEY) return `<div class="empty">الطلبات محمية. <button class="btn sm" onclick="askKey().catch(()=>{})">اكتب كلمة السر مرة واحدة لعرضها</button></div>`;
   if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
-  const cnt = t => EVS().filter(e => t === "all" || e.type === t).length;
-  let list = EVS().filter(e => (eType === "all" || e.type === eType) && (eStatus === "all" || e.status === eStatus) && (!eQ || (e.name + e.phone + e.details + e.area).toLowerCase().includes(eQ)));
-  return `<div class="filters">${[["all", "الكل"], ...Object.entries(TYPES).map(([k, v]) => [k, v[1]])].map(([k, n]) => `<button class="chip ${eType === k ? "on" : ""}" data-et="${k}">${n}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
+  const cnt = t => EVS().filter(e => t === "all" || (t === "unpaid" ? unpaid(e) : e.type === t)).length;
+  let list = EVS().filter(e => (eType === "all" || (eType === "unpaid" ? unpaid(e) : e.type === eType)) && (eStatus === "all" || e.status === eStatus) && (!eQ || (e.name + e.phone + e.details + e.area).toLowerCase().includes(eQ)));
+  return `<div class="filters">${[["all", "الكل"], ["unpaid", "💳 مستني دفع"], ...Object.entries(TYPES).map(([k, v]) => [k, v[1]])].map(([k, n]) => `<button class="chip ${eType === k ? "on" : ""}" data-et="${k}">${n}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
   <div class="toolbar">
     <input class="in" id="eQ" placeholder="ابحث بالاسم أو الرقم أو المنتج…" value="${esc(eQ)}">
     <select class="in" id="eStatus" style="max-width:180px"><option value="all">كل الحالات</option>${STATUSES.map(s => `<option ${s === eStatus ? "selected" : ""}>${s}</option>`).join("")}</select>
@@ -879,6 +930,25 @@ settings() {
       ${fld("settings.samplePrice", "سعر عيّنة اللون (فاضي = مجاناً)", s.samplePrice, "number", 'data-null="1"')}
       <label class="f" style="grid-column:1/-1"><span>ملاحظة الأسعار اللي بتظهر للعملاء</span><input class="in" data-p="settings.priceNote" value="${esc(s.priceNote || "")}"></label>
     </div></div>
+    ${(() => { const P = payCfg(), age = daysSince(s.priceUpdated), sw = (k, label, hint) => `<label class="switch pay-sw"><input type="checkbox" data-p="settings.pay.${k}" ${P[k] !== false ? "checked" : ""}><i></i><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ""}</span></label>`;
+      return `<div class="card" style="margin-bottom:16px" id="payCard"><h3>💳 الدفع: إنستاباي وفودافون كاش</h3>
+      <div class="notice ${P.instant !== false ? "blue" : "warn"}" style="margin-bottom:14px">${P.instant !== false
+        ? "✓ <b>الدفع الفوري شغال:</b> الأبيض والألوان الجاهزة وأي منتج ليه سعر ومش «ألوان خاصة» العميل بيدفعه وقت الطلب. المنتجات اللي بتتلوّن بتتدفع بعد ما تأكد السعر."
+        : "⏸ <b>الدفع الفوري متوقف:</b> كل الطلبات دلوقتي بتتحول لـ«بعد التأكيد» لحد ما تشغّله تاني."}</div>
+      <div class="pay-sws">
+        ${sw("instant", "الدفع الفوري للمنتجات ذات السعر الثابت", "اقفله وقت ما الأسعار بتتغير ولسه ما حدّثتهاش")}
+        ${sw("instapay", "إنستاباي")}${sw("vf", "فودافون كاش")}${sw("cod", "كاش عند الاستلام")}
+      </div>
+      <div class="grid g3" style="margin-top:14px">
+        <label class="f"><span>رابط الدفع بإنستاباي</span><input class="in" dir="ltr" data-p="settings.pay.instapayUrl" value="${esc(P.instapayUrl)}" placeholder="https://ipn.eg/S/…"></label>
+        <label class="f"><span>عنوان إنستاباي (اختياري – بيتطلع من الرابط لوحده)</span><input class="in" dir="ltr" data-p="settings.pay.instapayId" value="${esc((s.pay || {}).instapayId || "")}" placeholder="${esc(P.instapayId || "name@instapay")}"></label>
+        <label class="f"><span>رابط فودافون كاش</span><input class="in" dir="ltr" data-p="settings.pay.vfUrl" value="${esc(P.vfUrl)}" placeholder="http://vf.eg/vfcash?…"></label>
+        <label class="f"><span>رقم فودافون كاش (اختياري)</span><input class="in" dir="ltr" data-p="settings.pay.vfNumber" value="${esc(P.vfNumber)}" placeholder="010xxxxxxxx"></label>
+        <label class="f"><span>نبّهني لو الأسعار ما اتحدّثتش من (يوم)</span><input class="in" type="number" min="1" data-t="num" data-p="settings.pay.staleDays" value="${esc(P.staleDays)}"></label>
+        <div class="f"><span>آخر تحديث للأسعار</span><b style="padding:10px 0">${s.priceUpdated ? `${new Date(s.priceUpdated).toLocaleDateString("ar-EG", {day: "numeric", month: "long", year: "numeric"})} (منذ ${num(age)} يوم)` : "لسه مسجّلش – بيتسجل لوحده أول ما تعدّل أي سعر"}</b></div>
+      </div>
+      <p class="hint" style="margin-top:10px">العميل بيشوف الرابط والعنوان بعد ما يأكد طلبه بس، ومش ظاهرين في أي مكان تاني في المتجر. التعديلات بتشتغل بعد «حفظ على الموقع».</p>
+    </div>` })()}
     <div class="card" style="margin-bottom:16px"><h3>صفحات التواصل الاجتماعي</h3>
       <p class="hint" style="margin-bottom:12px">كل المنصات ظاهرة في الشريط الأزرق في المتجر. المنصة اللي مالهاش رابط بتظهر باهتة ومش بتفتح، وأول ما تحط رابطها وتحفظ بتشتغل. الرابط لازم يبدأ بـ https://</p>
       <div class="grid g3">${[["facebook", "فيسبوك", "https://facebook.com/…"], ["instagram", "إنستجرام", "https://instagram.com/…"], ["tiktok", "تيك توك", "https://tiktok.com/@…"], ["youtube", "يوتيوب", "https://youtube.com/@…"], ["whatsapp", "واتساب (اختياري – بيستخدم رقم الطلبات لو فاضي)", "https://wa.me/…"], ["x", "إكس (تويتر)", "https://x.com/…"], ["snapchat", "سناب شات", "https://snapchat.com/add/…"], ["threads", "ثريدز", "https://threads.net/@…"], ["telegram", "تيليجرام", "https://t.me/…"], ["linkedin", "لينكد إن", "https://linkedin.com/company/…"], ["pinterest", "بنترست", "https://pinterest.com/…"]]
@@ -942,7 +1012,7 @@ guide() {
 
 /* ================= تفاعلات كل شاشة ================= */
 const AFTER = {
-home() { bindProducts(); const b = $("#dlOnce"); if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click() } },
+home() { bindProducts(); if (EVENTS) bindStatus();const b = $("#dlOnce"); if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click() } },
 events() {
   $$("[data-et]").forEach(b => b.onclick = () => { eType = b.dataset.et; go("events") });
   const q = $("#eQ"); if (!q) return;
@@ -1039,14 +1109,14 @@ guide() { const b = $("#copySql"); if (b) b.onclick = async () => { try { await 
 };
 function bindProducts() {
   $$("[data-price]").forEach(el => el.oninput = () => {
-    const i = +el.dataset.price, p = D.products[i]; p.price = el.value === "" ? null : +el.value;
+    const i = +el.dataset.price, p = D.products[i]; p.price = el.value === "" ? null : +el.value; D.settings.priceUpdated = new Date().toISOString();
     $$(`[data-packs="${i}"]`).forEach(x => x.innerHTML = packsHTML(p));
     el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
     changed();
   });
   $$("[data-pkprice]").forEach(el => el.oninput = () => {
     const [i, j] = el.dataset.pkprice.split(":").map(Number), p = D.products[i];
-    p.packs[j].p = el.value === "" ? null : +el.value;
+    p.packs[j].p = el.value === "" ? null : +el.value; D.settings.priceUpdated = new Date().toISOString();
     el.closest(".price-in").style.cssText = p.packs[j].p == null ? "border-color:#e9b949;background:#fffbf0" : "";
     el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
     changed();
@@ -1056,7 +1126,47 @@ function bindProducts() {
   $$("[data-dup]").forEach(b => b.onclick = () => { const src = D.products[+b.dataset.dup], c = JSON.parse(JSON.stringify(src)); c.id = uniqueId(src.id + "-copy"); c.ar = src.ar + " (نسخة)"; c.best = false; D.products.splice(+b.dataset.dup + 1, 0, c); changed(); go(view); openEditor(+b.dataset.dup + 1) });
   $$("[data-del]").forEach(b => b.onclick = () => { const p = D.products[+b.dataset.del]; if (!confirm(`حذف "${p.ar}" نهائياً؟\n(لو عايز تخفيه بس، اقفل "ظاهر")`)) return; D.products.splice(+b.dataset.del, 1); changed(); go(view) });
 }
+function bindPay() {
+  $$("[data-payid]").forEach(card => {
+    const e = EVENTS.find(x => x.id === card.dataset.payid); if (!e || !e.pay) return;
+    const read = () => {
+      const f = card.querySelector("[data-pay-final]").value, p = card.querySelector("[data-pay-paid]").value;
+      const pay = Object.assign({}, e.pay, {status: card.querySelector("[data-pay-st]").value, final: f === "" ? null : +f, paid: p === "" ? 0 : +p});
+      /* الحالة بتتظبط لوحدها من المبالغ */
+      if (pay.final != null && pay.paid >= pay.final && pay.paid > 0) pay.status = "مدفوع بالكامل";
+      else if (pay.paid > 0 && pay.status === "لم يدفع") pay.status = "دفع جزء";
+      return pay;
+    };
+    /* المتبقي وزرار طلب الدفع بيتحدّثوا وإنت بتكتب */
+    const live = () => { const y = read(), rest = y.final == null ? null : Math.max(0, y.final - (y.paid || 0)), r = card.querySelector(".pc-rest"), b = card.querySelector("[data-pay-req]");
+      r.innerHTML = rest == null ? "اكتب الإجمالي النهائي عشان تبعت طلب الدفع" : rest > 0 ? `المتبقي: <b>${money(rest)}</b>` : `<b style="color:var(--ok)">✓ مفيش متبقي</b>`; if (b) b.disabled = !(rest > 0) };
+    card.querySelectorAll("[data-pay-final],[data-pay-paid]").forEach(i => i.oninput = live);
+    const persist = async (pay, msg) => {
+      const old = e.pay; e.pay = pay;
+      try { const r = await api("pay", {id: e.id, pay}); if (!r.ok) throw 0; toast(msg || "تم الحفظ ✓"); refreshBadges(); go(view) }
+      catch (err) { e.pay = old; toast("تعذّر الحفظ – اتأكد إنك شغّلت تحديث قاعدة البيانات (supabase-payments.sql)") }
+    };
+    card.querySelector("[data-pay-save]").onclick = () => persist(read());
+    card.querySelector("[data-pay-st]").onchange = () => {
+      const pay = read(); if (pay.status === "مدفوع بالكامل" && pay.final != null && !pay.paid) pay.paid = pay.final;
+      persist(pay, "تم تحديث حالة الدفع ✓");
+    };
+    const req = card.querySelector("[data-pay-req]");
+    if (req) req.onclick = () => {
+      const pay = read(), P = payCfg(); if (pay.final == null) return toast("اكتب الإجمالي النهائي الأول");
+      const rest = Math.max(0, pay.final - (pay.paid || 0)); if (!rest) return toast("مفيش مبلغ متبقي");
+      const how = [
+        P.instapay !== false && (P.instapayUrl || P.instapayId) ? [`⚡ إنستاباي${P.instapayId ? ": " + P.instapayId : ""}`, P.instapayUrl].filter(Boolean).join("\n") : "",
+        P.vf !== false && (P.vfUrl || P.vfNumber) ? [`📱 فودافون كاش${P.vfNumber ? ": " + P.vfNumber : ""}`, P.vfUrl].filter(Boolean).join("\n") : ""
+      ].filter(Boolean).join("\n\n");
+      const msg = `أهلاً ${e.name || ""} 👋\nمعاك إفرست للدهانات بخصوص طلبك${pay.no ? ` رقم ${pay.no}` : ""}.\n\nالإجمالي النهائي بعد التأكيد: ${money(pay.final)}${pay.paid ? `\nالمدفوع: ${money(pay.paid)}` : ""}\nالمطلوب دفعه: ${money(rest)}\n\nتقدر تدفع عن طريق:\n${how}\n\nمن فضلك اكتب رقم الطلب في ملاحظة التحويل وابعتلنا صورة التحويل هنا. شكراً لثقتك 🙏`;
+      window.open(waLink(e.phone, msg), "_blank");
+      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), "اتفتح واتساب برسالة طلب الدفع ✓");
+    };
+  });
+}
 function bindStatus() {
+  bindPay();
   $$("[data-status]").forEach(s => s.onchange = async () => {
     const e = EVENTS.find(x => x.id === s.dataset.status); const old = e.status; e.status = s.value; refreshBadges();
     try { const r = await api("status", {id: e.id, status: s.value}); if (!r.ok) throw 0; toast("تم تحديث الحالة ✓"); s.closest(".ev").classList.toggle("new", e.status === "جديد") } catch (err) { e.status = old; s.value = old; toast("تعذّر التحديث") }
