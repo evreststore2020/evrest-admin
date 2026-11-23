@@ -244,7 +244,7 @@ const packLbl = k => `${num(k.s)} ${k.u === "كجم" ? "كجم" : "لتر"}${k.v
 const TYPES = {order: ["🛒", "طلب شراء", "blue"], booking: ["📅", "حجز معاينة", "ok"], package: ["🏠", "طلب باقة", "warn"], wholesale: ["🏗️", "تسجيل مقاول", "grey"], colour_combo: ["🎨", "تنسيق ألوان", "grey"], contact: ["✉️", "تواصل", "grey"]};
 const STATUSES = ["جديد", "تم التواصل", "جاري التنفيذ", "مكتمل", "ملغي"];
 /* الدفع (لازم يطابق الافتراضي في assets/app.js) */
-const PAY_DEF = {instant: true, instapay: true, vf: true, cod: true, instapayUrl: "https://ipn.eg/S/hanynagehgreece/instapay/9oN3kI", instapayId: "", vfUrl: "http://vf.eg/vfcash?id=mt&qrId=cKYVtm", vfNumber: "", staleDays: 30};
+const PAY_DEF = {instant: true, instapay: true, vf: true, cod: false, instapayUrl: "https://ipn.eg/S/hanynagehgreece/instapay/9oN3kI", instapayId: "", vfUrl: "http://vf.eg/vfcash?id=mt&qrId=cKYVtm", vfNumber: "", staleDays: 30};
 const payCfg = () => { const p = Object.assign({}, PAY_DEF, (D && D.settings && D.settings.pay) || {}); if (!p.instapayId) { const m = String(p.instapayUrl || "").match(/\/S\/([^/]+)\/instapay/i); if (m) p.instapayId = m[1] + "@instapay" } return p };
 const PAY_ST = ["لم يدفع", "دفع جزء", "مدفوع بالكامل"];
 const PAY_MODE = {instant: ["⚡", "دفع فوري", "ok"], confirm: ["🎨", "بعد التأكيد", "warn"], mixed: ["◐", "مخلوط", "blue"]};
@@ -937,7 +937,7 @@ settings() {
         : "⏸ <b>الدفع الفوري متوقف:</b> كل الطلبات دلوقتي بتتحول لـ«بعد التأكيد» لحد ما تشغّله تاني."}</div>
       <div class="pay-sws">
         ${sw("instant", "الدفع الفوري للمنتجات ذات السعر الثابت", "اقفله وقت ما الأسعار بتتغير ولسه ما حدّثتهاش")}
-        ${sw("instapay", "إنستاباي")}${sw("vf", "فودافون كاش")}${sw("cod", "كاش عند الاستلام")}
+        ${sw("instapay", "إنستاباي")}${sw("vf", "فودافون كاش")}
       </div>
       <div class="grid g3" style="margin-top:14px">
         <label class="f"><span>رابط الدفع بإنستاباي</span><input class="in" dir="ltr" data-p="settings.pay.instapayUrl" value="${esc(P.instapayUrl)}" placeholder="https://ipn.eg/S/…"></label>
