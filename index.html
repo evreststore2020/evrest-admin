@@ -3,1209 +3,468 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>لوحة التحكم | إفرست للدهانات</title>
+<meta name="google-site-verification" content="hT0pZp204t503CJFt3G2N_K-_F3Vh9pm_ewA3xPTq9w" />
+<title>إفرست للدهانات | وكيل جوتن المعتمد بالقاهرة – المرج</title>
+<meta name="description" content="إفرست للدهانات والديكور – وكيل معتمد لدهانات جوتن في المرج، القاهرة. فينوماستيك وجوتاشيلد وتصميمات ليدي، كتالوج ألوان جوتن بالأكواد، مزج بالكمبيوتر، باقات دهان شقق كاملة ومعاينة مجانية.">
+<link rel="canonical" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://evreststore2020.github.io/everest-paints.github.io/everest-store/">
+<meta property="og:locale" content="ar_EG">
+<meta property="og:title" content="إفرست للدهانات | وكيل جوتن المعتمد بالقاهرة">
+<meta property="og:description" content="دهانات جوتن الأصلية، كتالوج ألوان كامل، باقات دهان شقق، ومعاينة مجانية في القاهرة.">
+<meta property="og:image" content="https://images.pexels.com/photos/6538933/pexels-photo-6538933.jpeg?auto=compress&cs=tinysrgb&w=1200">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--ink:#1f1f1f;--ink-2:#4d4d4d;--muted:#6b6b6b;--line:#e4e4e2;--bg:#f4f4f2;--card:#fff;--ok:#2e7d4f;--ok-bg:#e8f3ec;--warn:#9a6700;--warn-bg:#fff4d6;--red:#b3261e;--red-bg:#fbe9e7;--blue:#1d4f91;--blue-bg:#e8eff9}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Noto Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.7}
-button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
-input,select,textarea{font:inherit;color:inherit}
-a{color:inherit}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;font-weight:600;background:var(--ink-2);color:#fff;transition:.2s;white-space:nowrap}
-.btn:hover{background:var(--ink)}
-.btn.light{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.light:hover{border-color:var(--ink)}
-.btn.green{background:#25d366}.btn.green:hover{background:#1ebe5a}
-.btn.red{background:#fff;color:var(--red);border:1px solid #f0c9c5}.btn.red:hover{background:var(--red-bg)}
-.btn.sm{padding:6px 12px;font-size:13px}
-.btn:disabled{opacity:.5;cursor:default}
-.in,select.in,textarea.in{width:100%;padding:10px 12px;border:1px solid var(--line);background:#fff;border-radius:0}
-.in:focus{outline:none;border-color:var(--ink)}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-label.f > span b{color:var(--ink)}
-.hint{font-size:12px;color:var(--muted)}
-.grid{display:grid;gap:14px}
-.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media (max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr}}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;font-size:12px;font-weight:600;border-radius:99px;white-space:nowrap}
-.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.red{background:var(--red-bg);color:var(--red)}.pill.blue{background:var(--blue-bg);color:var(--blue)}.pill.grey{background:#eee;color:#555}
-.switch{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;user-select:none}
-.switch input{position:absolute;opacity:0}
-.switch i{width:38px;height:22px;background:#ccc;border-radius:99px;position:relative;transition:.2s;flex:none}
-.switch i::after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s}
-.switch input:checked + i{background:var(--ok)}
-.switch input:checked + i::after{right:19px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,100px);background:var(--ink);color:#fff;padding:12px 22px;transition:.35s;z-index:200}
-.toast.on{transform:translate(-50%,0)}
-
-/* ===== شاشة الدخول ===== */
-#login{min-height:100vh;display:grid;place-items:center;padding:20px}
-.login-card{background:#fff;width:min(520px,100%);padding:36px;display:flex;flex-direction:column;gap:16px}
-.login-card h1{font-weight:300;font-size:28px}
-.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-
-/* ===== الهيكل ===== */
-#app{display:none;min-height:100vh}
-.side{position:fixed;top:0;bottom:0;right:0;width:250px;background:var(--ink);color:#d9d9d9;display:flex;flex-direction:column;z-index:30}
-.side .brand{padding:22px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
-.side .brand b{display:block;color:#fff;font-size:18px;font-weight:600}
-.side .brand small{font-size:12px;color:#9a9a9a}
-.side nav{flex:1;overflow:auto;padding:10px 0}
-.side nav button{display:flex;align-items:center;gap:12px;width:100%;padding:11px 20px;text-align:right;font-size:15px;transition:.15s}
-.side nav button:hover{background:rgba(255,255,255,.06);color:#fff}
-.side nav button.on{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset -3px 0 0 #fff}
-.side nav button .ic{width:20px;text-align:center}
-.side nav button .badge{margin-inline-start:auto;background:#fff;color:var(--ink);font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}
-.side nav button .badge.warn{background:#f6c344}
-.side .foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:#9a9a9a;display:flex;flex-direction:column;gap:6px}
-.side .foot a,.side .foot button{color:#d9d9d9;text-align:right}
-.main{margin-right:250px;min-height:100vh;display:flex;flex-direction:column}
-.top{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 28px;flex-wrap:wrap}
-.top h2{font-size:20px;font-weight:600;margin-inline-end:auto}
-.pub-state{display:flex;align-items:center;gap:8px;font-size:13px}
-.content{padding:28px;flex:1;max-width:1300px;width:100%}
-.menu-toggle{display:none}
-@media (max-width:900px){
-  .side{transform:translateX(100%);transition:.3s;width:270px}
-  .side.open{transform:none;box-shadow:-10px 0 40px rgba(0,0,0,.2)}
-  .main{margin-right:0}
-  .menu-toggle{display:inline-flex}
-  .top{padding:10px 16px}.content{padding:16px}
-}
-
-/* ===== عناصر ===== */
-.card{background:var(--card);padding:22px;border:1px solid var(--line)}
-.card h3{font-size:17px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.vorder{margin-top:10px;border:1px dashed var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.vorder.on{border-style:solid;border-color:#cfd9ee;background:#f6f8fd}
-.vorder .vorder-prod{display:none}.vorder.on .vorder-prod{display:flex}
-.vorder p.vorder-prod{margin:0}
-.paycard{margin-top:10px;border:1px solid #cfd9ee;background:#f6f8fd;padding:12px 14px}
-.paycard.done{border-color:#bfe3cc;background:#f2fbf5}
-.pc-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.pc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.pc-grid label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
-.pc-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.pc-rest{margin-inline-end:auto;font-size:14px}
-.pay-sws{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.pay-sw{align-items:flex-start!important}
-.pay-sw span{display:flex;flex-direction:column;gap:2px}
-.pay-sw small{color:var(--muted);font-size:12px;font-weight:400}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}
-.kpi{background:#fff;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:4px;text-align:right;transition:.2s}
-button.kpi:hover{border-color:var(--ink)}
-.kpi small{color:var(--muted);font-size:13px}
-.kpi b{font-size:30px;font-weight:300;line-height:1.2}
-.kpi .sub{font-size:12px;color:var(--muted)}
-@media (max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
-.cols{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}
-@media (max-width:1000px){.cols{grid-template-columns:1fr}}
-.tasks{list-style:none;display:flex;flex-direction:column}
-.tasks li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-.tasks li:last-child{border:0}
-.tasks .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;flex:none}
-.tasks .dot.done{background:var(--ok-bg);color:var(--ok)}.tasks .dot.todo{background:var(--warn-bg);color:var(--warn)}
-.tasks li span{flex:1}
-.notice{padding:14px 16px;border:1px solid;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;font-size:14px}
-.notice.warn{background:var(--warn-bg);border-color:#f2d58a;color:#5e4500}
-.notice.blue{background:var(--blue-bg);border-color:#c5d6ef;color:#173c6d}
-.notice.ok{background:var(--ok-bg);border-color:#bfe0cb;color:#1f5a38}
-.notice .btn{margin-inline-start:auto}
-
-/* الأحداث */
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.chip{padding:6px 14px;border:1px solid var(--line);background:#fff;font-size:13px;transition:.15s}
-.chip:hover{border-color:var(--ink)}
-.chip.on{background:var(--ink-2);color:#fff;border-color:var(--ink-2)}
-.chip .n{opacity:.7;margin-inline-start:4px}
-.ev{background:#fff;border:1px solid var(--line);padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;margin-bottom:10px}
-.ev .ty{width:42px;height:42px;display:grid;place-items:center;font-size:20px;background:var(--bg)}
-.ev .who{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.ev .who b{font-size:16px}
-.ev pre{font-family:inherit;white-space:pre-wrap;font-size:14px;color:var(--ink-2);margin-top:6px;background:var(--bg);padding:10px 12px}
-.ev .acts{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:150px}
-.ev.new{border-right:3px solid var(--blue)}
-@media (max-width:700px){.ev{grid-template-columns:1fr}.ev .ty{display:none}.ev .acts{flex-direction:row;flex-wrap:wrap}}
-.empty{padding:40px;text-align:center;color:var(--muted);background:#fff;border:1px dashed #ccc}
-
-/* المنتجات */
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.toolbar .in{max-width:320px}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
-.pc{background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
-.pc.missing{border-color:#f2d58a;box-shadow:inset 0 3px 0 #f6c344}
-.pc.hidden-p{opacity:.65}
-.pc .im{height:150px;background:#ecece9;display:grid;place-items:center;position:relative}
-.pc .im img{height:85%;width:85%;object-fit:contain}
-.pc .im .sw{width:70px;height:84px;border-radius:6px}
-.pc .im .pill{position:absolute;top:10px;right:10px}
-.pc .bd{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1}
-.pc .nm b{display:block;font-size:15px;line-height:1.4}
-.pc .nm small{color:var(--muted);font-size:12px}
-.price-in{display:flex;align-items:center;border:1px solid var(--line);background:#fff}
-.price-in input{flex:1;min-width:0;border:0;padding:10px 12px;font-size:18px;font-weight:600}
-.price-in input:focus{outline:none}
-.price-in span{padding:0 12px;color:var(--muted);font-size:13px;white-space:nowrap}
-.price-in:focus-within{border-color:var(--ink)}
-.pc.missing .price-in{border-color:#e9b949;background:#fffbf0}
-.packs{display:flex;flex-wrap:wrap;gap:6px}
-.packs span{font-size:12px;background:var(--bg);padding:2px 8px}
-.pc .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.pc .ft{display:flex;gap:6px;border-top:1px solid var(--line);padding:10px 14px}
-
-/* المحرّر الجانبي */
-.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;display:none}
-.drawer-bg.on{display:block}
-.drawer{position:fixed;top:0;bottom:0;left:0;width:min(640px,100%);background:#fff;z-index:100;transform:translateX(-100%);transition:transform .35s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column}
-.drawer.on{transform:none}
-.drawer .hd{display:flex;align-items:center;gap:10px;padding:16px 22px;border-bottom:1px solid var(--line)}
-.drawer .hd b{font-size:18px;margin-inline-end:auto}
-.drawer .bd{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:18px}
-.drawer .ft{padding:14px 22px;border-top:1px solid var(--line);display:flex;gap:10px}
-.sec-t{font-size:13px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px}
-.prev{display:flex;gap:14px;align-items:center;background:var(--bg);padding:12px}
-.prev .im{width:84px;height:84px;background:#e6e6e3;display:grid;place-items:center;flex:none}
-.prev .im img{width:90%;height:90%;object-fit:contain}
-
-/* إضافة */
-.add-ways{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media (max-width:1000px){.add-ways{grid-template-columns:1fr}}
-.step{display:flex;gap:10px;align-items:flex-start}
-.step em{font-style:normal;width:26px;height:26px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:13px;flex:none}
-.guide ol{padding-right:20px;display:flex;flex-direction:column;gap:10px}
-.guide code{background:var(--bg);padding:1px 6px;font-family:Consolas,monospace;font-size:13px;direction:ltr;display:inline-block}
-.ed-item{background:#fff;border:1px solid var(--line);padding:18px;margin-bottom:14px}
-.ed-item .hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.ed-item .hd b{margin-inline-end:auto}
-</style>
+<link rel="stylesheet" href="assets/style.css">
+<script>if(document.visibilityState==="visible"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("fx")</script>
+<!-- يتم تحديث هذا الجزء تلقائياً بواسطة tools/build.js من data/store.json -->
+<script type="application/ld+json" id="ld-business">
+{"@context":"https://schema.org","@type":"PaintStore","@id":"https://evreststore2020.github.io/everest-paints.github.io/everest-store/#store","name":"إفرست للدهانات والديكور","url":"https://evreststore2020.github.io/everest-paints.github.io/everest-store/","telephone":"+201140860075","image":"https://images.pexels.com/photos/6538933/pexels-photo-6538933.jpeg?auto=compress&cs=tinysrgb&w=1200","address":{"@type":"PostalAddress","streetAddress":"شارع مؤسسة الزكاة، بركة النصر","addressLocality":"المرج","addressRegion":"القاهرة","addressCountry":"EG"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday"],"opens":"09:00","closes":"19:00"}],"brand":{"@type":"Brand","name":"Jotun"}}
+</script>
 </head>
 <body>
 
-<div id="login"><div class="login-card" id="lockBox"><h1>لوحة تحكم إفرست</h1><p class="hint" id="bootMsg">جاري التحميل…</p></div></div>
-
-<!-- ================= التطبيق ================= -->
-<div id="app">
-  <aside class="side" id="side">
-    <div class="brand"><b>إفرست للدهانات</b><small id="modeLbl"></small></div>
-    <nav id="nav">
-      <button data-v="home"><span class="ic">⌂</span>الرئيسية</button>
-      <button data-v="events"><span class="ic">🧾</span>الطلبات والنشاط<span class="badge" id="bdEvents" hidden></span></button>
-      <button data-v="customers"><span class="ic">👤</span>العملاء المسجلين<span class="badge" id="bdCust" hidden></span></button>
-      <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
-      <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
-      <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
-      <button data-v="packages"><span class="ic">🏠</span>الباقات</button>
-      <button data-v="reviews"><span class="ic">★</span>آراء العملاء</button>
-      <button data-v="codes"><span class="ic">%</span>أكواد الخصم</button>
-      <button data-v="settings"><span class="ic">⚙</span>الإعدادات</button>
-      <button data-v="guide"><span class="ic">?</span>الاستضافة والمساعدة</button>
+<header class="main" id="siteHeader">
+  <div class="util"><div class="wrap">
+    <a class="brand" href="#top" aria-label="إفرست للدهانات">
+      <span class="brand-mark">
+        <svg width="42" height="42" viewBox="0 0 40 40" aria-hidden="true"><path d="M3 31 14.5 14.5 20 22.5 26 31Z" fill="#7f9cc8"/><path d="M14.5 14.5 11.6 18.7 13.4 18 14.6 19.4 16 18.1 17.2 18.9Z" fill="#fff"/><path d="M11 31 24.5 9 37 31Z" fill="#003087"/><path d="M24.5 9 19.9 16.5 22.4 15.3 24.4 17.4 26.6 15.2 29.3 16.6Z" fill="#fff"/><path d="M24.5 9 24.5 31 37 31Z" fill="#000" opacity=".18"/><path d="M3 30.2H37V32.4C37 33.3 36.4 33.9 35.5 33.9C34.5 33.9 34 34.4 34 35.2V36.2A1 1 0 0 1 32 36.2V35.2C32 34.4 31.5 33.9 30.7 33.9H21C20.3 33.9 19.9 34.3 19.9 35V35.4A.95 .95 0 0 1 18 35.4V35C18 34.3 17.6 33.9 16.9 33.9H9.6C8.9 33.9 8.4 34.4 8.4 35.1V38.3A1.05 1.05 0 0 1 6.3 38.3V35.1C6.3 34.4 5.8 33.9 5.1 33.9H4.5C3.7 33.9 3 33.2 3 32.4Z" fill="#d9a441"/></svg>
+      </span>
+      <span><b>إفرست للدهانات</b><small>والديكور</small></span>
+    </a>
+    <div class="util-links">
+      <a href="#contact" class="ulink hide-sm">احجز معاينة</a>
+      <a href="tel:+201140860075" dir="ltr" class="ulink hide-sm">0114 086 0075</a>
+      <div class="dealer-badge"><span>وكيل معتمد</span><img class="jotun-logo" id="jotunLogo" src="assets/jotun-logo.svg" alt="Jotun – وكيل معتمد"></div>
+    </div>
+  </div></div>
+  <div class="navrow"><div class="wrap">
+    <nav class="links" id="nav">
+      <a href="#colours">الألوان</a>
+      <a href="#shop">المنتجات</a>
+      <a href="#packages">الباقات</a>
+      <a href="#calc">الحاسبة</a>
+      <a href="#videos" id="navVideos">الفيديوهات</a>
+      <a href="#pro">للمقاولين</a>
+      <a href="#reviews">آراء العملاء</a>
     </nav>
-    <div class="foot">
-      <a href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/" target="_blank" rel="noopener">فتح المتجر ↗</a>
-      <button id="logout">تسجيل الخروج</button>
+    <div class="socials" id="socials" aria-label="صفحاتنا على وسائل التواصل"></div>
+    <div class="nav-icons">
+      <a href="#contact" class="hide-sm" title="موقعنا واحجز معاينة" aria-label="موقعنا"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.5"/></svg><span class="lbl">موقعنا</span></a>
+      <a href="#colours" id="searchLink" title="ابحث عن لون" aria-label="ابحث عن لون"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="lbl">ابحث عن لون</span></a>
+      <button class="cart-btn" id="openCart" aria-label="سلة المشتريات" title="السلة"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6h15l-1.5 9h-12L6 6Zm0 0L5 3H2"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg><span class="lbl">السلة</span><span class="cart-count" id="cartCount">0</span></button>
+      <button class="menu-btn" id="menuBtn" aria-label="القائمة"><svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
-  </aside>
-  <div class="main">
-    <div class="top">
-      <button class="btn light sm menu-toggle" id="menuT">☰</button>
-      <h2 id="vTitle"></h2>
-      <div class="pub-state" id="pubState"></div>
-      <button class="btn light" id="previewBtn">معاينة</button>
-      <button class="btn" id="publishBtn"></button>
+  </div></div>
+</header>
+
+<section class="hero" id="top">
+  <img class="bg" src="https://images.pexels.com/photos/6538933/pexels-photo-6538933.jpeg?auto=compress&cs=tinysrgb&h=1200&w=2000" alt="">
+  <div class="wrap">
+    <span class="chip">وكيل جوتن المعتمد في القاهرة</span>
+    <h1>لون يليق ببيتك</h1>
+    <p>أكثر من 900 لون من كتالوج جوتن بمزج دقيق بالكمبيوتر، ومنتجات أصلية، وتنفيذ احترافي من أول معاينة لآخر لمسة.</p>
+    <div class="ctas">
+      <a href="#colours" class="btn btn-white">اكتشف الألوان</a>
+      <a href="#packages" class="btn btn-ghost">باقات دهان الشقق</a>
     </div>
-    <div class="content" id="view"></div>
+    <div class="rating" id="heroRating" hidden></div>
+  </div>
+  <span class="scroll-cue" aria-hidden="true"></span>
+</section>
+
+<!-- ============ أفكار الغرف ============ -->
+<section class="reveal">
+  <div class="wrap">
+    <div class="sec-head center"><h2 class="title">استكشف أفكار الألوان لكل مساحة</h2></div>
+    <div class="circles">
+      <a class="circle" href="#viz"><span class="img"><img loading="lazy" src="https://images.pexels.com/photos/7746462/pexels-photo-7746462.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop" alt="غرفة نوم"></span><span>غرفة نوم</span></a>
+      <a class="circle" href="#viz"><span class="img"><img loading="lazy" src="https://images.pexels.com/photos/6538933/pexels-photo-6538933.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop" alt="غرفة معيشة"></span><span>غرفة المعيشة</span></a>
+      <a class="circle" href="#packages"><span class="img"><img loading="lazy" src="https://images.pexels.com/photos/2029685/pexels-photo-2029685.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop" alt="شقة كاملة"></span><span>شقة كاملة</span></a>
+      <a class="circle" href="#shop" data-goto-cat="exterior"><span class="img"><img loading="lazy" src="https://images.pexels.com/photos/36284862/pexels-photo-36284862.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop" alt="واجهات"></span><span>الواجهات</span></a>
+      <a class="circle" href="#shop" data-goto-cat="deco"><span class="img"><img loading="lazy" src="https://images.pexels.com/photos/34909557/pexels-photo-34909557.jpeg?auto=compress&cs=tinysrgb&w=320&h=320&fit=crop" alt="تأثيرات ديكورية"></span><span>تأثيرات ديكورية</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ عائلات الألوان ============ -->
+<section class="reveal" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head center"><h2 class="title">اكتشف درجات ألوان جوتن</h2></div>
+    <div class="fam-circles" id="famCircles"></div>
+    <div class="center" style="margin-top:32px"><a class="arrow-link" href="#colours"><i>←</i>عرض كل الألوان</a></div>
+  </div>
+</section>
+
+<!-- ============ داخلي / خارجي ============ -->
+<section class="reveal" style="padding-top:0">
+  <div class="wrap duo">
+    <a href="#shop" data-goto-cat="interior">
+      <span class="img"><img loading="lazy" src="https://images.pexels.com/photos/6538933/pexels-photo-6538933.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="دهانات داخلية"></span>
+      <span class="txt"><h3>دهانات داخلية</h3><p>فينوماستيك وتصميمات ليدي — ألوان وملمس يعبّروا عنك في كل غرفة.</p><span class="arrow-link"><i>←</i>تسوّق الداخلي</span></span>
+    </a>
+    <a href="#shop" data-goto-cat="exterior">
+      <span class="img"><img loading="lazy" src="https://images.pexels.com/photos/36284862/pexels-photo-36284862.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="دهانات خارجية"></span>
+      <span class="txt"><h3>دهانات خارجية</h3><p>جوتاشيلد لحماية الواجهات من الشمس والأتربة بألوان ثابتة لسنين.</p><span class="arrow-link"><i>←</i>تسوّق الخارجي</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ============ الأكثر طلباً ============ -->
+<section class="reveal" style="padding-top:0">
+  <div class="wrap">
+    <div class="slider-head"><h2>المنتجات الأكثر طلباً</h2><div class="arrows"><button id="slPrev" aria-label="السابق">→</button><button id="slNext" aria-label="التالي">←</button></div></div>
+    <div class="slider products" id="bestSlider"></div>
+  </div>
+</section>
+
+<!-- ============ بلوك تحريري ============ -->
+<section class="reveal" style="padding-top:0">
+  <div class="wrap">
+    <div class="editorial">
+      <div class="txt">
+        <span>باقات إفرست</span>
+        <h2>دهان شقتك كاملة… خامات جوتن وتنفيذ في باقة واحدة</h2>
+        <p>من المعاينة والقياس لحد آخر لمسة: معجون، برايمر، طبقتين فينوماستيك، ومزج ألوانك بالكمبيوتر. اكتب مساحة شقتك واعرف الخامات المطلوبة فوراً.</p>
+        <a class="arrow-link" href="#packages"><i>←</i>اكتشف الباقات</a>
+      </div>
+      <div class="img"><img loading="lazy" src="https://images.pexels.com/photos/2029685/pexels-photo-2029685.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="شقة مدهونة بدهانات جوتن"></div>
+    </div>
+  </div>
+</section>
+
+<div class="trust">
+  <div class="wrap grid">
+    <div class="item"><span class="ic">🎨</span><div><b>مزج بالكمبيوتر</b><small>مطابقة دقيقة لأي لون</small></div></div>
+    <div class="item"><span class="ic">🛡️</span><div><b>منتجات أصلية 100%</b><small>من جوتن مباشرة</small></div></div>
+    <div class="item"><span class="ic">🚚</span><div><b>توصيل داخل القاهرة</b><small>اسأل عن المواعيد</small></div></div>
+    <div class="item"><span class="ic">👷</span><div><b>+15 سنة خبرة</b><small>+2000 مشروع منجز</small></div></div>
   </div>
 </div>
 
-<div class="drawer-bg" id="dBg"></div>
-<aside class="drawer" id="drawer"><div class="hd"><b id="dTitle"></b><button class="btn light sm" id="dClose">✕</button></div><div class="bd" id="dBody"></div><div class="ft" id="dFoot"></div></aside>
+<!-- ============ المتجر ============ -->
+<section id="shop">
+  <div class="wrap">
+    <div class="sec-head center">
+      <div class="eyebrow">المتجر</div>
+      <h2 class="title">تسوّق دهانات جوتن حسب الاستخدام</h2>
+      <p class="lead">تشكيلة جوتن مصر الحالية — فينوماستيك للداخلي، ليدي للتأثيرات، وجوتاشيلد للواجهات — بعبواتها المتاحة.</p>
+    </div>
+    <div class="cats" id="cats"></div>
+    <div style="height:32px"></div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="ابحث باسم المنتج… مثال: فينوماستيك، Jotashield">
+      </div>
+      <select id="sort" aria-label="ترتيب">
+        <option value="def">الترتيب الافتراضي</option>
+        <option value="asc">السعر: من الأقل</option>
+        <option value="desc">السعر: من الأعلى</option>
+      </select>
+    </div>
+    <div class="products" id="grid"></div>
+  </div>
+</section>
+
+<!-- ============ كتالوج الألوان ============ -->
+<section id="colours" style="background:var(--soft)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">كتالوج ألوان جوتن</div>
+      <h2 class="title">اختار لونك من <span id="colCount">900+</span> لون بالكود</h2>
+      <p class="lead">فلتر حسب العائلة اللونية أو ابحث بالكود والاسم. اطلب عيّنة اللون أو جرّبه على الحائط قبل ما تقرر.</p>
+    </div>
+    <div class="fam" id="fam"></div>
+    <div class="toolbar">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="colQ" type="search" placeholder="ابحث بالكود أو الاسم… مثال: 1140 أو ساند">
+      </div>
+      <span class="muted" id="colShown"></span>
+    </div>
+    <div class="col-layout">
+      <div>
+        <div class="swatches" id="swatches"></div>
+        <div class="more-row"><button class="btn btn-navy btn-sm" id="colMore">عرض المزيد</button></div>
+      </div>
+      <aside class="col-detail" id="colDetail">
+        <div class="big" id="cdBig"></div>
+        <div class="info">
+          <span class="muted" style="font-size:13px" id="cdFam"></span>
+          <h3 id="cdName"></h3>
+          <div class="code" id="cdCode"></div>
+          <button class="btn btn-primary" id="cdSample">اطلب عيّنة هذا اللون</button>
+          <button class="btn btn-ghost" style="color:var(--navy)" id="cdTry">جرّبه على الحائط</button>
+          <small class="muted">الألوان على الشاشة تقريبية. العيّنة الحقيقية هي المرجع قبل التنفيذ.</small>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الحاسبة ============ -->
+<section class="calc" id="calc">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow" style="color:var(--gold)">حاسبة الدهانات</div>
+      <h2 class="title">احسب الكمية والعبوات المناسبة</h2>
+      <p class="lead">أدخل مقاسات الغرفة أو الواجهة، وسنقترح عليك أنسب تركيبة عبوات من المنتج.</p>
+    </div>
+    <div class="calc-grid">
+      <div class="panel">
+        <div class="fields">
+          <div class="field"><label for="cL">الطول (م)</label><input id="cL" type="number" min="0" step="0.1" value="4"></div>
+          <div class="field"><label for="cW">العرض (م)</label><input id="cW" type="number" min="0" step="0.1" value="3.5"></div>
+          <div class="field"><label for="cH">الارتفاع (م)</label><input id="cH" type="number" min="0" step="0.1" value="2.8"></div>
+          <div class="field"><label for="cD">عدد الأبواب</label><input id="cD" type="number" min="0" value="1"></div>
+          <div class="field"><label for="cWin">عدد الشبابيك</label><input id="cWin" type="number" min="0" value="1"></div>
+          <div class="field"><label for="cCeil">دهان السقف؟</label><select id="cCeil"><option value="0">لا</option><option value="1">نعم</option></select></div>
+          <div class="field full"><label for="cP">المنتج</label><select id="cP"></select></div>
+          <div class="field full"><label>عدد الطبقات</label>
+            <div class="seg" id="coats"><button data-v="1">طبقة واحدة</button><button data-v="2" class="on">طبقتان</button><button data-v="3">3 طبقات</button></div>
+          </div>
+          <label class="check full"><input type="checkbox" id="cPrimer" checked> أضف برايمر تأسيس (طبقة واحدة)</label>
+        </div>
+      </div>
+      <div class="result">
+        <div class="row"><span>المساحة الصافية</span><b id="rA">–</b></div>
+        <div class="row"><span>الكمية المطلوبة</span><b id="rQ">–</b></div>
+        <div class="row"><span>العبوات المقترحة</span><b id="rPk">–</b></div>
+        <div class="row"><span>البرايمر</span><b id="rPr">–</b></div>
+        <div><span style="color:#b9cbe0">التكلفة التقريبية</span><div class="big" id="rC">–</div></div>
+        <button class="btn btn-primary" id="calcAdd">أضف العبوات للسلة</button>
+        <p class="note">* تقديرية بمعدل تغطية متوسط لكل منتج. الكمية النهائية تُحدد بعد المعاينة وحسب حالة السطح.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الباقات ============ -->
+<section id="packages">
+  <div class="wrap">
+    <div class="sec-head center">
+      <div class="eyebrow">باقات جاهزة</div>
+      <h2 class="title">دهان شقتك كاملة… خامات وتنفيذ</h2>
+      <p class="lead">اكتب مساحة الشقة واختار الباقة. هنحسب لك الخامات المطلوبة ونبعتلك عرض سعر نهائي بعد المعاينة.</p>
+    </div>
+    <div class="pk-bar">
+      <div class="field"><label for="pkArea">مساحة الشقة (م²)</label><input id="pkArea" type="number" min="20" step="5" value="100"></div>
+    </div>
+    <div class="pkgs" id="pkgs"></div>
+  </div>
+</section>
+
+<!-- ============ تجربة الألوان ============ -->
+<section id="viz" style="background:var(--soft)">
+  <div class="wrap viz-grid">
+    <div class="room">
+      <svg viewBox="0 0 800 520" aria-label="معاينة الغرفة">
+        <rect id="wall" x="0" y="0" width="800" height="400" fill="#cfc5b4"/>
+        <rect id="accentWall" x="470" y="0" width="330" height="400" fill="#717e79"/>
+        <rect x="0" y="400" width="800" height="120" fill="#b98f66"/>
+        <g opacity=".12" stroke="#000"><path d="M0 430h800M0 470h800M0 505h800"/></g>
+        <rect x="90" y="70" width="190" height="140" fill="#fff" stroke="#e8e8e8" stroke-width="10"/>
+        <rect x="105" y="85" width="160" height="110" fill="#c9dbe6"/>
+        <rect x="560" y="90" width="150" height="110" rx="4" fill="#f5efe6" stroke="#8b6a4a" stroke-width="6"/>
+        <rect x="80" y="300" width="370" height="100" rx="18" fill="#efe9df"/>
+        <rect x="80" y="260" width="370" height="60" rx="18" fill="#e6dfd3"/>
+        <rect x="100" y="400" width="14" height="22" fill="#5a4636"/><rect x="416" y="400" width="14" height="22" fill="#5a4636"/>
+        <rect x="140" y="272" width="80" height="50" rx="10" fill="#c8a96b"/>
+        <rect x="560" y="330" width="120" height="70" rx="6" fill="#3e3a36"/>
+        <circle cx="740" cy="330" r="22" fill="#4f7d4a"/><rect x="730" y="350" width="20" height="50" fill="#8b6a4a"/>
+      </svg>
+    </div>
+    <div>
+      <div class="eyebrow">جرّب الألوان</div>
+      <h2 class="title">تخيّل ألوان جوتن على جدرانك</h2>
+      <p class="lead" style="margin-bottom:14px">اختار لون الجدران والحائط المميز من الألوان المقترحة، أو اضغط "جرّبه على الحائط" من الكتالوج.</p>
+      <div class="seg" id="target" style="max-width:320px"><button data-v="wall" class="on">لون الجدران</button><button data-v="accentWall">الحائط المميز</button></div>
+      <div class="palette" id="palette"></div>
+      <div class="picked">
+        <div><i id="pw"></i><span><small>الجدران</small><b id="pwn"></b></span></div>
+        <div><i id="pa"></i><span><small>الحائط المميز</small><b id="pan"></b></span></div>
+      </div>
+      <a class="btn btn-wa" id="vizWa" target="_blank" rel="noopener">اطلب هذا التنسيق عبر واتساب</a>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head center">
+      <div class="eyebrow">خدماتنا</div>
+      <h2 class="title">من أول معاينة لآخر لمسة</h2>
+    </div>
+    <div class="svc">
+      <div class="s" style="background:var(--soft)"><div class="n">01</div><h3>معاينة وقياس</h3><p>زيارة ميدانية لقياس المساحات وفحص الجدران وتحديد احتياج التأسيس.</p></div>
+      <div class="s" style="background:var(--soft)"><div class="n">02</div><h3>استشارة ألوان</h3><p>تنسيق الألوان مع الديكور والإضاءة واختيار المنتج المناسب لكل مساحة.</p></div>
+      <div class="s" style="background:var(--soft)"><div class="n">03</div><h3>مزج بالكمبيوتر</h3><p>مزج دقيق بنظام جوتن لضمان مطابقة اللون وتكراره في أي كمية.</p></div>
+      <div class="s" style="background:var(--soft)"><div class="n">04</div><h3>تنفيذ وتشطيب</h3><p>فريق متخصص للدهانات الداخلية والخارجية والتأثيرات الديكورية.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="projects" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head center">
+      <div class="eyebrow">أعمالنا</div>
+      <h2 class="title">مشاريع نفّذناها بدهانات جوتن</h2>
+    </div>
+    <div class="proj" id="proj"></div>
+  </div>
+</section>
+
+<!-- ============ الفيديوهات ============ -->
+<section id="videos" hidden>
+  <div class="wrap">
+    <div class="slider-head">
+      <div><div class="eyebrow">الفيديوهات</div><h2 class="title" style="margin-bottom:0">شاهد أعمالنا ونصائح الدهان</h2></div>
+      <div class="arrows" id="vidArrows"><button id="vidPrev" aria-label="السابق">→</button><button id="vidNext" aria-label="التالي">←</button></div>
+    </div>
+    <div class="vids" id="vidList"></div>
+  </div>
+</section>
+<div class="vmodal" id="vModal" hidden>
+  <div class="vbox" id="vBox"><button class="vclose" id="vClose" aria-label="إغلاق">✕</button><div class="vframe" id="vFrame"></div><div class="vcap" id="vCap"></div></div>
+</div>
+
+<!-- ============ آراء العملاء ============ -->
+<section id="reviews" style="background:var(--soft)">
+  <div class="wrap">
+    <div class="rev-head">
+      <div>
+        <div class="eyebrow">آراء العملاء</div>
+        <h2 class="title">عملاؤنا بيقولوا إيه</h2>
+      </div>
+      <div class="g-score" id="gScore" hidden></div>
+    </div>
+    <div class="reviews" id="revList"></div>
+    <div style="text-align:center;margin-top:24px"><a class="btn btn-navy" id="revBtn" target="_blank" rel="noopener">اكتب تقييمك على جوجل</a></div>
+  </div>
+</section>
+
+<!-- ============ المقاولين والجملة ============ -->
+<section class="pro" id="pro">
+  <div class="wrap pro-grid">
+    <div>
+      <div class="eyebrow" style="color:var(--gold)">للمقاولين والجملة</div>
+      <h2 class="title">أسعار خاصة للمقاولين وشركات التشطيب</h2>
+      <ul>
+        <li>خصومات على الكميات وأسعار جملة ثابتة</li>
+        <li>كود خصم خاص تستخدمه في السلة مع كل طلب</li>
+        <li>أولوية في المزج والتجهيز والتوصيل للموقع</li>
+        <li>دعم فني ومواصفات وأوراق بيانات جوتن للمشاريع</li>
+      </ul>
+      <p style="color:#b9cbe0">سجّل بياناتك وسيتواصل معك فريق المبيعات لتفعيل حسابك وإرسال كود الخصم.</p>
+    </div>
+    <form class="panel" id="proForm">
+      <h3 style="color:var(--navy);margin-bottom:14px">تسجيل مقاول / شركة</h3>
+      <div class="fields">
+        <div class="field"><label>الاسم</label><input name="name" required></div>
+        <div class="field"><label>الشركة / المؤسسة</label><input name="company"></div>
+        <div class="field"><label>رقم الهاتف</label><input name="phone" type="tel" required pattern="[0-9+ ]{10,15}"></div>
+        <div class="field"><label>نوع النشاط</label><select name="type"><option>مقاول تشطيبات</option><option>شركة مقاولات</option><option>مكتب تصميم داخلي</option><option>تاجر تجزئة</option><option>أخرى</option></select></div>
+        <div class="field full"><label>الاستهلاك الشهري التقريبي</label><select name="volume"><option>أقل من 200 لتر</option><option>200 – 1000 لتر</option><option>أكثر من 1000 لتر</option></select></div>
+      </div>
+      <button class="btn btn-wa" style="margin-top:16px;width:100%">إرسال طلب التسجيل عبر واتساب</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head center"><div class="eyebrow">أسئلة شائعة</div><h2 class="title">عندك سؤال؟</h2></div>
+    <div class="faq">
+      <details><summary>هل المنتجات أصلية؟</summary><p>نعم، إفرست وكيل معتمد لجوتن، وكل المنتجات واردة من الشركة مباشرة بأكوادها الرسمية.</p></details>
+      <details><summary>ما أحجام العبوات المتاحة؟</summary><p>تختلف حسب المنتج: مثلاً فينوماستيك بيتي ناعم حريري متوفر 0.9 و2.7 و9 لتر، وجوتاشيلد ديكور 10 و20 لتر. الأحجام موضحة على كل منتج.</p></details>
+      <details><summary>هل يمكن مزج أي لون من كتالوج جوتن؟</summary><p>نعم، نمزج أي لون من كتالوج جوتن بالكمبيوتر، ويمكن مطابقة لون من عيّنة تحضرها.</p></details>
+      <details><summary>كيف أطلب عيّنة لون؟</summary><p>من كتالوج الألوان اضغط "اطلب عيّنة هذا اللون" وهتتضاف للسلة مع طلبك.</p></details>
+      <details><summary>هل يوجد توصيل؟</summary><p>نوفّر التوصيل داخل القاهرة. تواصل معنا على واتساب لمعرفة المواعيد والتكلفة حسب منطقتك.</p></details>
+      <details><summary>كيف أدفع؟</summary><p>الدفع أونلاين بـ<b>إنستاباي</b> أو <b>فودافون كاش</b>. المنتجات ذات السعر الثابت (الأبيض والألوان الجاهزة) بتدفعها وقت الطلب، والمنتجات اللي بتتلوّن حسب طلبك بتدفعها بعد ما نأكد معاك السعر النهائي على واتساب. بعد التحويل ابعتلنا صورة التحويل ورقم الطلب على واتساب وطلبك يتجهز. ولو بتشتري من المعرض تقدر تدفع هناك.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ الحجز ============ -->
+<section id="contact" style="background:var(--soft)">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">احجز معاينتك المجانية</div><h2 class="title">اختار اليوم والساعة المناسبين</h2></div>
+    <div class="contact-grid">
+      <div class="info">
+        <div class="box" style="background:#fff"><span class="ic">📍</span><div><b>العنوان</b><p>شارع مؤسسة الزكاة، بركة النصر، المرج، القاهرة<br>كود الموقع: 592C+QQ المرج</p></div></div>
+        <div class="box" style="background:#fff"><span class="ic">📞</span><div><b>الهاتف وواتساب</b><p><a href="tel:+201140860075" dir="ltr">0114 086 0075</a></p></div></div>
+        <div class="box" style="background:#fff"><span class="ic">⏰</span><div><b>مواعيد العمل</b><p>السبت – الخميس: 9:00 ص – 7:00 م<br><span id="openNow"></span></p></div></div>
+        <div class="map"><iframe loading="lazy" title="الموقع على الخريطة" src="https://www.google.com/maps?q=592C%2BQQ%20El%20Marg%2C%20Cairo&output=embed"></iframe></div>
+      </div>
+      <form class="form-panel" id="bookForm" style="background:#fff;border:1px solid var(--line)">
+        <h3 style="color:var(--navy);margin-bottom:12px">1. اختار اليوم</h3>
+        <div class="days" id="days"></div>
+        <h3 style="color:var(--navy);margin:18px 0 12px">2. اختار الساعة</h3>
+        <div class="slots" id="slots"></div>
+        <h3 style="color:var(--navy);margin:18px 0 12px">3. بياناتك</h3>
+        <div class="fields">
+          <div class="field"><label>الاسم</label><input name="name" required></div>
+          <div class="field"><label>رقم الهاتف</label><input name="phone" type="tel" required pattern="[0-9+ ]{10,15}"></div>
+          <div class="field"><label>المنطقة</label><input name="area" placeholder="مثال: المرج، عين شمس…"></div>
+          <div class="field"><label>نوع الخدمة</label>
+            <select name="svc" required><option value="">اختر الخدمة</option><option>معاينة وقياس بالموقع</option><option>استشارة ألوان وتنسيق</option><option>دهان شقة كاملة (باقة)</option><option>دهان داخلي</option><option>دهان خارجي / واجهات</option><option>تأثيرات ديكورية</option><option>دهانات صناعية / أرضيات</option></select></div>
+          <div class="field full"><label>تفاصيل إضافية</label><textarea name="msg" rows="2"></textarea></div>
+        </div>
+        <button class="btn btn-wa" style="margin-top:16px;width:100%">تأكيد الحجز عبر واتساب</button>
+        <small class="muted" style="display:block;text-align:center;margin-top:8px">سيؤكد فريقنا الموعد معك على واتساب.</small>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>إفرست للدهانات والديكور</h4>
+        <p>وكيل معتمد لمنتجات جوتن بالقاهرة. مزج ألوان بالكمبيوتر، منتجات أصلية، وتنفيذ احترافي.</p>
+      </div>
+      <div><h4>المتجر</h4><ul id="footProducts"></ul></div>
+      <div><h4>روابط</h4><ul><li><a href="#colours">كتالوج الألوان</a></li><li><a href="#packages">باقات الشقق</a></li><li><a href="#calc">حاسبة الدهان</a></li><li><a href="#pro">للمقاولين</a></li><li><a href="https://www.jotun.com/eg-ar/decorative" target="_blank" rel="noopener">موقع جوتن مصر</a></li></ul></div>
+      <div><h4>تواصل</h4><ul><li><a href="tel:+201140860075" dir="ltr">0114 086 0075</a></li><li><a href="https://wa.me/201140860075" target="_blank" rel="noopener">واتساب</a></li></ul></div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr"></span> إفرست للدهانات والديكور. جميع الحقوق محفوظة.</span>
+      <span>Jotun وشعارها وصور منتجاتها وأكواد ألوانها علامات تجارية مملوكة لشركة Jotun A/S، وتُستخدم بموجب اتفاقية الوكالة المعتمدة.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="سلة المشتريات">
+  <div class="hd"><b>سلة المشتريات</b><button class="x" id="closeCart" aria-label="إغلاق">✕</button></div>
+  <div class="items" id="items"></div>
+  <div class="ft">
+    <div class="sub"><span>المجموع</span><span id="subtotal">0 ج.م</span></div>
+    <div class="sub disc" id="discRow" hidden><span id="discLabel"></span><span id="discVal"></span></div>
+    <div class="tot"><span>الإجمالي التقريبي</span><span id="total">0 ج.م</span></div>
+    <small id="totNote" style="color:var(--accent);display:none">بعض المنتجات سعرها يُحدد عند التأكيد.</small>
+    <div class="code-row"><input id="codeIn" placeholder="كود خصم المقاولين"><button id="codeBtn">تطبيق</button></div>
+    <div class="fields">
+      <div class="field"><label>الاسم</label><input id="oName"></div>
+      <div class="field"><label>الهاتف</label><input id="oPhone" type="tel"></div>
+      <div class="field full"><label>العنوان / المنطقة</label><input id="oAddr"></div>
+      <div class="field full"><label>كود اللون (اختياري)</label><input id="oColor" placeholder="مثال: 1140"></div>
+    </div>
+    <button class="btn btn-wa" id="checkout">إرسال الطلب عبر واتساب</button>
+    <small style="color:var(--muted);text-align:center">سيتم تأكيد السعر النهائي والتوصيل من فريقنا.</small>
+  </div>
+</aside>
+
+<a class="fab" id="fab" href="https://wa.me/201140860075" target="_blank" rel="noopener" aria-label="واتساب">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.3 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.1.1.6-.1 1.2Z"/></svg>
+</a>
 <div class="toast" id="toast"></div>
 
 <script src="assets/config.js"></script>
 <script src="assets/supa.js"></script>
-<script>
-/* =====================================================================
-   لوحة تحكم إفرست
-   وضعين: (1) على الاستضافة مع api.php: حفظ فوري + سجل الطلبات + رفع الفيديوهات  (2) من غير سيرفر: تنزيل store.json
-   ===================================================================== */
-const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const num = n => (+n).toLocaleString("ar-EG");
-const money = n => Math.round(n).toLocaleString("ar-EG") + " ج.م";
-const IMG = (id, w = 240) => `https://cdn-pim.jotun.com/images/ProductImages/${id}/1300x1334/${id}.png?format=webp&width=${w}&quality=60`;
-const imgOf = (p, w) => p.img ? IMG(p.img, w) : p.image ? (/^https?:/.test(p.image) ? p.image : "https://evreststore2020.github.io/everest-paints.github.io/everest-store/" + p.image) : "";
-const ls = {get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch (e) { return d } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} }, del(k) { try { localStorage.removeItem(k) } catch (e) {} }};
-let tt; const toast = t => { $("#toast").textContent = t; $("#toast").classList.add("on"); clearTimeout(tt); tt = setTimeout(() => $("#toast").classList.remove("on"), 2600) };
-
-const CATS = {interior: "داخلية", deco: "تأثيرات ديكورية", exterior: "خارجية", prep: "تأسيس ومعاجين", wood: "دهانات أخشاب", industrial: "صناعية"};
-const VARIANTS = ["", "أبيض", "ألوان خاصة", "ألوان جاهزة"];
-/* المنتج "ليه سعر" لو أي عبوة ليها سعر، أو (منتج بدون عبوات) ليه سعر للوحدة */
-const hasPack = p => p.packs && p.packs.length;
-const priced = p => hasPack(p) ? p.packs.some(k => k.p != null) : p.price != null;
-const packLbl = k => `${num(k.s)} ${k.u === "كجم" ? "كجم" : "لتر"}${k.v ? " – " + k.v : ""}`;
-const TYPES = {order: ["🛒", "طلب شراء", "blue"], booking: ["📅", "حجز معاينة", "ok"], package: ["🏠", "طلب باقة", "warn"], wholesale: ["🏗️", "تسجيل مقاول", "grey"], colour_combo: ["🎨", "تنسيق ألوان", "grey"], contact: ["✉️", "تواصل", "grey"]};
-const STATUSES = ["جديد", "تم التواصل", "جاري التنفيذ", "مكتمل", "ملغي"];
-/* الدفع (لازم يطابق الافتراضي في assets/app.js) */
-const PAY_DEF = {instant: true, instapay: true, vf: true, cod: false, instapayUrl: "https://ipn.eg/S/hanynagehgreece/instapay/9oN3kI", instapayId: "", vfUrl: "http://vf.eg/vfcash?id=mt&qrId=cKYVtm", vfNumber: "", staleDays: 30};
-const payCfg = () => { const p = Object.assign({}, PAY_DEF, (D && D.settings && D.settings.pay) || {}); if (!p.instapayId) { const m = String(p.instapayUrl || "").match(/\/S\/([^/]+)\/instapay/i); if (m) p.instapayId = m[1] + "@instapay" } return p };
-const PAY_ST = ["لم يدفع", "دفع جزء", "مدفوع بالكامل"];
-const PAY_MODE = {instant: ["⚡", "دفع فوري", "ok"], confirm: ["🎨", "بعد التأكيد", "warn"], mixed: ["◐", "مخلوط", "blue"]};
-const PAY_METHOD = {instapay: "إنستاباي", vf: "فودافون كاش", cod: "كاش عند الاستلام"};
-const unpaid = e => e.pay && e.pay.status !== "مدفوع بالكامل" && e.status !== "ملغي" && e.status !== "مكتمل";
-const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
-/* تسجيلات ودخول العملاء ليها صفحة "العملاء" لوحدها ومش بتتحسب مع الطلبات */
-const CUST = t => t === "signup" || t === "login";
-const EVS = () => EVENTS ? EVENTS.filter(e => !CUST(e.type)) : null;
-const emailOf = e => ((e.details || "").match(/(?:^|\n)(?:الإيميل|إيميل العميل): *(\S+)/) || [])[1] || "";
-function customers() {
-  const map = new Map();
-  for (const e of (EVENTS || []).slice().reverse()) {
-    if (!CUST(e.type)) continue;
-    const em = emailOf(e).toLowerCase(), k = em || "n:" + (e.name || e.id);
-    let c = map.get(k); if (!c) map.set(k, c = {email: em, first: e.date, visits: 0, signup: null, name: "", phone: "", area: ""});
-    c.last = e.date; c.visits++; if (e.name) c.name = e.name; if (e.phone) c.phone = e.phone; if (e.area) c.area = e.area;
-    if (e.type === "signup") c.signup = e;
-    const t = ((e.details || "").match(/نوع العميل: *([^\n]+)/) || [])[1]; if (t) c.ctype = t.trim();
-  }
-  for (const c of map.values()) c.orders = (EVENTS || []).filter(e => !CUST(e.type) && c.email && emailOf(e).toLowerCase() === c.email).length;
-  return [...map.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
-}
-let cQ = "", cType = "all";
-const CTYPES = ["عميل", "فني", "مهندس", "مقاول", "تاجر", "شركة"];
-const DRAFT = "everest-admin-draft", AUTH = "everest-admin-auth";
-
-let MODE = null, API = "", KEY = "", D = null, PUB = "", EVENTS = null, view = "home";
-const dirty = () => JSON.stringify(D) !== PUB;
-const missing = () => D.products.filter(p => p.active !== false && !priced(p));
-
-/* =====================================================================
-   الحماية
-   - على الاستضافة (api.php): كلمة السر بتتراجع على السيرفر بس ومتشفرة bcrypt،
-     والجهاز بيحتفظ برمز جلسة مؤقت، وبعد 8 محاولات غلط الدخول بيتقفل 15 دقيقة.
-   - على الكمبيوتر من غير سيرفر (وضع الملف): كلمة السر بتتخزن كبصمة مشفّرة PBKDF2.
-   - اللوحة بتتقفل لوحدها بعد 30 دقيقة من غير استخدام (لو مش مختار "تذكرني").
-   ===================================================================== */
-const API_FILE = "api.php";
-/* لو Supabase متوصّل في assets/config.js → اللوحة بتشتغل عليه */
-const SBC = window.supaConfigured && window.supaConfigured() ? window.Supa(window.EVEREST_CONFIG) : null;
-async function sbApi(action, x = {}) {
-  try {
-    await SBC.ensureFresh(); if (KEY) saveAuth();
-    switch (action) {
-      case "ping": return {ok: (await SBC.rpc("is_admin")) === true};
-      case "save": await SBC.saveAll(JSON.parse(JSON.stringify(x.data))); return {ok: true};
-      case "events": {
-        const rows = await SBC.select("orders", "select=*&order=created_at.desc&limit=" + (+x.limit || 2000));
-        return {ok: true, events: (rows || []).map(r => {
-          let type = r.type, det = r.details || "";
-          /* عملاء اتسجلوا قبل تحديث قاعدة البيانات بيتسجلوا كـ"تواصل" بعلامة */
-          if (type === "contact" && /^(👤 تسجيل عميل|🔑 دخول عميل)/.test(det)) { type = det.startsWith("👤") ? "signup" : "login"; det = det.replace(/^[^\n]*\n?/, "") }
-          return {id: r.id, date: r.created_at, type, status: r.status, name: r.name || "", phone: r.phone || "", area: r.area || "", total: r.total ?? "", details: det, pay: r.pay || null};
-        })};
-      }
-      case "status": await SBC.update("orders", "id=eq." + encodeURIComponent(x.id), {status: String(x.status).slice(0, 30)}); return {ok: true};
-      case "pay": await SBC.update("orders", "id=eq." + encodeURIComponent(x.id), {pay: x.pay}); return {ok: true};
-      case "deleteVideo": { const pre = SBC.publicUrl("videos", ""); if (String(x.src || "").startsWith(pre)) await SBC.removeFile("videos", x.src.slice(pre.length)); return {ok: true} }
-      case "setKey": {
-        try { await window.Supa(window.EVEREST_CONFIG).signIn(SBC.session.email, x.currentKey) } catch (e) { return {ok: false, error: "current"} }
-        if (!strong(x.newKey)) return {ok: false, error: "weak"};
-        await SBC.updatePassword(x.newKey); return {ok: true, token: KEY};
-      }
-      case "logout": await SBC.signOut(); return {ok: true};
-      case "fetchJotun": return {ok: false, error: "الإضافة التلقائية من موقع جوتن مش متاحة مع Supabase – استخدم الإضافة السريعة بجانب"};
-    }
-    return {ok: false, error: "unknown"};
-  } catch (e) { return {ok: false, error: e.status === 401 || e.status === 403 ? "wrong key" : (e.message || "error")} }
-}
-let REMEMBER = false, STAT = null, unlockDone = null, SERVER = null, IMPORT = false;
-function loadAuth() { try { const l = localStorage.getItem(AUTH); if (l) { REMEMBER = true; return JSON.parse(l) } const s = sessionStorage.getItem(AUTH); return s ? JSON.parse(s) : null } catch (e) { return null } }
-function saveAuth(extra = {}) { const v = JSON.stringify(Object.assign({token: KEY}, SBC && SBC.session ? {sb: SBC.session} : {}, extra)); try { (REMEMBER ? localStorage : sessionStorage).setItem(AUTH, v); (REMEMBER ? sessionStorage : localStorage).removeItem(AUTH) } catch (e) {} }
-function clearAuth() { try { localStorage.removeItem(AUTH); sessionStorage.removeItem(AUTH) } catch (e) {} }
-const strong = p => p.length >= 8 && /[0-9]/.test(p) && /[^0-9]/.test(p);
-const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
-async function pbkdf2(pw, salt, it) {
-  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]);
-  return b64(await crypto.subtle.deriveBits({name: "PBKDF2", hash: "SHA-256", salt: Uint8Array.from(atob(salt), c => c.charCodeAt(0)), iterations: it}, k, 256));
-}
-async function makeHash(pw) { const salt = b64(crypto.getRandomValues(new Uint8Array(16))), it = 310000; return {salt, it, hash: await pbkdf2(pw, salt, it)} }
-const fileHash = () => (D && D.settings.adminHash) || (STAT && STAT.settings.adminHash) || ((ls.get(DRAFT, null) || {settings: {}}).settings.adminHash) || null;
-const post = (body, form) => fetch(API, {method: "POST", body: form || JSON.stringify(body), credentials: "same-origin"}).then(r => r.json());
-
-async function api(action, extra = {}) {
-  const r = SBC ? await sbApi(action, extra) : await post(Object.assign({action, token: KEY}, extra));
-  if (!r.ok && r.error === "wrong key" && !["login", "setKey"].includes(action)) { KEY = ""; clearAuth(); await askKey("انتهت الجلسة، ادخل كلمة السر تاني"); return api(action, extra) }
-  return r;
-}
-
-/* شاشة القفل */
-function askKey(msg) { return new Promise(res => { unlockDone = res; showLock(msg) }) }
-function showLock(msg) {
-  $("#app").style.display = "none"; $("#login").style.display = "grid";
-  const first = SBC ? false : MODE === "api" ? !SERVER.setup : !fileHash();
-  $("#lockBox").innerHTML = `<h1>🔒 لوحة تحكم إفرست</h1>
-    <p class="hint" style="font-size:14px">${esc(msg || (first ? "أول مرة: اختار كلمة سر للوحة. 8 حروف على الأقل وفيها أرقام وحروف. احفظها كويس." : "اكتب كلمة السر للدخول."))}</p>
-    ${SBC ? `<label class="f"><span>الإيميل</span><input class="in" id="pwEmail" type="email" dir="ltr" autocomplete="username"></label>` : ""}
-    <label class="f"><span>${first ? "كلمة السر الجديدة" : "كلمة السر"}</span><input class="in" id="pw1" type="password" dir="ltr" autocomplete="${first ? "new-password" : "current-password"}"></label>
-    ${first ? `<label class="f"><span>اكتبها تاني للتأكيد</span><input class="in" id="pw2" type="password" dir="ltr" autocomplete="new-password"></label>` : ""}
-    <label class="switch"><input type="checkbox" id="pwRem" ${REMEMBER ? "checked" : ""}><i></i>تذكرني على هذا الجهاز (30 يوم)</label>
-    <button class="btn" id="pwGo">${first ? "حفظ ودخول" : "دخول"}</button>
-    <div class="hint" id="pwErr" style="color:var(--red);min-height:1.5em"></div>
-    <p class="hint">${SBC ? "🔐 الدخول بحساب الأدمن في Supabase." : MODE === "api" ? "🔐 كلمة السر محفوظة متشفرة على السيرفر بتاعك بس." : "💻 وضع الكمبيوتر: اللوحة شغالة على جهازك من غير سيرفر."}</p>
-    <a href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/" class="hint" style="text-align:center" target="_blank" rel="noopener">فتح المتجر ↗</a>`;
-  setTimeout(() => ($("#pwEmail") || $("#pw1")).focus(), 50);
-  $("#lockBox").onkeydown = e => { if (e.key === "Enter") $("#pwGo").click() };
-  $("#pwGo").onclick = async () => {
-    const pw = $("#pw1").value, err = t => $("#pwErr").textContent = t;
-    REMEMBER = $("#pwRem").checked; err("");
-    if (first) { if (!strong(pw)) return err("كلمة السر لازم تكون 8 حروف على الأقل وفيها أرقام وحروف."); if (pw !== $("#pw2").value) return err("كلمتين السر مش زي بعض.") }
-    $("#pwGo").disabled = true;
-    try {
-      if (SBC) {
-        const email = $("#pwEmail").value.trim(); if (!email) return err("اكتب الإيميل");
-        try { await SBC.signIn(email, pw) } catch (e) { return err(e.status === 400 ? "الإيميل أو كلمة السر غلط" : e.status === 429 ? "محاولات كتير – استنى شوية وجرّب تاني" : "تعذّر الاتصال بـ Supabase") }
-        if ((await SBC.rpc("claim_admin")) !== true) { await SBC.signOut(); return err("الحساب ده مش مسجّل كأدمن للمتجر") }
-        KEY = "sb"; saveAuth();
-      } else if (MODE === "api") {
-        const r = await post({action: first ? "setup" : "login", password: pw, remember: REMEMBER});
-        if (r.error === "locked") return err("اتقفل الدخول 15 دقيقة بسبب محاولات غلط كتير.");
-        if (r.error === "exists") { SERVER.setup = true; return showLock("كلمة السر اتعملت قبل كده – اكتبها للدخول.") }
-        if (!r.ok) return err(`كلمة السر غلط${r.left != null ? ` – فاضل ${num(r.left)} محاولات قبل القفل` : ""}`);
-        KEY = r.token; SERVER.setup = true; saveAuth();
-      } else if (first) {
-        const h = await makeHash(pw); STAT.settings.adminHash = h; if (D) { D.settings.adminHash = h; changed() }
-        saveAuth({file: h.hash});
-      } else {
-        const h = fileHash(); await new Promise(r => setTimeout(r, 600));
-        if (await pbkdf2(pw, h.salt, h.it) !== h.hash) return err("كلمة السر غلط");
-        saveAuth({file: h.hash});
-      }
-      $("#login").style.display = "none"; if (D) $("#app").style.display = "block";
-      const done = unlockDone; unlockDone = null; done && done();
-    } catch (e) { err("تعذّر الاتصال بالسيرفر") }
-    finally { const b = $("#pwGo"); if (b) b.disabled = false }
-  };
-}
-
-/* ================= فتح اللوحة ================= */
-async function boot() {
-  STAT = await fetch("https://evreststore2020.github.io/everest-paints.github.io/everest-store/data/store.json", {cache: "no-cache"}).then(r => r.json()).catch(() => null);
-  if (!STAT && SBC) STAT = {settings: {}, products: [], packages: [], reviews: [], discountCodes: [], videos: []};
-  if (!STAT) { $("#bootMsg").textContent = "تعذّر تحميل data/store.json – افتح اللوحة من نفس المكان اللي عليه الموقع."; return }
-  if (SBC) {
-    MODE = "api"; API = "supabase"; SERVER = {setup: true, maxVideoMB: 50, chunkMB: 50, supabase: true};
-    const saved = loadAuth();
-    if (saved && saved.sb) { SBC.setSession(saved.sb); try { await SBC.ensureFresh(); if ((await SBC.rpc("is_admin")) === true) { KEY = "sb"; saveAuth() } } catch (e) {} }
-    if (!KEY) await askKey();
-    let live = null; try { live = await SBC.loadAll(true) } catch (e) { toast("تعذّر تحميل البيانات من Supabase: " + e.message) }
-    if (live && live.products.length) { PUB = JSON.stringify(live); STAT = live; start(live) }
-    else { PUB = ""; start(STAT); IMPORT = true }
-    loadEvents(); return;
-  }
-  /* لو api.php شغال على الاستضافة → وضع السيرفر، غير كده → وضع الكمبيوتر */
-  SERVER = await fetch(API_FILE + "?action=status", {cache: "no-store"}).then(r => r.ok ? r.json() : null).catch(() => null);
-  MODE = SERVER && SERVER.server === "everest" ? "api" : "file";
-  API = MODE === "api" ? API_FILE : "";
-  const saved = loadAuth();
-  PUB = JSON.stringify(STAT);
-  if (MODE === "api") {
-    KEY = saved && saved.token || "";
-    if (KEY) { const r = await post({action: "ping", token: KEY}).catch(() => ({})); if (!r.ok) { KEY = ""; clearAuth() } }
-    if (!KEY) await askKey();
-    start(STAT); loadEvents();
-  } else {
-    const h = fileHash();
-    if (!(h && saved && saved.file === h.hash)) await askKey();
-    start(STAT);
-  }
-}
-function start(base) {
-  const draft = ls.get(DRAFT, null);
-  D = JSON.parse(JSON.stringify(base));
-  if (STAT.settings.adminHash && !D.settings.adminHash && MODE === "file") D.settings.adminHash = STAT.settings.adminHash;
-  if (draft && draft.products && JSON.stringify(draft) !== JSON.stringify(base) && confirm("في تعديلات محفوظة على الجهاز ده ولسه ما اتحفظتش في الموقع. تكمل عليها؟")) D = draft;
-  if (SBC) { delete D.settings.apiUrl; delete D.settings.adminHash } else if (MODE === "api") { D.settings.apiUrl = API_FILE; delete D.settings.adminHash } else delete D.settings.apiUrl;
-  if (!D.settings.social || typeof D.settings.social !== "object") D.settings.social = {};
-  if (dirty()) ls.set(DRAFT, D);
-  $("#login").style.display = "none"; $("#app").style.display = "block";
-  $("#modeLbl").textContent = SBC ? "● متصلة بـ Supabase – محمية" : MODE === "api" ? "● متصلة بالسيرفر – محمية" : "● وضع الكمبيوتر";
-  $("#logout").textContent = "🔒 قفل اللوحة وتسجيل الخروج";
-  go(location.hash.slice(1) || "home"); refreshTop();
-}
-async function lockNow() { if (MODE === "api" && KEY) { try { await post({action: "logout", token: KEY}) } catch (e) {} } KEY = ""; clearAuth(); location.reload() }
-$("#logout").onclick = lockNow;
-/* قفل تلقائي بعد 30 دقيقة بدون استخدام */
-let idleT; const idle = () => { clearTimeout(idleT); if (!REMEMBER) idleT = setTimeout(() => { if (D && !dirty()) lockNow() }, 30 * 60 * 1000) };
-["click", "keydown", "scroll", "touchstart"].forEach(ev => addEventListener(ev, idle, {passive: true})); idle();
-
-/* رفع فيديو للسيرفر على أجزاء (عشان يعدّي من حدود حجم الرفع في الاستضافة) */
-async function uploadToServer(file, onProgress) {
-  if (SBC) {
-    if (file.size > 50 * 1048576) throw new Error("الفيديو أكبر من 50 ميجا (حد Supabase المجاني) – ارفعه على يوتيوب وضيف الرابط");
-    const ext = ((file.name.match(/\.(mp4|webm|mov)$/i) || [".mp4"])[0]).toLowerCase();
-    const base = (file.name.replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "video").slice(0, 40);
-    const path = base + "-" + Date.now().toString(36) + ext;
-    await SBC.ensureFresh();
-    try { await SBC.upload("videos", path, file, onProgress) } catch (e) { throw new Error(e.status === 413 ? "الفيديو كبير" : e.status === 403 || e.status === 401 ? "انتهت الجلسة، ادخل تاني" : "تعذّر الرفع: " + e.message) }
-    return SBC.publicUrl("videos", path);
-  }
-  const chunk = (SERVER.chunkMB || 4) * 1048576, total = Math.max(1, Math.ceil(file.size / chunk));
-  if (file.size > (SERVER.maxVideoMB || 300) * 1048576) throw new Error(`الفيديو أكبر من ${SERVER.maxVideoMB || 300} ميجا`);
-  const uploadId = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, "0")).join("");
-  for (let i = 0; i < total; i++) {
-    const fd = new FormData();
-    fd.append("action", "uploadChunk"); fd.append("token", KEY); fd.append("uploadId", uploadId);
-    fd.append("index", i); fd.append("total", total); fd.append("name", file.name.replace(/\.[^.]+$/, ""));
-    fd.append("chunk", file.slice(i * chunk, (i + 1) * chunk), "chunk");
-    let r; for (let tries = 0; tries < 3; tries++) { try { r = await post(null, fd); break } catch (e) { if (tries === 2) throw new Error("انقطع الاتصال أثناء الرفع") } }
-    if (!r.ok) throw new Error({size: "الفيديو كبير", type: "الملف ده مش فيديو MP4 أو MOV أو WEBM", upload: "الاستضافة رفضت جزء من الملف"}[r.error] || "تعذّر الرفع");
-    onProgress && onProgress(Math.round((i + 1) / total * 100));
-    if (i === total - 1) return r.src;
-  }
-}
-async function changePassword() {
-  const cur = $("#pwCur").value, n1 = $("#pwNew").value, n2 = $("#pwNew2").value;
-  if (!strong(n1)) return toast("الجديدة لازم 8 حروف على الأقل وفيها أرقام وحروف");
-  if (n1 !== n2) return toast("كلمتين السر الجديدتين مش زي بعض");
-  if (MODE === "api") {
-    const r = await api("setKey", {currentKey: cur, newKey: n1, remember: REMEMBER});
-    if (!r.ok) return toast(r.error === "current" ? "كلمة السر الحالية غلط" : "تعذّر التغيير");
-    KEY = r.token; saveAuth(); toast("تم تغيير كلمة السر ✓ وكل الأجهزة التانية خرجت");
-  } else {
-    const h = fileHash(); if (!h || await pbkdf2(cur, h.salt, h.it) !== h.hash) return toast("كلمة السر الحالية غلط");
-    const nh = await makeHash(n1); D.settings.adminHash = nh; STAT.settings.adminHash = nh; changed(); saveAuth({file: nh.hash});
-    toast("تم ✓ نزّل store.json وارفعه عشان تتطبق على كل الأجهزة");
-  }
-  ["#pwCur", "#pwNew", "#pwNew2"].forEach(s => $(s).value = "");
-}
-boot();
-
-/* ================= الحفظ والنشر ================= */
-function changed() { ls.set(DRAFT, D); refreshTop(); refreshBadges() }
-function refreshTop() {
-  const d = dirty();
-  $("#pubState").innerHTML = d ? `<span class="pill warn">● تعديلات غير منشورة</span>` : `<span class="pill ok">✓ كل التعديلات منشورة</span>`;
-  $("#publishBtn").textContent = "حفظ على الموقع";
-  $("#publishBtn").disabled = MODE === "api" && !d;
-}
-function refreshBadges() {
-  const m = missing().length; $("#bdMissing").hidden = !m; $("#bdMissing").textContent = num(m);
-  const n = EVENTS ? EVS().filter(e => e.status === "جديد").length : 0; $("#bdEvents").hidden = !n; $("#bdEvents").textContent = num(n);
-  const c = EVENTS ? EVENTS.filter(e => e.type === "signup" && e.status === "جديد").length : 0; $("#bdCust").hidden = !c; $("#bdCust").textContent = num(c);
-}
-function validate() {
-  const ids = new Set();
-  for (const p of D.products) {
-    if (!/^[a-z0-9-]+$/.test(p.id)) return `معرّف المنتج "${p.ar}" لازم يكون حروف إنجليزي صغيرة وأرقام وشرطة فقط`;
-    if (ids.has(p.id)) return `في منتجين بنفس المعرّف "${p.id}"`; ids.add(p.id);
-    if (!p.ar) return "في منتج من غير اسم";
-  }
-  return null;
-}
-$("#publishBtn").onclick = async () => {
-  const err = validate(); if (err) return toast(err);
-  if (MODE === "file") {
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-    PUB = JSON.stringify(D); ls.del(DRAFT); refreshTop();
-    return toast("تم التنزيل – ارفع الملف مكان data/store.json على الاستضافة");
-  }
-  $("#publishBtn").disabled = true; $("#publishBtn").textContent = "جاري النشر…";
-  try { const r = await api("save", {data: D}); if (!r.ok) throw 0; PUB = JSON.stringify(D); ls.del(DRAFT); toast("تم الحفظ ✓ التعديلات ظاهرة على الموقع") }
-  catch (e) { toast("تعذّر النشر، حاول تاني") }
-  refreshTop(); if (view === "home") go("home");
-};
-$("#previewBtn").onclick = () => { const err = validate(); if (err) return toast(err); ls.set(DRAFT, D); window.open("https://evreststore2020.github.io/everest-paints.github.io/everest-store/index.html?preview=1", "_blank") };
-addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
-
-/* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
-function go(v) {
-  if (!TITLES[v]) v = "home"; view = v; location.hash = v;
-  $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
-  $("#vTitle").textContent = TITLES[v]; $("#side").classList.remove("open");
-  $("#view").innerHTML = VIEWS[v](); (AFTER[v] || (() => {}))();
-  refreshTop(); refreshBadges(); scrollTo(0, 0);
-}
-$("#nav").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (b) go(b.dataset.v) });
-$("#menuT").onclick = () => $("#side").classList.toggle("open");
-document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); if (g.dataset.filter) pFilter = g.dataset.filter; if (g.dataset.etype) eType = g.dataset.etype; go(g.dataset.go) } });
-
-/* ================= الأحداث ================= */
-async function loadEvents() {
-  if (MODE !== "api") return;
-  try { const r = await api("events", {limit: 2000}); if (r.ok) EVENTS = r.events } catch (e) {}
-  refreshBadges(); if (view === "events" || view === "home" || view === "customers") go(view);
-}
-const ago = iso => { const d = new Date(iso), s = (Date.now() - d) / 1000; if (s < 60) return "الآن"; if (s < 3600) return `منذ ${num(Math.floor(s / 60))} دقيقة`; if (s < 86400) return `منذ ${num(Math.floor(s / 3600))} ساعة`; if (s < 7 * 86400) return `منذ ${num(Math.floor(s / 86400))} يوم`; return d.toLocaleDateString("ar-EG", {day: "numeric", month: "long"}) };
-const waLink = (phone, msg) => { let p = String(phone || "").replace(/[^\d]/g, ""); if (p.startsWith("0")) p = "2" + p; return `https://wa.me/${p}?text=${encodeURIComponent(msg)}` };
-function evCard(e) {
-  const t = TYPES[e.type] || ["•", e.type, "grey"];
-  return `<div class="ev ${e.status === "جديد" ? "new" : ""}">
-    <div class="ty">${t[0]}</div>
-    <div>
-      <div class="who"><span class="pill ${t[2]}">${t[1]}</span><b>${esc(e.name || "زائر")}</b>${e.phone ? `<span dir="ltr" class="hint">${esc(e.phone)}</span>` : ""}<span class="hint">· ${ago(e.date)}</span>${e.total ? `<span class="pill grey">${money(e.total)}</span>` : ""}</div>
-      ${e.area ? `<div class="hint">📍 ${esc(e.area)}</div>` : ""}
-      ${e.details ? `<pre>${esc(e.details)}</pre>` : ""}
-      ${payHTML(e)}
-    </div>
-    <div class="acts">
-      <select class="in" data-status="${esc(e.id)}">${STATUSES.map(s => `<option ${s === e.status ? "selected" : ""}>${s}</option>`).join("")}</select>
-      ${e.phone ? `<a class="btn green sm" target="_blank" href="${waLink(e.phone, `أهلاً ${e.name || ""}، معاك إفرست للدهانات بخصوص ${t[1]} اللي بعته من الموقع.`)}">واتساب العميل</a><a class="btn light sm" href="tel:${esc(e.phone)}">اتصال</a>` : ""}
-    </div>
-  </div>`;
-}
-/* صندوق الدفع في كارت الطلب: الحالة + السعر النهائي + طلب الدفع على واتساب */
-function payHTML(e) {
-  const y = e.pay; if (!y) return "";
-  const md = PAY_MODE[y.mode] || ["•", y.mode || "-", "grey"], st = y.status || "لم يدفع";
-  const fin = y.final ?? (y.mode === "instant" ? e.total : ""), paid = +y.paid || 0;
-  const rest = fin !== "" && fin != null ? Math.max(0, +fin - paid) : null;
-  return `<div class="paycard ${st === "مدفوع بالكامل" ? "done" : ""}" data-payid="${esc(e.id)}">
-    <div class="pc-top">
-      <span class="pill ${md[2]}">${md[0]} ${md[1]}</span>
-      <span class="pill grey">${esc(PAY_METHOD[y.method] || y.method || "-")}</span>
-      ${y.no ? `<span class="pill grey" dir="ltr">${esc(y.no)}</span>` : ""}
-      ${y.mode === "mixed" ? `<span class="hint">${y.split === "now" ? "العميل اختار يدفع الجاهز الأول" : "العميل اختار يدفع كله بعد التأكيد"}</span>` : ""}
-      ${y.requested_at ? `<span class="hint">· اتبعت طلب دفع ${ago(y.requested_at)}</span>` : ""}
-    </div>
-    <div class="pc-grid">
-      <label><span>حالة الدفع</span><select class="in" data-pay-st>${PAY_ST.map(s => `<option ${s === st ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-      <label><span>${y.due_now ? `مطلوب وقت الطلب: <b>${money(y.due_now)}</b>` : "مطلوب وقت الطلب: —"}</span><span class="hint">${y.fixed ? "الجزء الثابت: " + money(y.fixed) : ""}</span></label>
-      <label><span>الإجمالي النهائي (بعد التأكيد)</span><input class="in" type="number" min="0" step="1" data-pay-final value="${esc(fin ?? "")}" placeholder="اكتب السعر النهائي"></label>
-      <label><span>المدفوع لحد دلوقتي</span><input class="in" type="number" min="0" step="1" data-pay-paid value="${paid || ""}" placeholder="0"></label>
-    </div>
-    <div class="pc-foot">
-      <span class="pc-rest">${rest == null ? "اكتب الإجمالي النهائي عشان تبعت طلب الدفع" : rest > 0 ? `المتبقي: <b>${money(rest)}</b>` : `<b style="color:var(--ok)">✓ مفيش متبقي</b>`}</span>
-      ${e.phone && y.method !== "cod" ? `<button class="btn sm" data-pay-req ${rest > 0 ? "" : "disabled"}>📲 ابعت طلب الدفع على واتساب</button>` : ""}
-      <button class="btn light sm" data-pay-save>حفظ</button>
-    </div>
-  </div>`;
-}
-let eType = "all", eStatus = "all", eQ = "";
-
-/* ================= المنتجات ================= */
-let pFilter = "all", pQ = "";
-function packsHTML(p) {
-  if (hasPack(p) || p.price == null) return "";
-  const s = p.sizes && p.sizes.length ? p.sizes : null;
-  return `<div class="packs">${s ? s.map(z => `<span>${num(z)} ${p.u === "كجم" ? "كجم" : "لتر"} = ${money(p.price * z)}</span>`).join("") : `<span>يُباع بال${p.u === "كجم" ? "كيلو" : "لتر"}</span>`}</div>`;
-}
-/* خانات الأسعار: خانة لكل عبوة، أو خانة واحدة لسعر الوحدة */
-function priceInputs(p, i) {
-  if (hasPack(p)) return `<div style="display:flex;flex-direction:column;gap:6px">${p.packs.map((k, j) => `<div class="price-in" style="${k.p == null ? "border-color:#e9b949;background:#fffbf0" : ""}"><span style="min-width:120px;color:var(--ink)">${packLbl(k)}</span><input type="number" min="0" step="1" inputmode="decimal" data-pkprice="${i}:${j}" value="${k.p ?? ""}" placeholder="السعر" style="font-size:16px"><span>ج.م</span></div>`).join("")}</div>`;
-  return `<div class="price-in"><input type="number" min="0" step="0.5" inputmode="decimal" data-price="${i}" value="${p.price ?? ""}" placeholder="اكتب السعر"><span>ج.م / ${esc(p.u)}</span></div>`;
-}
-function pCard(p, i) {
-  const miss = p.active !== false && !priced(p), src = imgOf(p);
-  return `<div class="pc ${miss ? "missing" : ""} ${p.active === false ? "hidden-p" : ""}" data-i="${i}">
-    <div class="im">${src ? `<img loading="lazy" src="${esc(src)}" alt="">` : `<i class="sw" style="background:${esc(p.col || "#999")}"></i>`}${miss ? `<span class="pill warn">ناقص سعر</span>` : p.active === false ? `<span class="pill grey">مخفي</span>` : ""}</div>
-    <div class="bd">
-      <div class="nm"><b>${esc(p.ar)}</b><small>${esc(p.en || "")} · ${CATS[p.cat] || ""}</small></div>
-      ${priceInputs(p, i)}
-      <div data-packs="${i}">${packsHTML(p)}</div>
-      <div class="row">
-        <label class="switch"><input type="checkbox" data-tog="active" data-i="${i}" ${p.active !== false ? "checked" : ""}><i></i>ظاهر</label>
-        <label class="switch"><input type="checkbox" data-tog="best" data-i="${i}" ${p.best ? "checked" : ""}><i></i>الأكثر طلباً</label>
-      </div>
-    </div>
-    <div class="ft"><button class="btn light sm" data-edit="${i}">تعديل كل البيانات</button><button class="btn light sm" data-dup="${i}">نسخ</button><button class="btn red sm" data-del="${i}" style="margin-inline-start:auto">حذف</button></div>
-  </div>`;
-}
-function productFields(p) {
-  const o = (sel, obj) => Object.entries(obj).map(([k, v]) => `<option value="${k}" ${k === sel ? "selected" : ""}>${v}</option>`).join("");
-  return `
-    <div class="prev"><div class="im" id="edPrevIm">${imgOf(p) ? `<img src="${esc(imgOf(p))}">` : ""}</div><div><b id="edPrevName">${esc(p.ar)}</b><div class="hint" id="edPrevEn">${esc(p.en || "")}</div></div></div>
-    <div class="sec-t">الأساسي</div>
-    <div class="grid g2">
-      <label class="f"><span><b>الاسم بالعربي</b></span><input class="in" data-f="ar" value="${esc(p.ar)}"></label>
-      <label class="f"><span>الاسم بالإنجليزي</span><input class="in" data-f="en" dir="ltr" value="${esc(p.en || "")}"></label>
-      <label class="f"><span>القسم</span><select class="in" data-f="cat">${o(p.cat, CATS)}</select></label>
-      <label class="f"><span>الوحدة</span><select class="in" data-f="u">${o(p.u, {"لتر": "لتر", "كجم": "كجم"})}</select></label>
-    </div>
-    <div class="sec-t">العبوات والأسعار</div>
-    <div id="packEd"></div>
-    <div class="sec-t">الوصف</div>
-    <label class="f"><span>وصف المنتج</span><textarea class="in" rows="3" data-f="d">${esc(p.d || "")}</textarea></label>
-    <label class="f"><span>المميزات (كل ميزة في سطر)</span><textarea class="in" rows="3" data-f="f" data-t="lines">${esc((p.f || []).join("\n"))}</textarea></label>
-    <div class="sec-t">الصورة</div>
-    <div class="grid g2">
-      <label class="f"><span>رقم صورة جوتن الرسمية</span><input class="in" type="number" data-f="img" data-t="num" value="${p.img ?? ""}"><span class="hint">بيتجاب تلقائي لو أضفت المنتج من رابط جوتن</span></label>
-      <label class="f"><span>أو رابط صورة من أي مكان</span><input class="in" dir="ltr" data-f="image" value="${esc(p.image || "")}" placeholder="https://…"></label>
-      <label class="f"><span>لون بديل لو مفيش صورة</span><input class="in" type="color" data-f="col" value="${esc(p.col || "#8fa3b5")}" style="height:44px;padding:4px"></label>
-    </div>
-    <div class="sec-t">متقدم</div>
-    <div class="grid g2">
-      <label class="f"><span>السلسلة</span><input class="in" data-f="line" value="${esc(p.line || "")}"></label>
-      <label class="f"><span>التغطية (م² لكل وحدة لكل طبقة)</span><input class="in" type="number" step="0.1" data-f="cov" data-t="num" value="${p.cov ?? ""}"></label>
-      <label class="f"><span>المعرّف في الرابط (إنجليزي)</span><input class="in" dir="ltr" data-f="id" value="${esc(p.id)}"></label>
-      <label class="f"><span>رابط صفحة المنتج على جوتن</span><input class="in" dir="ltr" data-f="url" value="${esc(p.url || "")}"></label>
-    </div>`;
-}
-function readField(el) {
-  const t = el.dataset.t; let v = el.value;
-  if (t === "num") v = v === "" ? null : +v;
-  else if (t === "list") { const a = String(v).split(/[,،\s]+/).map(Number).filter(n => n > 0).sort((x, y) => x - y); v = a.length ? a : null }
-  else if (t === "lines") v = String(v).split("\n").map(s => s.trim()).filter(Boolean);
-  else if (el.dataset.f === "url" || el.dataset.f === "image") v = v.trim() || null;
-  return v;
-}
-function openEditor(i) {
-  const p = D.products[i];
-  $("#dTitle").textContent = "تعديل: " + p.ar;
-  $("#dBody").innerHTML = productFields(p);
-  renderPackEd(p);
-  $("#dFoot").innerHTML = `<button class="btn" id="dDone">تم</button><a class="btn light" target="_blank" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/index.html?preview=1#shop" id="dPrev">معاينة على الموقع</a>`;
-  $("#dBody").oninput = e => {
-    const el = e.target.closest("[data-f]"); if (!el) return;
-    let v = readField(el);
-    if (el.dataset.f === "id") v = String(v).toLowerCase().replace(/[^a-z0-9-]+/g, "-");
-    p[el.dataset.f] = v;
-    if (el.dataset.f === "url" && v) p.url = v.replace(/^https?:\/\/www\.jotun\.com\/[a-z-]+\/decorative\/products\//, "");
-    $("#edPrevName").textContent = p.ar; $("#edPrevEn").textContent = p.en || "";
-    const s = imgOf(p); $("#edPrevIm").innerHTML = s ? `<img src="${esc(s)}">` : "";
-    changed();
-  };
-  $("#dDone").onclick = closeDrawer;
-  $("#dPrev").onclick = () => ls.set(DRAFT, D);
-  $("#dBg").classList.add("on"); $("#drawer").classList.add("on");
-}
-/* محرر العبوات: كل عبوة ليها حجم ووحدة ونوع (أبيض/ألوان خاصة/جاهزة) وسعر */
-function renderPackEd(p) {
-  const box = $("#packEd");
-  if (hasPack(p)) {
-    box.innerHTML = `<div class="tbl-wrap"><table style="width:100%;border-collapse:collapse;font-size:14px">
-      <thead><tr style="color:var(--muted);font-size:12px"><th style="text-align:right;padding:4px">الحجم</th><th style="text-align:right;padding:4px">الوحدة</th><th style="text-align:right;padding:4px">النوع</th><th style="text-align:right;padding:4px">سعر العبوة (ج.م)</th><th></th></tr></thead>
-      <tbody>${p.packs.map((k, j) => `<tr>
-        <td style="padding:3px"><input class="in" type="number" min="0" step="0.05" data-pe="${j}:s" value="${k.s}"></td>
-        <td style="padding:3px"><select class="in" data-pe="${j}:u">${["لتر", "كجم"].map(u => `<option ${u === k.u ? "selected" : ""}>${u}</option>`).join("")}</select></td>
-        <td style="padding:3px"><select class="in" data-pe="${j}:v">${VARIANTS.map(v => `<option value="${v}" ${v === (k.v || "") ? "selected" : ""}>${v || "—"}</option>`).join("")}</select></td>
-        <td style="padding:3px"><input class="in" type="number" min="0" step="1" data-pe="${j}:p" value="${k.p ?? ""}" placeholder="عند الطلب"></td>
-        <td style="padding:3px"><button class="btn red sm" data-pedel="${j}">✕</button></td></tr>`).join("")}</tbody></table></div>
-      <button class="btn light sm" id="peAdd" style="margin-top:8px">＋ إضافة عبوة</button>`;
-  } else {
-    box.innerHTML = `<div class="grid g2">
-      <label class="f"><span><b>السعر لكل ${esc(p.u)}</b> (فاضي = عند الطلب)</span><input class="in" type="number" min="0" step="0.5" data-f="price" data-t="num" value="${p.price ?? ""}"></label>
-      <label class="f"><span>أحجام العبوات (مفصولة بفاصلة)</span><input class="in" data-f="sizes" data-t="list" value="${(p.sizes || []).join(", ")}" placeholder="مثال: 0.9, 2.7, 9"></label></div>
-      <button class="btn light sm" id="peConvert" style="margin-top:8px">تحويل لسعر مستقل لكل عبوة</button>`;
-  }
-  box.oninput = e => {
-    const el = e.target.closest("[data-pe]"); if (!el) return;
-    const [j, f] = el.dataset.pe.split(":"), k = p.packs[+j];
-    if (f === "s") k.s = +el.value || 0; else if (f === "p") k.p = el.value === "" ? null : +el.value;
-    else if (f === "v") { if (el.value) k.v = el.value; else delete k.v } else k[f] = el.value;
-    changed();
-  };
-  box.onclick = e => {
-    const d = e.target.closest("[data-pedel]");
-    if (d) { p.packs.splice(+d.dataset.pedel, 1); if (!p.packs.length) p.packs = null; changed(); renderPackEd(p); return }
-    if (e.target.id === "peAdd") { p.packs.push({s: 1, u: p.u, p: null}); changed(); renderPackEd(p); return }
-    if (e.target.id === "peConvert") {
-      const sz = p.sizes && p.sizes.length ? p.sizes : [1];
-      p.packs = sz.map(s => ({s, u: p.u, p: p.price != null ? Math.round(p.price * s) : null})); p.price = null; p.sizes = null;
-      changed(); renderPackEd(p);
-    }
-  };
-}
-function closeDrawer() { if ($("#kCancel")) return $("#kCancel").click(); $("#dBg").classList.remove("on"); $("#drawer").classList.remove("on"); if (view === "products") go("products") }
-$("#dClose").onclick = closeDrawer; $("#dBg").onclick = closeDrawer;
-const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "product";
-const uniqueId = base => { let id = slug(base), n = 2; while (D.products.some(p => p.id === id)) id = slug(base) + "-" + n++; return id };
-
-/* ================= عناصر قابلة للتعديل (باقات/آراء/أكواد/إعدادات) ================= */
-function setPath(path, val) { const k = path.split("."); let o = D; for (let i = 0; i < k.length - 1; i++) o = o[k[i]] = o[k[i]] || {}; o[k[k.length - 1]] = val }
-const fld = (path, label, val, type = "text", extra = "") => `<label class="f"><span>${label}</span><input class="in" type="${type}" data-p="${path}" ${type === "number" ? 'data-t="num"' : ""} value="${esc(val ?? "")}" ${extra}></label>`;
-document.addEventListener("input", e => {
-  const el = e.target;
-  if (el.dataset.p) {
-    let v = el.type === "checkbox" ? el.checked : readField(el);
-    if (el.dataset.t === "slots") v = String(el.value).split(/[,،\s]+/).filter(x => /^\d{1,2}:\d{2}$/.test(x));
-    if (el.dataset.t === "days") v = [...el.closest(".daysel").querySelectorAll("input:checked")].map(x => +x.value);
-    setPath(el.dataset.p, v === "" && el.dataset.null ? null : v); changed();
-  }
-});
-
-/* ================= الشاشات ================= */
-const VIEWS = {
-home() {
-  const m = missing(), S = D.settings, act = D.products.filter(p => p.active !== false).length;
-  const now = new Date(), mon = EVENTS ? EVS().filter(e => { const d = new Date(e.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }) : [];
-  const ordersM = mon.filter(e => e.type === "order"), sales = ordersM.reduce((a, e) => a + (+e.total || 0), 0);
-  const newEv = EVENTS ? EVS().filter(e => e.status === "جديد").length : null;
-  const tasks = [
-    [!m.length, `أسعار كل المنتجات الظاهرة${m.length ? ` (ناقص ${num(m.length)})` : ""}`, "products", "missing"],
-    [!!SBC, "ربط المتجر بـ Supabase ونشره على GitHub", "guide"],
-    [!/example\.com/.test(S.siteUrl), "إدخال دومين الموقع الحقيقي", "settings"],
-    [!!S.googleReviewUrl && !!S.googleRating, "رابط وتقييم جوجل", "settings"],
-    [!!(S.ga4Id || S.fbPixelId), "كود Google Analytics أو Facebook Pixel", "settings"],
-    [(D.reviews || []).length > 0, "إضافة آراء عملاء حقيقية", "reviews"],
-    [(D.packages || []).some(k => k.laborPerM2 != null), "سعر المصنعية للباقات", "packages"]
-  ];
-  return `
-  ${IMPORT ? `<div class="notice blue">أول مرة مع Supabase: المنتجات والأسعار والإعدادات الحالية جاهزة للنقل. اضغط "حفظ على الموقع" عشان تتنقل كلها لقاعدة البيانات.</div>` : ""}
-  ${dirty() ? `<div class="notice warn">● عندك تعديلات لسه ما اتنشرتش على الموقع.<button class="btn sm" onclick="$('#publishBtn').click()">${MODE === "api" ? "نشر الآن" : "تنزيل الملف"}</button></div>` : ""}
-  ${(() => { const P = payCfg(), age = daysSince(S.priceUpdated); return P.instant !== false && age != null && age >= (+P.staleDays || 30)
-    ? `<div class="notice warn">⚠ الأسعار آخر تحديث ليها من ${num(age)} يوم والدفع الفوري شغال. راجع الأسعار، أو اقفل الدفع الفوري مؤقتاً لحد ما تحدّثها.<button class="btn sm" data-go="products">مراجعة الأسعار</button><button class="btn light sm" data-go="settings">إعدادات الدفع</button></div>` : "" })()}
-  ${EVENTS && EVS().filter(unpaid).length ? `<div class="notice blue">💳 عندك ${num(EVS().filter(unpaid).length)} طلب مستني دفع.<button class="btn sm" data-go="events" data-etype="unpaid">عرضهم</button></div>` : ""}
-  <div class="kpis">
-    <button class="kpi" data-go="events" data-etype="all"><small>طلبات وحجوزات جديدة</small><b>${newEv == null ? "—" : num(newEv)}</b><span class="sub">${MODE === "api" ? "محتاجة تتواصل معاها" : "بتظهر هنا لما الموقع يبقى على الاستضافة"}</span></button>
-    <button class="kpi" data-go="events" data-etype="order"><small>طلبات الشهر</small><b>${EVENTS ? num(ordersM.length) : "—"}</b><span class="sub">${EVENTS ? "بقيمة تقريبية " + money(sales) : ""}</span></button>
-    <button class="kpi" data-go="events" data-etype="booking"><small>حجوزات المعاينة (الشهر)</small><b>${EVENTS ? num(mon.filter(e => e.type === "booking").length) : "—"}</b><span class="sub"></span></button>
-    <button class="kpi" data-go="customers"><small>عملاء مسجلين</small><b>${EVENTS ? num(customers().length) : "—"}</b><span class="sub">${EVENTS ? "جديد النهارده: " + num(customers().filter(c => Date.now() - new Date(c.first) < 864e5).length) : ""}</span></button>
-    <button class="kpi" data-go="products" data-filter="missing"><small>منتجات ناقصها سعر</small><b style="${m.length ? "color:var(--warn)" : ""}">${num(m.length)}</b><span class="sub">من ${num(act)} منتج ظاهر</span></button>
-  </div>
-  <div class="cols">
-    <div class="card"><h3>آخر النشاط ${MODE === "api" ? `<button class="btn light sm" style="margin-inline-start:auto" data-go="events">عرض الكل</button>` : ""}</h3>
-      ${MODE !== "api" ? `<div class="empty">الطلبات والحجوزات بتوصلك على واتساب. أول ما الموقع يترفع على الاستضافة هتتسجل هنا كمان. <a href="#" data-go="guide">إزاي؟</a></div>`
-        : !KEY ? `<div class="empty"><button class="btn sm" onclick="askKey().catch(()=>{})">اكتب كلمة السر لعرض الطلبات</button></div>`
-        : !EVENTS ? `<div class="empty">جاري التحميل…</div>` : EVS().length ? EVS().slice(0, 5).map(evCard).join("") : `<div class="empty">لسه مفيش طلبات. أول ما عميل يطلب أو يحجز من الموقع هتظهر هنا.</div>`}
-    </div>
-    <div class="card"><h3>مهام لتجهيز المتجر</h3>
-      <ul class="tasks">${tasks.map(t => `<li><span class="dot ${t[0] ? "done" : "todo"}">${t[0] ? "✓" : "!"}</span><span>${t[1]}</span>${t[0] ? "" : `<button class="btn light sm" data-go="${t[2]}" ${t[3] ? `data-filter="${t[3]}"` : ""}>ابدأ</button>`}</li>`).join("")}</ul>
-    </div>
-  </div>
-  ${m.length ? `<div class="card" style="margin-top:20px"><h3>اكتب أسعار المنتجات الناقصة بسرعة</h3><div class="pgrid">${m.slice(0, 6).map(p => pCard(p, D.products.indexOf(p))).join("")}</div>${m.length > 6 ? `<div style="margin-top:12px"><button class="btn light" data-go="products" data-filter="missing">عرض كل المنتجات الناقصة (${num(m.length)})</button></div>` : ""}</div>` : ""}`;
-},
-events() {
-  if (MODE !== "api") return `<div class="notice blue">الطلبات والحجوزات حالياً بتوصلك على واتساب بس. لما الموقع يترفع على استضافة فيها PHP، كل طلب وحجز هيتسجل هنا وتقدر تتابع حالته.<button class="btn sm" data-go="guide">إزاي؟</button></div>`;
-  if (!KEY) return `<div class="empty">الطلبات محمية. <button class="btn sm" onclick="askKey().catch(()=>{})">اكتب كلمة السر مرة واحدة لعرضها</button></div>`;
-  if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
-  const cnt = t => EVS().filter(e => t === "all" || (t === "unpaid" ? unpaid(e) : e.type === t)).length;
-  let list = EVS().filter(e => (eType === "all" || (eType === "unpaid" ? unpaid(e) : e.type === eType)) && (eStatus === "all" || e.status === eStatus) && (!eQ || (e.name + e.phone + e.details + e.area).toLowerCase().includes(eQ)));
-  return `<div class="filters">${[["all", "الكل"], ["unpaid", "💳 مستني دفع"], ...Object.entries(TYPES).map(([k, v]) => [k, v[1]])].map(([k, n]) => `<button class="chip ${eType === k ? "on" : ""}" data-et="${k}">${n}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
-  <div class="toolbar">
-    <input class="in" id="eQ" placeholder="ابحث بالاسم أو الرقم أو المنتج…" value="${esc(eQ)}">
-    <select class="in" id="eStatus" style="max-width:180px"><option value="all">كل الحالات</option>${STATUSES.map(s => `<option ${s === eStatus ? "selected" : ""}>${s}</option>`).join("")}</select>
-    <button class="btn light" id="eRefresh">↻ تحديث</button>
-  </div>
-  ${list.length ? list.map(evCard).join("") : `<div class="empty">مفيش نتائج</div>`}`;
-},
-customers() {
-  if (MODE !== "api") return `<div class="notice blue">العملاء المسجلين بيظهروا هنا لما المتجر يكون متوصّل بـ Supabase.</div>`;
-  if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
-  const all = customers(), day = 864e5;
-  const others = all.filter(c => !CTYPES.includes(c.ctype)).length;
-  const list = all.filter(c => (cType === "all" || (cType === "other" ? !CTYPES.includes(c.ctype) : c.ctype === cType)) && (!cQ ||[c.name, c.email, c.phone, c.area, c.signup && c.signup.details].join(" ").toLowerCase().includes(cQ)));
-  const info = c => (c.signup ? c.signup.details : "").split("\n").filter(l => l && !/^(الإيميل|نوع العميل):/.test(l)).join("\n");
-  return `<div class="kpis">
-    <div class="kpi"><small>إجمالي العملاء المسجلين</small><b>${num(all.length)}</b></div>
-    <div class="kpi"><small>اتسجلوا آخر ٧ أيام</small><b>${num(all.filter(c => Date.now() - new Date(c.first) < 7 * day).length)}</b></div>
-    <div class="kpi"><small>دخلوا النهارده</small><b>${num(all.filter(c => Date.now() - new Date(c.last) < day).length)}</b></div>
-    <div class="kpi"><small>موافقين على العروض</small><b>${num(all.filter(c => /العروض: موافق/.test(c.signup ? c.signup.details : "")).length)}</b></div>
-  </div>
-  <div class="filters">${[["all", "الكل", all.length], ...CTYPES.map(t => [t, t, all.filter(c => c.ctype === t).length]), ...(others ? [["other", "غير محدد", others]] : [])].map(([k, n, c]) => `<button class="chip ${cType === k ? "on" : ""}" data-ct="${esc(k)}">${esc(n)}<span class="n">${num(c)}</span></button>`).join("")}</div>
-  <div class="toolbar">
-    <input class="in" id="cQ" placeholder="ابحث بالاسم أو الإيميل أو الرقم أو المنطقة…" value="${esc(cQ)}">
-    <button class="btn light" id="cRefresh">↻ تحديث</button>
-    <button class="btn light" id="cCsv" ${all.length ? "" : "disabled"}>⬇ تنزيل Excel</button>
-  </div>
-  ${list.length ? list.map(c => `<div class="ev ${c.signup && c.signup.status === "جديد" ? "new" : ""}">
-    <div class="ty">👤</div>
-    <div>
-      <div class="who">${c.ctype ? `<span class="pill blue">${esc(c.ctype)}</span>` : ""}<b>${esc(c.name || "عميل")}</b>${c.email ? `<a dir="ltr" class="hint" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ""}${c.phone ? `<span dir="ltr" class="hint">${esc(c.phone)}</span>` : ""}</div>
-      <div class="hint">اتسجّل ${ago(c.first)} · آخر دخول ${ago(c.last)} · ${num(c.visits)} ${c.visits > 1 ? "زيارات" : "زيارة"}${c.orders ? ` · <b>${num(c.orders)} طلب</b>` : ""}</div>
-      ${c.area ? `<div class="hint">📍 ${esc(c.area)}</div>` : ""}
-      ${info(c) ? `<pre>${esc(info(c))}</pre>` : ""}
-    </div>
-    <div class="acts">
-      ${c.signup ? `<select class="in" data-status="${esc(c.signup.id)}">${STATUSES.map(s => `<option ${s === c.signup.status ? "selected" : ""}>${s}</option>`).join("")}</select>` : ""}
-      ${c.phone ? `<a class="btn green sm" target="_blank" href="${waLink(c.phone, `أهلاً ${c.name || ""}، معاك إفرست للدهانات – شكراً لتسجيلك في متجرنا.`)}">واتساب</a>` : ""}
-      ${c.email ? `<a class="btn light sm" href="mailto:${esc(c.email)}">إيميل</a>` : ""}
-    </div>
-  </div>`).join("") : `<div class="empty">${all.length ? "مفيش نتائج" : "لسه مفيش عملاء اتسجلوا. أول ما حد يسجّل دخول من زرار \"تسجيل الدخول\" في المتجر هيظهر هنا باسمه وإيميله وبياناته."}</div>`}`;
-},
-products() {
-  const counts = {all: D.products.length, missing: missing().length, hidden: D.products.filter(p => p.active === false).length};
-  const list = D.products.map((p, i) => [p, i]).filter(([p]) =>
-    (pFilter === "all" || (pFilter === "missing" && p.active !== false && !priced(p)) || (pFilter === "hidden" && p.active === false) || p.cat === pFilter) &&
-    (!pQ || (p.ar + p.en + p.line).toLowerCase().includes(pQ)));
-  return `<div class="filters">
-    ${[["all", "الكل", counts.all], ["missing", "ناقص سعر", counts.missing], ["hidden", "مخفي", counts.hidden]].map(([k, n, c]) => `<button class="chip ${pFilter === k ? "on" : ""}" data-pf="${k}">${n}<span class="n">${num(c)}</span></button>`).join("")}
-    <span style="width:10px"></span>${Object.entries(CATS).map(([k, n]) => `<button class="chip ${pFilter === k ? "on" : ""}" data-pf="${k}">${n}</button>`).join("")}
-  </div>
-  <div class="toolbar"><input class="in" id="pQ" placeholder="ابحث عن منتج…" value="${esc(pQ)}"><button class="btn" data-go="add">＋ إضافة منتج</button><span class="hint">اكتب السعر في الخانة مباشرة – بيتحفظ تلقائي. سعر العبوة = السعر × حجمها.</span></div>
-  ${list.length ? `<div class="pgrid">${list.map(([p, i]) => pCard(p, i)).join("")}</div>` : `<div class="empty">مفيش منتجات هنا</div>`}`;
-},
-add() {
-  return `<div class="add-ways">
-    <div class="card">
-      <h3>⚡ من موقع جوتن (تلقائي)</h3>
-      <p class="hint" style="margin-bottom:14px">الصق رابط صفحة المنتج من موقع جوتن مصر، وهنجيب الاسم والوصف والصورة والعبوات تلقائياً. إنت تكتب السعر بس.</p>
-      ${MODE === "api" ? `<div class="step"><em>1</em><label class="f" style="flex:1"><span>رابط المنتج على jotun.com</span><input class="in" dir="ltr" id="jUrl" placeholder="https://www.jotun.com/eg-ar/decorative/products/interior/all-interior-products/…"></label></div>
-      <div style="margin:12px 0"><button class="btn" id="jFetch">جلب البيانات</button> <a class="btn light" target="_blank" href="https://www.jotun.com/eg-ar/decorative/products/interior/all-interior-products">فتح منتجات جوتن ↗</a></div>
-      <div id="jResult"></div>` : `<div class="notice blue">الإضافة التلقائية بتشتغل لما الموقع يكون على الاستضافة (السيرفر هو اللي بيفتح موقع جوتن). لحد دلوقتي استخدم الإضافة السريعة بجانب.</div>`}
-    </div>
-    <div class="card">
-      <h3>✍️ إضافة سريعة</h3>
-      <div class="grid">
-        <label class="f"><span><b>اسم المنتج</b></span><input class="in" id="qAr" placeholder="مثال: جوتاشيلد إكستريم"></label>
-        <label class="f"><span>الاسم بالإنجليزي (اختياري)</span><input class="in" id="qEn" dir="ltr" placeholder="Jotashield Extreme"></label>
-        <div class="grid g2">
-          <label class="f"><span>القسم</span><select class="in" id="qCat">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
-          <label class="f"><span>الوحدة</span><select class="in" id="qU"><option>لتر</option><option>كجم</option></select></label>
-          <label class="f"><span><b>السعر لكل وحدة</b></span><input class="in" id="qPrice" type="number" min="0" step="0.5" placeholder="فاضي = عند الطلب"></label>
-          <label class="f"><span>أحجام العبوات</span><input class="in" id="qSizes" placeholder="مثال: 1, 4, 18"></label>
-        </div>
-        <label class="f"><span>رابط صورة (اختياري)</span><input class="in" id="qImg" dir="ltr" placeholder="https://…"></label>
-        <label class="f"><span>وصف مختصر (اختياري)</span><textarea class="in" id="qD" rows="2"></textarea></label>
-        <button class="btn" id="qAdd">إضافة المنتج</button>
-        <p class="hint">أو انسخ منتج موجود من صفحة المنتجات (زرار "نسخ") وعدّل عليه.</p>
-      </div>
-    </div>
-  </div>`;
-},
-videos() {
-  const V = D.videos || [];
-  const vthumb = v => v.thumb || (v.type === "youtube" ? `https://i.ytimg.com/vi/${v.src}/mqdefault.jpg` : v.type === "drive" ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(v.src)}&sz=w320` : "");
-  const LBL = {youtube: "YouTube", drive: "رابط درايف", tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook", file: "ملف فيديو"};
-  return `<div class="add-ways" style="margin-bottom:20px">
-    <div class="card">
-      <h3>⬆️ رفع فيديو من جهازك</h3>
-      <div class="grid">
-        <label class="f"><span>ملف الفيديو (MP4 أو MOV${MODE === "api" ? " – لحد " + num(SERVER.maxVideoMB || 300) + " ميجا" : ""})</span><input class="in" type="file" id="vFile" accept="video/mp4,video/webm,video/quicktime,video/x-m4v,video/3gpp"></label>
-        <label class="f"><span>عنوان الفيديو</span><input class="in" id="vTitle1" placeholder="مثال: دهان شقة في المعادي بفينوماستيك"></label>
-        <label class="f"><span>وصف مختصر (اختياري)</span><input class="in" id="vDesc1"></label>
-        <label class="switch"><input type="checkbox" id="vVert1"><i></i>فيديو طولي (موبايل / ريلز)</label>
-        <button class="btn" id="vUpload">رفع الفيديو</button><div class="hint" id="vProg"></div>
-        <p class="hint">${MODE === "api"
-          ? "الفيديو بيترفع جوه الموقع مباشرة (فولدر assets/videos) من غير ما تختار أي فولدر وبيظهر في المتجر على طول. بيترفع على أجزاء، فلو النت قطع جرّب تاني."
-          : "الرفع بيشتغل لما الموقع يكون شغّال من السيرفر – على الاستضافة، أو على الكمبيوتر بالأمر node tools/dev-server.js. لحد كده تقدر تضيف الفيديو برابط يوتيوب أو غيره."}</p>
-      </div>
-    </div>
-    <div class="card">
-      <h3>🔗 إضافة من رابط</h3>
-      <div class="grid">
-        <label class="f"><span>رابط الفيديو</span><input class="in" id="vUrl" dir="ltr" placeholder="يوتيوب / تيك توك / فيسبوك / إنستجرام / رابط mp4"></label>
-        <label class="f"><span>عنوان الفيديو</span><input class="in" id="vTitle2"></label>
-        <label class="f"><span>وصف مختصر (اختياري)</span><input class="in" id="vDesc2"></label>
-        <button class="btn" id="vAddLink">إضافة الفيديو</button>
-      </div>
-    </div>
-  </div>
-  <div class="card"><h3>الفيديوهات على المتجر (${num(V.length)}) <span class="hint" style="margin-inline-start:auto;font-weight:400">الترتيب هنا هو ترتيب العرض في المتجر</span></h3>
-  ${V.length ? V.map((v, i) => `<div class="ed-item" style="display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:start">
-      <div style="aspect-ratio:16/9;background:#222 center/cover no-repeat;${vthumb(v) ? `background-image:url('${esc(vthumb(v))}')` : ""};display:grid;place-items:center;color:#fff;font-size:28px">▶</div>
-      <div>
-        <div class="hd" style="margin-bottom:8px"><span class="pill grey">${LBL[v.type] || v.type}</span>
-          <label class="switch"><input type="checkbox" data-p="videos.${i}.active" ${v.active !== false ? "checked" : ""}><i></i>ظاهر</label>
-          <label class="switch"><input type="checkbox" data-p="videos.${i}.vertical" ${v.vertical ? "checked" : ""}><i></i>طولي</label>
-          <button class="btn light sm" data-vmove="${i}:-1" ${i === 0 ? "disabled" : ""}>↑</button><button class="btn light sm" data-vmove="${i}:1" ${i === V.length - 1 ? "disabled" : ""}>↓</button>
-          <button class="btn red sm" data-vdel="${i}">حذف</button></div>
-        <div class="grid g2">${fld(`videos.${i}.title`, "العنوان", v.title)}${fld(`videos.${i}.desc`, "الوصف", v.desc)}</div>
-        <div class="vorder ${v.order ? "on" : ""}">
-          <label class="switch"><input type="checkbox" data-p="videos.${i}.order" data-vorder="${i}" ${v.order ? "checked" : ""}><i></i><b>زرار «اطلب الآن»</b> <span class="hint">(اختياري)</span></label>
-          <label class="f vorder-prod"><span>المنتج اللي في الفيديو (اختياري)</span>
-            <select class="in" data-p="videos.${i}.orderProduct"><option value="">— من غير منتج: الطلب يروح على واتساب —</option>${D.products.filter(p => p.active !== false).map(p => `<option value="${esc(p.id)}" ${v.orderProduct === p.id ? "selected" : ""}>${esc(p.ar)}${p.line ? " – " + esc(p.line) : ""}</option>`).join("")}</select></label>
-          <p class="hint vorder-prod">${v.orderProduct ? "العميل بيدوس «اطلب الآن» ← المنتج بيتضاف للسلة على طول." : "العميل بيدوس «اطلب الآن» ← بيفتح واتساب برسالة إنه عايز يطلب زي الفيديو."}</p>
-        </div>
-      </div></div>`).join("") : `<div class="empty">لسه مفيش فيديوهات. ارفع فيديو أو ضيف رابط، وبعدها اضغط "حفظ على الموقع".</div>`}
-  </div>`;
-},
-packages() {
-  const po = sel => `<option value="">— بدون —</option>` + D.products.map(p => `<option value="${p.id}" ${p.id === sel ? "selected" : ""}>${esc(p.ar)}</option>`).join("");
-  return `<p class="hint" style="margin-bottom:14px">سعر الباقة بيظهر للعميل لما كل منتجاتها يكون ليها سعر وتكتب المصنعية لكل متر. غير كده بيظهر "عرض سعر بعد المعاينة".</p>` +
-  (D.packages || []).map((k, i) => `<div class="ed-item"><div class="hd"><b>${esc(k.name)}</b><label class="switch"><input type="checkbox" data-p="packages.${i}.active" ${k.active !== false ? "checked" : ""}><i></i>ظاهرة</label><button class="btn red sm" data-delitem="packages.${i}">حذف</button></div>
-    <div class="grid g3">
-      ${fld(`packages.${i}.name`, "اسم الباقة", k.name)}${fld(`packages.${i}.tag`, "الشارة", k.tag)}
-      ${fld(`packages.${i}.laborPerM2`, "<b>المصنعية لكل م² (ج.م)</b>", k.laborPerM2, "number", 'placeholder="فاضي = عرض سعر"')}
-      <label class="f"><span>الدهان الأساسي</span><select class="in" data-p="packages.${i}.product">${po(k.product)}</select></label>
-      <label class="f"><span>البرايمر</span><select class="in" data-p="packages.${i}.primer">${po(k.primer)}</select></label>
-      <label class="f"><span>حائط مميز (اختياري)</span><select class="in" data-p="packages.${i}.accent">${po(k.accent)}</select></label>
-      ${fld(`packages.${i}.coats`, "عدد الطبقات", k.coats, "number")}
-    </div>
-    <label class="f" style="margin-top:12px"><span>المميزات (كل ميزة في سطر)</span><textarea class="in" rows="4" data-p="packages.${i}.includes" data-t="lines">${esc((k.includes || []).join("\n"))}</textarea></label>
-  </div>`).join("") + `<button class="btn" data-additem="package">＋ إضافة باقة</button>`;
-},
-reviews() {
-  return `<div class="notice blue">انقل هنا آراء عملائك الحقيقية فقط (من جوجل أو واتساب بعد موافقتهم). الآراء المزيفة ممكن تضر سمعة المحل.</div>` +
-  (D.reviews || []).map((r, i) => `<div class="ed-item"><div class="hd"><b>${esc(r.name || "رأي جديد")}</b><label class="switch"><input type="checkbox" data-p="reviews.${i}.active" ${r.active !== false ? "checked" : ""}><i></i>ظاهر</label><button class="btn red sm" data-delitem="reviews.${i}">حذف</button></div>
-    <div class="grid g4">${fld(`reviews.${i}.name`, "اسم العميل", r.name)}${fld(`reviews.${i}.area`, "المنطقة", r.area)}${fld(`reviews.${i}.rating`, "التقييم من 5", r.rating ?? 5, "number", 'min="1" max="5"')}${fld(`reviews.${i}.date`, "التاريخ", r.date)}</div>
-    <label class="f" style="margin-top:12px"><span>نص الرأي</span><textarea class="in" rows="2" data-p="reviews.${i}.text">${esc(r.text)}</textarea></label></div>`).join("") +
-  `<button class="btn" data-additem="review">＋ إضافة رأي عميل</button>`;
-},
-codes() {
-  return `<div class="notice warn">الأكواد مكتوبة داخل ملفات الموقع، فأي حد فاهم ممكن يشوفها. استخدمها كتسهيل للمقاولين وراجع الخصم عند تأكيد الطلب، وغيّرها كل فترة.</div>` +
-  (D.discountCodes || []).map((c, i) => `<div class="ed-item"><div class="hd"><b dir="ltr">${esc(c.code || "كود جديد")}</b><label class="switch"><input type="checkbox" data-p="discountCodes.${i}.active" ${c.active ? "checked" : ""}><i></i>مفعّل</label><button class="btn red sm" data-delitem="discountCodes.${i}">حذف</button></div>
-    <div class="grid g3">${fld(`discountCodes.${i}.code`, "الكود", c.code, "text", 'dir="ltr"')}${fld(`discountCodes.${i}.percent`, "نسبة الخصم ٪", c.percent, "number", 'min="1" max="50"')}${fld(`discountCodes.${i}.label`, "الوصف اللي يظهر للعميل", c.label)}</div></div>`).join("") +
-  `<button class="btn" data-additem="code">＋ إضافة كود</button>`;
-},
-settings() {
-  const s = D.settings, DN = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-  return `<div class="card" style="margin-bottom:16px"><h3>بيانات المحل</h3><div class="grid g3">
-      ${fld("settings.storeName", "اسم المتجر", s.storeName)}
-      ${fld("settings.whatsapp", "رقم واتساب الطلبات (بالصيغة الدولية بدون +)", s.whatsapp, "text", 'dir="ltr"')}
-      ${fld("settings.phoneDisplay", "رقم الهاتف كما يظهر", s.phoneDisplay, "text", 'dir="ltr"')}
-      ${fld("settings.phone", "رقم الهاتف الدولي (للاتصال)", s.phone, "text", 'dir="ltr"')}
-      ${fld("settings.samplePrice", "سعر عيّنة اللون (فاضي = مجاناً)", s.samplePrice, "number", 'data-null="1"')}
-      <label class="f" style="grid-column:1/-1"><span>ملاحظة الأسعار اللي بتظهر للعملاء</span><input class="in" data-p="settings.priceNote" value="${esc(s.priceNote || "")}"></label>
-    </div></div>
-    ${(() => { const P = payCfg(), age = daysSince(s.priceUpdated), sw = (k, label, hint) => `<label class="switch pay-sw"><input type="checkbox" data-p="settings.pay.${k}" ${P[k] !== false ? "checked" : ""}><i></i><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ""}</span></label>`;
-      return `<div class="card" style="margin-bottom:16px" id="payCard"><h3>💳 الدفع: إنستاباي وفودافون كاش</h3>
-      <div class="notice ${P.instant !== false ? "blue" : "warn"}" style="margin-bottom:14px">${P.instant !== false
-        ? "✓ <b>الدفع الفوري شغال:</b> الأبيض والألوان الجاهزة وأي منتج ليه سعر ومش «ألوان خاصة» العميل بيدفعه وقت الطلب. المنتجات اللي بتتلوّن بتتدفع بعد ما تأكد السعر."
-        : "⏸ <b>الدفع الفوري متوقف:</b> كل الطلبات دلوقتي بتتحول لـ«بعد التأكيد» لحد ما تشغّله تاني."}</div>
-      <div class="pay-sws">
-        ${sw("instant", "الدفع الفوري للمنتجات ذات السعر الثابت", "اقفله وقت ما الأسعار بتتغير ولسه ما حدّثتهاش")}
-        ${sw("instapay", "إنستاباي")}${sw("vf", "فودافون كاش")}
-      </div>
-      <div class="grid g3" style="margin-top:14px">
-        <label class="f"><span>رابط الدفع بإنستاباي</span><input class="in" dir="ltr" data-p="settings.pay.instapayUrl" value="${esc(P.instapayUrl)}" placeholder="https://ipn.eg/S/…"></label>
-        <label class="f"><span>عنوان إنستاباي (اختياري – بيتطلع من الرابط لوحده)</span><input class="in" dir="ltr" data-p="settings.pay.instapayId" value="${esc((s.pay || {}).instapayId || "")}" placeholder="${esc(P.instapayId || "name@instapay")}"></label>
-        <label class="f"><span>رابط فودافون كاش</span><input class="in" dir="ltr" data-p="settings.pay.vfUrl" value="${esc(P.vfUrl)}" placeholder="http://vf.eg/vfcash?…"></label>
-        <label class="f"><span>رقم فودافون كاش (اختياري)</span><input class="in" dir="ltr" data-p="settings.pay.vfNumber" value="${esc(P.vfNumber)}" placeholder="010xxxxxxxx"></label>
-        <label class="f"><span>نبّهني لو الأسعار ما اتحدّثتش من (يوم)</span><input class="in" type="number" min="1" data-t="num" data-p="settings.pay.staleDays" value="${esc(P.staleDays)}"></label>
-        <div class="f"><span>آخر تحديث للأسعار</span><b style="padding:10px 0">${s.priceUpdated ? `${new Date(s.priceUpdated).toLocaleDateString("ar-EG", {day: "numeric", month: "long", year: "numeric"})} (منذ ${num(age)} يوم)` : "لسه مسجّلش – بيتسجل لوحده أول ما تعدّل أي سعر"}</b></div>
-      </div>
-      <p class="hint" style="margin-top:10px">العميل بيشوف الرابط والعنوان بعد ما يأكد طلبه بس، ومش ظاهرين في أي مكان تاني في المتجر. التعديلات بتشتغل بعد «حفظ على الموقع».</p>
-    </div>` })()}
-    <div class="card" style="margin-bottom:16px"><h3>صفحات التواصل الاجتماعي</h3>
-      <p class="hint" style="margin-bottom:12px">كل المنصات ظاهرة في الشريط الأزرق في المتجر. المنصة اللي مالهاش رابط بتظهر باهتة ومش بتفتح، وأول ما تحط رابطها وتحفظ بتشتغل. الرابط لازم يبدأ بـ https://</p>
-      <div class="grid g3">${[["facebook", "فيسبوك", "https://facebook.com/…"], ["instagram", "إنستجرام", "https://instagram.com/…"], ["tiktok", "تيك توك", "https://tiktok.com/@…"], ["youtube", "يوتيوب", "https://youtube.com/@…"], ["whatsapp", "واتساب (اختياري – بيستخدم رقم الطلبات لو فاضي)", "https://wa.me/…"], ["x", "إكس (تويتر)", "https://x.com/…"], ["snapchat", "سناب شات", "https://snapchat.com/add/…"], ["threads", "ثريدز", "https://threads.net/@…"], ["telegram", "تيليجرام", "https://t.me/…"], ["linkedin", "لينكد إن", "https://linkedin.com/company/…"], ["pinterest", "بنترست", "https://pinterest.com/…"]]
-        .map(([k, n, ph]) => { const v = (s.social || {})[k] || "", bad = v && !/^https:\/\/[^\s"'<>]+$/.test(v);
-          return `<label class="f"><span>${n} ${v && !bad ? `<b style="color:var(--ok)">✓ شغال</b>` : bad ? `<b style="color:var(--red)">الرابط لازم يبدأ بـ https://</b>` : `<span style="color:#999">– مش متضاف</span>`}</span><input class="in" dir="ltr" data-p="settings.social.${k}" data-social="1" value="${esc(v)}" placeholder="${ph}"></label>` }).join("")}
-      </div></div>
-    <div class="card" style="margin-bottom:16px"><h3>المواعيد والحجز</h3><div class="grid g3">
-      ${fld("settings.openHour", "ساعة الفتح (0-23)", s.openHour, "number")}${fld("settings.closeHour", "ساعة الإغلاق (0-23)", s.closeHour, "number")}${fld("settings.bookingDaysAhead", "عدد أيام الحجز المتاحة", s.bookingDaysAhead, "number")}
-      <label class="f" style="grid-column:1/-1"><span>مواعيد المعاينة المتاحة (مفصولة بفاصلة)</span><input class="in" dir="ltr" data-p="settings.bookingSlots" data-t="slots" value="${esc((s.bookingSlots || []).join(", "))}"></label>
-      <div class="f daysel" style="grid-column:1/-1"><span>أيام الإجازة</span><div style="display:flex;gap:14px;flex-wrap:wrap;color:var(--ink)">${DN.map((d, i) => `<label class="switch"><input type="checkbox" value="${i}" data-p="settings.closedDays" data-t="days" ${(s.closedDays || []).includes(i) ? "checked" : ""}><i></i>${d}</label>`).join("")}</div></div>
-    </div></div>
-    <div class="card" style="margin-bottom:16px"><h3>جوجل والإعلانات</h3><div class="grid g3">
-      ${fld("settings.siteUrl", "دومين الموقع (مهم لجوجل)", s.siteUrl, "text", 'dir="ltr"')}
-      ${fld("settings.googleReviewUrl", "رابط كتابة تقييم على جوجل", s.googleReviewUrl, "text", 'dir="ltr"')}
-      ${fld("settings.googleRating", "تقييمك الحالي على جوجل (مثال 4.8)", s.googleRating, "number", 'step="0.1" data-null="1"')}
-      ${fld("settings.googleReviewCount", "عدد التقييمات على جوجل", s.googleReviewCount, "number", 'data-null="1"')}
-      ${fld("settings.ga4Id", "Google Analytics 4 (G-XXXX)", s.ga4Id, "text", 'dir="ltr"')}
-      ${fld("settings.fbPixelId", "Facebook Pixel ID", s.fbPixelId, "text", 'dir="ltr"')}
-    </div><p class="hint" style="margin-top:10px">بعد تغيير الدومين أو التقييم أو إضافة منتجات، شغّل <code>node tools/build.js</code> مرة لتحديث صفحات المنتجات لجوجل.</p></div>
-    <div class="card" style="margin-bottom:16px"><h3>الباقات</h3><div class="grid g3">${fld("settings.wallFactor", "معامل مساحة الجدران (جدران = مساحة الشقة × المعامل)", s.wallFactor, "number", 'step="0.1"')}</div></div>
-    <div class="card"><h3>🔒 كلمة سر اللوحة</h3>
-      <div class="grid g3">
-        <label class="f"><span>كلمة السر الحالية</span><input class="in" id="pwCur" type="password" dir="ltr" autocomplete="current-password"></label>
-        <label class="f"><span>كلمة السر الجديدة</span><input class="in" id="pwNew" type="password" dir="ltr" autocomplete="new-password"></label>
-        <label class="f"><span>اكتب الجديدة تاني</span><input class="in" id="pwNew2" type="password" dir="ltr" autocomplete="new-password"></label>
-      </div>
-      <p class="hint" style="margin-top:8px">8 حروف على الأقل وفيها أرقام وحروف. ${MODE === "api" ? "بعد التغيير كل الأجهزة التانية بتخرج تلقائي." : "في وضع الملف التغيير بيتطبق بعد ما ترفع store.json."}</p>
-      <button class="btn" id="savePw" style="margin-top:12px">تغيير كلمة السر</button>
-    </div>`;
-},
-guide() {
-  return `<div class="card" style="margin-bottom:16px"><h3>${SBC ? "✓ المتجر متوصّل بـ Supabase" : "المتجر لسه مش متوصّل بـ Supabase"}</h3>
-    <p>${SBC ? "المنتجات والأسعار والطلبات والفيديوهات كلها محفوظة في قاعدة بيانات Supabase بتاعتك، وتقدر تشوفها وتفلترها من Table Editor هناك." : "اتبع الخطوات اللي تحت مرة واحدة. بعدها كل حاجة هتتحفظ في Supabase، والمتجر هيشتغل من GitHub Pages مجاناً."}</p></div>
-  <div class="card guide" style="margin-bottom:16px"><h3>أولاً: Supabase (قاعدة البيانات) – حوالي 10 دقايق</h3>
-    <ol>
-      <li>افتح <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a> ← <b>Start your project</b> ← اعمل حساب.</li>
-      <li><b>New project</b>: اكتب اسم (مثلاً everest)، واختار كلمة سر لقاعدة البيانات واحفظها، والمنطقة الأقرب (مثلاً Frankfurt) ← Create.</li>
-      <li>من القائمة: <b>SQL Editor</b> ← New query ← الصق ملف الإعداد كله ← <b>Run</b>.<div style="margin-top:8px"><button class="btn sm" id="copySql">نسخ ملف الإعداد</button> <a class="btn light sm" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/tools/supabase-setup.sql" target="_blank">عرض الملف</a></div></li>
-      <li><b>Authentication</b> ← <b>Users</b> ← <b>Add user</b> ← Create new user: إيميلك وكلمة سر قوية، وعلّم على <b>Auto Confirm User</b>.</li>
-      <li>للأمان: <b>Authentication</b> ← <b>Sign In / Providers</b> ← اقفل <b>Allow new users to sign up</b>.</li>
-      <li><b>Project Settings</b> ← <b>API</b>: انسخ <b>Project URL</b> و <b>anon public key</b> وحطهم في ملف <code>assets/config.js</code> (أو ابعتهملي وأنا أحطهم).</li>
-      <li>افتح لوحة التحكم وادخل بالإيميل وكلمة السر – أول حساب بيدخل بيبقى هو الأدمن. هتلاقي رسالة "نقل البيانات" ← اضغط <b>حفظ على الموقع</b>.</li>
-    </ol></div>
-  <div class="card guide" style="margin-bottom:16px"><h3>ثانياً: GitHub (نشر الموقع مجاناً)</h3>
-    <ol>
-      <li>افتح <a href="https://github.com/signup" target="_blank" rel="noopener">github.com</a> واعمل حساب.</li>
-      <li>من فوق ← <b>+</b> ← <b>New repository</b>: الاسم <code>everest-store</code>، اختار <b>Public</b> ← Create repository.</li>
-      <li>اضغط <b>uploading an existing file</b> واسحب كل محتويات فولدر الموقع (ما عدا فولدر <code>private</code> لو موجود) ← <b>Commit changes</b>.</li>
-      <li><b>Settings</b> ← <b>Pages</b> ← Source: <b>Deploy from a branch</b> ← Branch: <b>main</b> / <b>(root)</b> ← Save. بعد دقيقة هيظهر رابط موقعك.</li>
-      <li>أي تعديل في الأسعار أو المنتجات أو الفيديوهات من اللوحة بيظهر على الموقع على طول – مش محتاج ترفع ملفات تاني. هتحتاج ترفع ملفات بس لو اتغير تصميم الموقع.</li>
-    </ol>
-    <div class="notice warn" style="margin:14px 0 0">خطة Supabase المجانية: حد الفيديو 50 ميجا، والمشروع بيتوقف مؤقتاً لو مفيش أي زيارات لمدة أسبوع (بيرجع بضغطة من لوحة Supabase). زيارات المتجر العادية بتخليه شغال.</div></div>
-    <div class="card"><h3>إزاي اللوحة بتشتغل؟</h3><ul style="padding-right:18px;display:flex;flex-direction:column;gap:6px">
-      <li>كل تعديل بيتحفظ تلقائي على جهازك كمسودة. "معاينة" بيوريك الموقع بالتعديلات قبل ما تحفظ.</li>
-      <li>"حفظ على الموقع" بيكتب التعديلات في Supabase، والمتجر بيقراها على طول.</li>
-      <li>الطلبات والحجوزات بتوصلك على واتساب، وكمان بتتسجل في جدول <b>orders</b> في Supabase وفي "الطلبات والنشاط" هنا.</li>
-      <li>في Supabase ← <b>Table Editor</b> تقدر تشوف وتفلتر المنتجات والطلبات زي الإكسل.</li>
-    </ul></div>`;
-}
-};
-
-/* ================= تفاعلات كل شاشة ================= */
-const AFTER = {
-home() { bindProducts(); if (EVENTS) bindStatus();const b = $("#dlOnce"); if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click() } },
-events() {
-  $$("[data-et]").forEach(b => b.onclick = () => { eType = b.dataset.et; go("events") });
-  const q = $("#eQ"); if (!q) return;
-  q.oninput = () => { eQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("events"); const n = $("#eQ"); n.focus(); n.setSelectionRange(pos, pos) };
-  $("#eStatus").onchange = e => { eStatus = e.target.value; go("events") };
-  $("#eRefresh").onclick = () => { EVENTS = null; go("events"); loadEvents() };
-  bindStatus();
-},
-customers() {
-  $$("[data-ct]").forEach(b => b.onclick = () => { cType = b.dataset.ct; go("customers") });
-  const q = $("#cQ"); if (!q) return;
-  q.oninput = () => { cQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("customers"); const n = $("#cQ"); n.focus(); n.setSelectionRange(pos, pos) };
-  $("#cRefresh").onclick = () => { EVENTS = null; go("customers"); loadEvents() };
-  $("#cCsv").onclick = () => {
-    const cell = v => `"${String(v ?? "").replace(/"/g, '""').replace(/\n/g, " | ")}"`;
-    const rows = [["الاسم", "النوع", "الإيميل", "الموبايل","المنطقة", "بيانات إضافية", "أول تسجيل", "آخر دخول", "عدد الزيارات", "عدد الطلبات"]].concat(customers().map(c => [c.name, c.ctype || "", c.email, c.phone, c.area, (c.signup ? c.signup.details : "").split("\n").filter(l => !/^(الإيميل|نوع العميل):/.test(l)).join(" | "), new Date(c.first).toLocaleString("ar-EG"), new Date(c.last).toLocaleString("ar-EG"), c.visits, c.orders]));
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map(r => r.map(cell).join(",")).join("\r\n")], {type: "text/csv;charset=utf-8"}));
-    a.download = "everest-customers.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
-  };
-  bindStatus();
-},
-products() {
-  bindProducts();
-  $$("[data-pf]").forEach(b => b.onclick = () => { pFilter = b.dataset.pf; go("products") });
-  const q = $("#pQ"); q.oninput = () => { pQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("products"); const n = $("#pQ"); n.focus(); n.setSelectionRange(pos, pos) };
-},
-add() {
-  const j = $("#jFetch");
-  if (j) j.onclick = async () => {
-    const url = $("#jUrl").value.trim(); if (!url) return toast("الصق رابط المنتج الأول");
-    j.disabled = true; j.textContent = "جاري الجلب…";
-    try {
-      const r = await api("fetchJotun", {url}); if (!r.ok) throw new Error(r.error || "تعذّر الجلب");
-      const p = Object.assign({active: true, f: [], price: null, cov: r.product.cat === "exterior" ? 9 : 11, best: false}, r.product);
-      if (D.products.some(x => x.url === p.url)) toast("تنبيه: المنتج ده موجود بالفعل في المتجر");
-      p.id = uniqueId(p.id);
-      $("#jResult").innerHTML = `<div class="prev" style="margin-bottom:12px"><div class="im">${p.img ? `<img src="${IMG(p.img)}">` : ""}</div><div><b>${esc(p.ar)}</b><div class="hint">${esc(p.en)} · ${CATS[p.cat]}${p.sizes ? " · عبوات " + p.sizes.join(" / ") + " " + p.u : ""}</div></div></div>
-        <div class="f"><span><b>اكتب السعر</b> – ده الشيء الوحيد المطلوب منك</span>
-        ${p.sizes ? p.sizes.map(s => `<div class="price-in" style="margin-top:6px"><span style="min-width:90px;color:var(--ink)">${num(s)} ${esc(p.u)}</span><input type="number" min="0" step="1" class="jp" data-s="${s}" placeholder="سعر العبوة"><span>ج.م</span></div>`).join("")
-          : `<div class="price-in"><input type="number" min="0" step="0.5" class="jp" placeholder="اكتب السعر"><span>ج.م / ${esc(p.u)}</span></div>`}</div>
-        <div style="margin-top:12px;display:flex;gap:10px"><button class="btn" id="jAdd">إضافة للمتجر</button></div>`;
-      $("#jAdd").onclick = () => {
-        const ins = $$(".jp");
-        if (p.sizes) { p.packs = ins.map(el => ({s: +el.dataset.s, u: p.u, p: el.value === "" ? null : +el.value})); p.sizes = null; p.price = null }
-        else p.price = ins[0].value === "" ? null : +ins[0].value;
-        D.products.push(p); changed(); toast("تمت الإضافة ✓"); pFilter = "all"; go("products");
-      };
-      $(".jp").focus();
-    } catch (e) { $("#jResult").innerHTML = `<div class="notice warn">${esc(e.message)}</div>` }
-    j.disabled = false; j.textContent = "جلب البيانات";
-  };
-  $("#qAdd").onclick = () => {
-    const ar = $("#qAr").value.trim(); if (!ar) return toast("اكتب اسم المنتج");
-    const en = $("#qEn").value.trim(), cat = $("#qCat").value, sizes = $("#qSizes").value.split(/[,،\s]+/).map(Number).filter(n => n > 0).sort((a, b) => a - b);
-    const u = $("#qU").value, unit = $("#qPrice").value === "" ? null : +$("#qPrice").value;
-    D.products.push({id: uniqueId(en || "product"), active: true, cat, line: en.split(" ")[0] || "Jotun", ar, en, d: $("#qD").value.trim(), f: [], img: null, image: $("#qImg").value.trim() || null, col: "#8fa3b5",
-      price: sizes.length ? null : unit, u, sizes: null, packs: sizes.length ? sizes.map(s => ({s, u, p: unit != null ? Math.round(unit * s) : null})) : null, cov: cat === "exterior" ? 9 : 11, url: null, best: false});
-    changed(); toast("تمت الإضافة ✓"); pFilter = "all"; go("products"); openEditor(D.products.length - 1);
-  };
-},
-videos() {
-  const add = v => { (D.videos = D.videos || []).unshift(Object.assign({id: "v" + Date.now().toString(36), active: true, date: new Date().toISOString().slice(0, 10)}, v)); changed(); go("videos") };
-  $("#vAddLink").onclick = () => {
-    const v = parseVideo($("#vUrl").value);
-    if (!v) return toast("الرابط مش مدعوم – استخدم رابط يوتيوب أو تيك توك أو فيسبوك أو إنستجرام أو ملف mp4");
-    add(Object.assign(v, {title: $("#vTitle2").value.trim(), desc: $("#vDesc2").value.trim()}));
-    toast("تمت الإضافة ✓ متنساش تنشر");
-  };
-  const up = $("#vUpload");
-  if (up) up.onclick = async () => {
-    const f = $("#vFile").files[0]; if (!f) return toast("اختار ملف الفيديو الأول");
-    if (MODE !== "api") return toast("الرفع بيشتغل لما الموقع يكون شغّال من السيرفر (على الاستضافة، أو على الكمبيوتر بالأمر node tools/dev-server.js)");
-    up.disabled = true; $("#vProg").textContent = `جاري الرفع (${num((f.size / 1048576).toFixed(1))} ميجا)… سيب الصفحة مفتوحة`;
-    try {
-      const src = await uploadToServer(f, p => $("#vProg").textContent = `جاري الرفع… ${num(p)}٪`);
-      add({type: "file", src, title: $("#vTitle1").value.trim() || f.name.replace(/\.[^.]+$/, ""), desc: $("#vDesc1").value.trim(), vertical: $("#vVert1").checked});
-      const s = await api("save", {data: D}); if (s.ok) { PUB = JSON.stringify(D); ls.del(DRAFT); refreshTop() }
-      toast("اترفع ✓ الفيديو ظاهر في المتجر دلوقتي");
-    } catch (e) { $("#vProg").textContent = ""; toast(e.message || "تعذّر الرفع") }
-    up.disabled = false;
-  };
-  $$("[data-vorder]").forEach(c => c.addEventListener("change", () => c.closest(".vorder").classList.toggle("on", c.checked)));
-  $$(".vorder select").forEach(s => s.addEventListener("change", () => { const h = s.closest(".vorder").querySelector("p.vorder-prod"); h.textContent = s.value ? "العميل بيدوس «اطلب الآن» ← المنتج بيتضاف للسلة على طول." : "العميل بيدوس «اطلب الآن» ← بيفتح واتساب برسالة إنه عايز يطلب زي الفيديو." }));
-  $$("[data-vmove]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.vmove.split(":").map(Number), V = D.videos; [V[i], V[i + d]] = [V[i + d], V[i]]; changed(); go("videos") });
-  $$("[data-vdel]").forEach(b => b.onclick = async () => {
-    const i = +b.dataset.vdel, v = D.videos[i]; if (!confirm(`حذف "${v.title || "الفيديو"}" من المتجر؟`)) return;
-    D.videos.splice(i, 1); changed(); go("videos");
-    if (v.type === "file" && MODE === "api") { try { await api("deleteVideo", {src: v.src}); const s = await api("save", {data: D}); if (s.ok) { PUB = JSON.stringify(D); ls.del(DRAFT); refreshTop() } } catch (e) {} }
-  });
-},
-packages: bindItems, reviews: bindItems, codes: bindItems,
-settings() {
-  $("#savePw").onclick = async () => { $("#savePw").disabled = true; try { await changePassword() } finally { $("#savePw").disabled = false } };
-},
-guide() { const b = $("#copySql"); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(await fetch("https://evreststore2020.github.io/everest-paints.github.io/everest-store/tools/supabase-setup.sql").then(r => r.text())); toast("تم نسخ ملف الإعداد ✓") } catch (e) { toast("افتح الملف وانسخه يدوي") } } }
-};
-function bindProducts() {
-  $$("[data-price]").forEach(el => el.oninput = () => {
-    const i = +el.dataset.price, p = D.products[i]; p.price = el.value === "" ? null : +el.value; D.settings.priceUpdated = new Date().toISOString();
-    $$(`[data-packs="${i}"]`).forEach(x => x.innerHTML = packsHTML(p));
-    el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
-    changed();
-  });
-  $$("[data-pkprice]").forEach(el => el.oninput = () => {
-    const [i, j] = el.dataset.pkprice.split(":").map(Number), p = D.products[i];
-    p.packs[j].p = el.value === "" ? null : +el.value; D.settings.priceUpdated = new Date().toISOString();
-    el.closest(".price-in").style.cssText = p.packs[j].p == null ? "border-color:#e9b949;background:#fffbf0" : "";
-    el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
-    changed();
-  });
-  $$("[data-tog]").forEach(el => el.onchange = () => { D.products[+el.dataset.i][el.dataset.tog] = el.checked; changed(); el.closest(".pc").classList.toggle("hidden-p", D.products[+el.dataset.i].active === false) });
-  $$("[data-edit]").forEach(b => b.onclick = () => openEditor(+b.dataset.edit));
-  $$("[data-dup]").forEach(b => b.onclick = () => { const src = D.products[+b.dataset.dup], c = JSON.parse(JSON.stringify(src)); c.id = uniqueId(src.id + "-copy"); c.ar = src.ar + " (نسخة)"; c.best = false; D.products.splice(+b.dataset.dup + 1, 0, c); changed(); go(view); openEditor(+b.dataset.dup + 1) });
-  $$("[data-del]").forEach(b => b.onclick = () => { const p = D.products[+b.dataset.del]; if (!confirm(`حذف "${p.ar}" نهائياً؟\n(لو عايز تخفيه بس، اقفل "ظاهر")`)) return; D.products.splice(+b.dataset.del, 1); changed(); go(view) });
-}
-function bindPay() {
-  $$("[data-payid]").forEach(card => {
-    const e = EVENTS.find(x => x.id === card.dataset.payid); if (!e || !e.pay) return;
-    const read = () => {
-      const f = card.querySelector("[data-pay-final]").value, p = card.querySelector("[data-pay-paid]").value;
-      const pay = Object.assign({}, e.pay, {status: card.querySelector("[data-pay-st]").value, final: f === "" ? null : +f, paid: p === "" ? 0 : +p});
-      /* الحالة بتتظبط لوحدها من المبالغ */
-      if (pay.final != null && pay.paid >= pay.final && pay.paid > 0) pay.status = "مدفوع بالكامل";
-      else if (pay.paid > 0 && pay.status === "لم يدفع") pay.status = "دفع جزء";
-      return pay;
-    };
-    /* المتبقي وزرار طلب الدفع بيتحدّثوا وإنت بتكتب */
-    const live = () => { const y = read(), rest = y.final == null ? null : Math.max(0, y.final - (y.paid || 0)), r = card.querySelector(".pc-rest"), b = card.querySelector("[data-pay-req]");
-      r.innerHTML = rest == null ? "اكتب الإجمالي النهائي عشان تبعت طلب الدفع" : rest > 0 ? `المتبقي: <b>${money(rest)}</b>` : `<b style="color:var(--ok)">✓ مفيش متبقي</b>`; if (b) b.disabled = !(rest > 0) };
-    card.querySelectorAll("[data-pay-final],[data-pay-paid]").forEach(i => i.oninput = live);
-    const persist = async (pay, msg) => {
-      const old = e.pay; e.pay = pay;
-      try { const r = await api("pay", {id: e.id, pay}); if (!r.ok) throw 0; toast(msg || "تم الحفظ ✓"); refreshBadges(); go(view) }
-      catch (err) { e.pay = old; toast("تعذّر الحفظ – اتأكد إنك شغّلت تحديث قاعدة البيانات (supabase-payments.sql)") }
-    };
-    card.querySelector("[data-pay-save]").onclick = () => persist(read());
-    card.querySelector("[data-pay-st]").onchange = () => {
-      const pay = read(); if (pay.status === "مدفوع بالكامل" && pay.final != null && !pay.paid) pay.paid = pay.final;
-      persist(pay, "تم تحديث حالة الدفع ✓");
-    };
-    const req = card.querySelector("[data-pay-req]");
-    if (req) req.onclick = () => {
-      const pay = read(), P = payCfg(); if (pay.final == null) return toast("اكتب الإجمالي النهائي الأول");
-      const rest = Math.max(0, pay.final - (pay.paid || 0)); if (!rest) return toast("مفيش مبلغ متبقي");
-      const how = [
-        P.instapay !== false && (P.instapayUrl || P.instapayId) ? [`⚡ إنستاباي${P.instapayId ? ": " + P.instapayId : ""}`, P.instapayUrl].filter(Boolean).join("\n") : "",
-        P.vf !== false && (P.vfUrl || P.vfNumber) ? [`📱 فودافون كاش${P.vfNumber ? ": " + P.vfNumber : ""}`, P.vfUrl].filter(Boolean).join("\n") : ""
-      ].filter(Boolean).join("\n\n");
-      const msg = `أهلاً ${e.name || ""} 👋\nمعاك إفرست للدهانات بخصوص طلبك${pay.no ? ` رقم ${pay.no}` : ""}.\n\nالإجمالي النهائي بعد التأكيد: ${money(pay.final)}${pay.paid ? `\nالمدفوع: ${money(pay.paid)}` : ""}\nالمطلوب دفعه: ${money(rest)}\n\nتقدر تدفع عن طريق:\n${how}\n\nمن فضلك اكتب رقم الطلب في ملاحظة التحويل وابعتلنا صورة التحويل هنا. شكراً لثقتك 🙏`;
-      window.open(waLink(e.phone, msg), "_blank");
-      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), "اتفتح واتساب برسالة طلب الدفع ✓");
-    };
-  });
-}
-function bindStatus() {
-  bindPay();
-  $$("[data-status]").forEach(s => s.onchange = async () => {
-    const e = EVENTS.find(x => x.id === s.dataset.status); const old = e.status; e.status = s.value; refreshBadges();
-    try { const r = await api("status", {id: e.id, status: s.value}); if (!r.ok) throw 0; toast("تم تحديث الحالة ✓"); s.closest(".ev").classList.toggle("new", e.status === "جديد") } catch (err) { e.status = old; s.value = old; toast("تعذّر التحديث") }
-  });
-}
-/* يتعرف على رابط الفيديو ويطلع النوع والمعرّف */
-function parseVideo(url) {
-  url = String(url || "").trim(); let m;
-  if ((m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/))) return {type: "youtube", src: m[1], vertical: /\/shorts\//.test(url)};
-  if ((m = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([\w-]{20,})/))) return {type: "drive", src: m[1]};
-  if ((m = url.match(/tiktok\.com\/.*\/video\/(\d+)/))) return {type: "tiktok", src: m[1], vertical: true};
-  if ((m = url.match(/instagram\.com\/(?:reel|reels|p)\/([\w-]+)/))) return {type: "instagram", src: m[1], vertical: /\/reels?\//.test(url)};
-  if (/^https:\/\/(www\.|m\.|web\.)?(facebook\.com|fb\.watch)\//.test(url)) return {type: "facebook", src: url, vertical: /\/reel\//.test(url)};
-  if (/^(https:\/\/|assets\/)[^\s"']+\.(mp4|webm|mov)(\?[^\s"']*)?$/i.test(url)) return {type: "file", src: url};
-  return null;
-}
-function bindItems() {
-  $$("[data-delitem]").forEach(b => b.onclick = () => { const [arr, i] = b.dataset.delitem.split("."); if (!confirm("حذف؟")) return; D[arr].splice(+i, 1); changed(); go(view) });
-  $$("[data-additem]").forEach(b => b.onclick = () => {
-    const t = b.dataset.additem;
-    if (t === "package") (D.packages = D.packages || []).push({id: "pkg-" + Date.now().toString(36), active: true, name: "باقة جديدة", tag: "جديد", product: (D.products[0] || {}).id, primer: "pva-primer", coats: 2, laborPerM2: null, includes: []});
-    if (t === "review") (D.reviews = D.reviews || []).push({active: true, name: "", area: "", rating: 5, date: "", text: ""});
-    if (t === "code") (D.discountCodes = D.discountCodes || []).push({code: "", percent: 5, label: "خصم", active: true});
-    changed(); go(view);
-  });
-}
-addEventListener("hashchange", () => { if (D && location.hash.slice(1) !== view) go(location.hash.slice(1)) });
-</script>
+<script src="assets/app.js"></script>
 </body>
 </html>
