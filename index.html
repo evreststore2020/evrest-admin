@@ -304,6 +304,12 @@ const missing = () => D.products.filter(p => p.active !== false && !priced(p));
 const API_FILE = "api.php";
 /* لو Supabase متوصّل في assets/config.js → اللوحة بتشتغل عليه */
 const SBC = window.supaConfigured && window.supaConfigured() ? window.Supa(window.EVEREST_CONFIG) : null;
+/* Supabase بيرجّع 1000 صف بالكتير في المرة: بنجيب على دفعات */
+async function sbAll(table, order, max = 50000) {
+  const out = new Map();
+  for (let o = 0; o < max; o += 1000) { const r = await SBC.select(table, `select=*&order=${order}&limit=1000&offset=${o}`) || []; r.forEach(x => out.set(x.id ?? x.key, x)); if (r.length < 1000) break }
+  return [...out.values()];
+}
 async function sbApi(action, x = {}) {
   try {
     await SBC.ensureFresh(); if (KEY) saveAuth();
@@ -311,7 +317,7 @@ async function sbApi(action, x = {}) {
       case "ping": return {ok: (await SBC.rpc("is_admin")) === true};
       case "save": await SBC.saveAll(JSON.parse(JSON.stringify(x.data))); return {ok: true};
       case "events": {
-        const rows = await SBC.select("orders", "select=*&order=created_at.desc&limit=" + (+x.limit || 2000));
+        const rows = await sbAll("orders", "created_at.desc,id.desc");
         return {ok: true, events: (rows || []).map(r => {
           let type = r.type, det = r.details || "";
           /* عملاء اتسجلوا قبل تحديث قاعدة البيانات بيتسجلوا كـ"تواصل" بعلامة */
@@ -414,6 +420,10 @@ async function boot() {
     if (!KEY) await askKey();
     let live = null; try { live = await SBC.loadAll(true) } catch (e) { toast("تعذّر تحميل البيانات من Supabase: " + e.message) }
     if (live && live.products.length) { PUB = JSON.stringify(live); STAT = live; start(live) }
+    else if (!live) {
+      /* مانفتحش بنسخة قديمة: الحفظ وقتها كان هيمسح بيانات الموقع الحالية */
+      document.body.innerHTML = '<div style="max-width:460px;margin:18vh auto;padding:28px;background:#fff;text-align:center;font-family:inherit"><h2>تعذّر تحميل بيانات المتجر</h2><p>اتأكد من النت وحاول تاني. بياناتك ما اتغيرتش.</p><button class="btn" onclick="location.reload()">حاول تاني</button></div>'; return;
+    }
     else { PUB = ""; start(STAT); IMPORT = true }
     loadEvents(); return;
   }
@@ -765,6 +775,7 @@ home() {
   ${(() => { const P = payCfg(), age = daysSince(S.priceUpdated); return P.instant !== false && age != null && age >= (+P.staleDays || 30)
     ? `<div class="notice warn">⚠ الأسعار آخر تحديث ليها من ${num(age)} يوم والدفع الفوري شغال. راجع الأسعار، أو اقفل الدفع الفوري مؤقتاً لحد ما تحدّثها.<button class="btn sm" data-go="products">مراجعة الأسعار</button><button class="btn light sm" data-go="settings">إعدادات الدفع</button></div>` : "" })()}
   ${EVENTS && EVS().filter(unpaid).length ? `<div class="notice blue">💳 عندك ${num(EVS().filter(unpaid).length)} طلب مستني دفع.<button class="btn sm" data-go="events" data-etype="unpaid">عرضهم</button></div>` : ""}
+  ${SBC && (daysSince(ls.get("everest-last-backup", null)) ?? 99) >= 7 ? `<div class="notice warn">💾 بقالك أكتر من أسبوع من غير نسخة احتياطية على الجهاز ده.<button class="btn sm" data-go="settings">خد نسخة</button></div>` : ""}
   <div class="kpis">
     <button class="kpi" data-go="events" data-etype="all"><small>طلبات وحجوزات جديدة</small><b>${newEv == null ? "—" : num(newEv)}</b><span class="sub">${MODE === "api" ? "محتاجة تتواصل معاها" : "بتظهر هنا لما الموقع يبقى على الاستضافة"}</span></button>
     <button class="kpi" data-go="events" data-etype="order"><small>طلبات الشهر</small><b>${EVENTS ? num(ordersM.length) : "—"}</b><span class="sub">${EVENTS ? "بقيمة تقريبية " + money(sales) : ""}</span></button>
@@ -996,6 +1007,16 @@ settings() {
       ${fld("settings.fbPixelId", "Facebook Pixel ID", s.fbPixelId, "text", 'dir="ltr"')}
     </div><p class="hint" style="margin-top:10px">بعد تغيير الدومين أو التقييم أو إضافة منتجات، شغّل <code>node tools/build.js</code> مرة لتحديث صفحات المنتجات لجوجل.</p></div>
     <div class="card" style="margin-bottom:16px"><h3>الباقات</h3><div class="grid g3">${fld("settings.wallFactor", "معامل مساحة الجدران (جدران = مساحة الشقة × المعامل)", s.wallFactor, "number", 'step="0.1"')}</div></div>
+    <div class="card" style="margin-bottom:16px"><h3>📄 بيانات صفحة السياسات</h3><div class="grid g3">
+      ${fld("settings.legal.cr", "رقم السجل التجاري", (s.legal || {}).cr, "text", 'dir="ltr"')}
+      ${fld("settings.legal.tax", "رقم البطاقة الضريبية", (s.legal || {}).tax, "text", 'dir="ltr"')}
+      ${fld("settings.legal.email", "إيميل خدمة العملاء (اختياري)", (s.legal || {}).email, "text", 'dir="ltr"')}
+      <label class="f" style="grid-column:1/-1"><span>سياسة التوصيل: المناطق والتكلفة والمدة</span><textarea class="in" rows="2" data-p="settings.legal.delivery" placeholder="فاضي = التكلفة والموعد بيتأكدوا على واتساب">${esc((s.legal || {}).delivery || "")}</textarea></label>
+    </div><p class="hint" style="margin-top:8px">بتظهر في صفحة «الشروط والخصوصية» بعد «حفظ على الموقع». القانون بيطلب إظهار السجل التجاري والبطاقة الضريبية في البيع عن بعد.</p></div>
+    ${SBC ? `<div class="card" style="margin-bottom:16px"><h3>💾 النسخ الاحتياطي</h3>
+      <p class="hint">آخر نسخة من الجهاز ده: <b>${ls.get("everest-last-backup", null) ? ago(ls.get("everest-last-backup", null)) : "مفيش"}</b>. خد نسخة كل أسبوع واحفظها في مكان آمن. <b>الملف فيه بيانات العملاء، فمترفعهوش على GitHub ومتبعتهوش لحد.</b> ملفات الفيديو نفسها مش جواه.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="bkSave">⬇ تنزيل نسخة احتياطية</button><label class="btn light">⬆ استرجاع المنتجات والإعدادات<input type="file" id="bkLoad" accept=".json,application/json" hidden></label></div>
+      <p class="hint" style="margin-top:8px">الاسترجاع بيجهّز المنتجات والإعدادات بس، ومش بيتنفّذ غير لما تراجعها وتضغط «حفظ على الموقع». الطلبات بتفضل محفوظة في الملف للرجوع ليها.</p></div>` : ""}
     <div class="card"><h3>🔒 كلمة سر اللوحة</h3>
       <div class="grid g3">
         <label class="f"><span>كلمة السر الحالية</span><input class="in" id="pwCur" type="password" dir="ltr" autocomplete="current-password"></label>
@@ -1132,6 +1153,29 @@ videos() {
 },
 packages: bindItems, reviews: bindItems, codes: bindItems,
 settings() {
+  if ($("#bkSave")) $("#bkSave").onclick = async () => {
+    const b = $("#bkSave"); b.disabled = true; b.textContent = "جاري التجهيز…";
+    try {
+      await SBC.ensureFresh();
+      if ((await SBC.rpc("is_admin")) !== true) throw new Error("not admin");
+      const [products, site, orders] = [await sbAll("products", "id.asc"), await sbAll("site_data", "key.asc"), await sbAll("orders", "created_at.desc,id.desc")];
+      if (!products.length || !site.length) throw new Error("empty");
+      const at = new Date().toISOString(), a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify({kind: "everest-backup", version: 1, at, products, site_data: site, orders})], {type: "application/json"}));
+      a.download = "everest-backup-" + at.slice(0, 10) + ".json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+      ls.set("everest-last-backup", at); toast(`تم ✓ ${num(products.length)} منتج و${num(orders.length)} سجل`); go("settings");
+    } catch (e) { b.disabled = false; b.textContent = "⬇ تنزيل نسخة احتياطية"; toast("تعذّر عمل النسخة – حاول تاني") }
+  };
+  if ($("#bkLoad")) $("#bkLoad").onchange = async e => {
+    try {
+      const j = JSON.parse(await e.target.files[0].text());
+      if (j.kind !== "everest-backup" || !Array.isArray(j.products) || !j.products.length || !Array.isArray(j.site_data) || !j.products.every(p => /^[a-z0-9-]+$/.test(p.id) && p.ar)) throw 0;
+      if (!confirm(`تجهيز نسخة ${new Date(j.at).toLocaleString("ar-EG")} (${num(j.products.length)} منتج)؟\nالموقع مش هيتغير غير لما تضغط «حفظ على الموقع».`)) return;
+      const N = {products: j.products.slice().sort((a, b) => (a.sort || 0) - (b.sort || 0)).map(SBC.fromRow)};
+      for (const k of ["settings", "packages", "reviews", "discountCodes", "videos"]) { const r = j.site_data.find(x => x.key === k); N[k] = r ? r.value : D[k] }
+      D = N; changed(); go("products"); toast("اتجهزت – راجعها وبعدين احفظ");
+    } catch (err) { toast("الملف ده مش نسخة احتياطية صحيحة") }
+  };
   $("#savePw").onclick = async () => { $("#savePw").disabled = true; try { await changePassword() } finally { $("#savePw").disabled = false } };
 },
 guide() { const b = $("#copySql"); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(await fetch("https://evreststore2020.github.io/everest-paints.github.io/everest-store/tools/supabase-setup.sql").then(r => r.text())); toast("تم نسخ ملف الإعداد ✓") } catch (e) { toast("افتح الملف وانسخه يدوي") } } }
