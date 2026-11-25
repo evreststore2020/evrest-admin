@@ -563,7 +563,7 @@ async function loadEvents() {
   refreshBadges(); if (view === "events" || view === "home" || view === "customers") go(view);
 }
 const ago = iso => { const d = new Date(iso), s = (Date.now() - d) / 1000; if (s < 60) return "الآن"; if (s < 3600) return `منذ ${num(Math.floor(s / 60))} دقيقة`; if (s < 86400) return `منذ ${num(Math.floor(s / 3600))} ساعة`; if (s < 7 * 86400) return `منذ ${num(Math.floor(s / 86400))} يوم`; return d.toLocaleDateString("ar-EG", {day: "numeric", month: "long"}) };
-const waLink = (phone, msg) => { let p = String(phone || "").replace(/[^\d]/g, ""); if (p.startsWith("0")) p = "2" + p; return `https://wa.me/${p}?text=${encodeURIComponent(msg)}` };
+const waLink = (phone, msg) => { let p = String(phone || "").replace(/[^\d]/g, ""); if (p.startsWith("0")) p = "2" + p; return `https://wa.me/${p}?text=${encodeURIComponent(String(msg).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, "").replace(/[ \t]{2,}/g, " ").trim())}` };
 function evCard(e) {
   const t = TYPES[e.type] || ["•", e.type, "grey"];
   return `<div class="ev ${e.status === "جديد" ? "new" : ""}">
@@ -606,6 +606,7 @@ function payHTML(e) {
     <div class="pc-foot">
       <span class="pc-rest">${rest == null ? "اكتب الإجمالي النهائي عشان تبعت طلب الدفع" : rest > 0 ? `المتبقي: <b>${money(rest)}</b>` : `<b style="color:var(--ok)">✓ مفيش متبقي</b>`}</span>
       ${e.phone && y.method !== "cod" ? `<button class="btn sm" data-pay-req ${rest > 0 ? "" : "disabled"}>📲 ابعت طلب الدفع على واتساب</button>` : ""}
+      <button class="btn light sm" data-pay-rcpt>🧾 الإيصال</button>
       <button class="btn light sm" data-pay-save>حفظ</button>
     </div>
   </div>`;
@@ -1199,6 +1200,90 @@ function bindProducts() {
   $$("[data-dup]").forEach(b => b.onclick = () => { const src = D.products[+b.dataset.dup], c = JSON.parse(JSON.stringify(src)); c.id = uniqueId(src.id + "-copy"); c.ar = src.ar + " (نسخة)"; c.best = false; D.products.splice(+b.dataset.dup + 1, 0, c); changed(); go(view); openEditor(+b.dataset.dup + 1) });
   $$("[data-del]").forEach(b => b.onclick = () => { const p = D.products[+b.dataset.del]; if (!confirm(`حذف "${p.ar}" نهائياً؟\n(لو عايز تخفيه بس، اقفل "ظاهر")`)) return; D.products.splice(+b.dataset.del, 1); changed(); go(view) });
 }
+/* ================= إيصال الطلب (صورة باللوجو) ================= */
+const RLOGO = new Image(); RLOGO.src = "assets/everest-logo.jpg";
+const rDate = iso => { const d = new Date(iso || Date.now()); return isNaN(d) ? "" : d.toLocaleDateString("ar-EG", {day: "numeric", month: "long", year: "numeric"}) };
+function payLines(P) {
+  return [
+    P.instapay !== false && (P.instapayUrl || P.instapayId) ? ["إنستاباي", P.instapayId || "", P.instapayUrl || ""] : null,
+    P.vf !== false && (P.vfUrl || P.vfNumber) ? ["فودافون كاش", P.vfNumber || "", P.vfUrl || ""] : null
+  ].filter(Boolean);
+}
+/* نص الرسالة بشكل إيصال – من غير إيموجي */
+function receiptText(e, pay, rest) {
+  const S = D.settings || {}, P = payCfg(), L = "——————————————";
+  const lines = (pay.lines || []).map(l => `- ${l.name}${l.pack ? " (" + l.pack.replace("~", " - ") + ")" : ""} × ${l.n} = ${l.sum == null ? "بعد التأكيد" : money(l.sum)}`);
+  return [
+    `*${S.storeName || "إفرست للدهانات والديكور"}*`, "وكيل جوتن المعتمد - المرج", L,
+    `*إيصال طلب${pay.no ? " رقم " + pay.no : ""}*`, `التاريخ: ${rDate(e.date)}`, `العميل: ${e.name || "-"}`, L,
+    ...(lines.length ? [...lines, L] : []),
+    `الإجمالي: ${money(pay.final)}`, ...(pay.paid ? [`المدفوع: ${money(pay.paid)}`] : []), `*المطلوب دفعه: ${money(rest)}*`, L,
+    "*طرق الدفع*", ...payLines(P).flatMap(([n, id, url]) => [`${n}${id ? ": " + id : ""}`, ...(url ? [url] : [])]), L,
+    "من فضلك اكتب رقم الطلب في ملاحظة التحويل، وابعتلنا صورة التحويل هنا.", "شكراً لثقتك في إفرست"
+  ].join("\n");
+}
+/* صورة الإيصال: بترسم على canvas وبترجع PNG */
+function receiptCanvas(e, pay) {
+  const S = D.settings || {}, LG = S.legal || {}, P = payCfg(), W = 1080, M = 64, BLUE = "#0d2a9c", INK = "#1f1f1f", MUTED = "#6b6b6b";
+  const F = (w, s) => `${w} ${s}px "Noto Sans Arabic", Tahoma, Arial, sans-serif`;
+  const lines = pay.lines || [], fin = pay.final ?? (pay.mode === "instant" ? e.total : null), paid = +pay.paid || 0, rest = fin == null ? null : Math.max(0, fin - paid);
+  /* بنرسم على مساحة كبيرة وبعدين بنقص على قد المحتوى */
+  const c = document.createElement("canvas"); c.width = W; c.height = 4000; const x = c.getContext("2d");
+  x.direction = "rtl"; x.textBaseline = "middle";
+  const t = (s, X, Y, font, color = INK, align = "right") => { x.font = font; x.fillStyle = color; x.textAlign = align; x.fillText(String(s ?? ""), X, Y) };
+  const fit = (s, max, font) => { x.font = font; s = String(s ?? ""); if (x.measureText(s).width <= max) return s; while (s.length > 1 && x.measureText(s + "…").width > max) s = s.slice(0, -1); return s + "…" };
+  const rule = Y => { x.fillStyle = "#e4e4e4"; x.fillRect(M, Y, W - 2 * M, 2) };
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, 4000);
+  /* الهيدر: نفس ألوان اللوجو */
+  x.fillStyle = "#fdb206"; x.fillRect(0, 0, W, 400); x.fillStyle = "#e50000"; x.fillRect(0, 0, W, 26);
+  if (RLOGO.complete && RLOGO.naturalWidth) { const w = 560, h = w * RLOGO.naturalHeight / RLOGO.naturalWidth; const sx = 0.03, sy = 0.11, sh = 0.86; x.drawImage(RLOGO, RLOGO.naturalWidth * sx, RLOGO.naturalHeight * sy, RLOGO.naturalWidth * (1 - 2 * sx), RLOGO.naturalHeight * sh, (W - w) / 2, 46, w, h * sh / (1 - 2 * sx)) }
+  else t("EVEREST PAINTS", W / 2, 210, F(800, 70), BLUE, "center");
+  let y = 470;
+  t("إيصال طلب", W - M, y, F(800, 52), BLUE); t(pay.no || "", M, y, F(700, 34), INK, "left");
+  y += 58; t(rDate(e.date), W - M, y, F(400, 28), MUTED);
+  y += 56; rule(y);
+  y += 50; t(S.storeName || "إفرست للدهانات والديكور", W - M, y, F(700, 30));
+  y += 44; t("شارع مؤسسة الزكاة، بركة النصر، المرج، القاهرة  ·  " + (S.phoneDisplay || "0114 086 0075"), W - M, y, F(400, 25), MUTED);
+  if (LG.cr || LG.tax) { y += 40; t([LG.cr ? "سجل تجاري: " + LG.cr : "", LG.tax ? "بطاقة ضريبية: " + LG.tax : ""].filter(Boolean).join("  ·  "), W - M, y, F(400, 25), MUTED) }
+  y += 50; rule(y);
+  y += 50; t("العميل", W - M, y, F(700, 28), BLUE);
+  y += 46; t(fit([e.name, e.phone, e.area].filter(Boolean).join("  ·  "), W - 2 * M, F(400, 28)), W - M, y, F(400, 28));
+  y += 54; x.fillStyle = "#f3f5fb"; x.fillRect(M, y, W - 2 * M, 60);
+  t("المنتج", W - M - 20, y + 30, F(700, 26), MUTED); t("الكمية", 420, y + 30, F(700, 26), MUTED, "center"); t("المبلغ", M + 20, y + 30, F(700, 26), MUTED, "left");
+  y += 60;
+  if (!lines.length) { y += 40; t("التفاصيل في رسالة الطلب", W - M - 20, y, F(400, 26), MUTED); y += 24 }
+  for (const l of lines) {
+    y += 40; t(fit(l.name + (l.pack ? " – " + l.pack.replace("~", " – ") : ""), W - M - 520, F(400, 27)), W - M - 20, y, F(400, 27));
+    t("× " + num(l.n), 420, y, F(400, 27), INK, "center"); t(l.sum == null ? "بعد التأكيد" : money(l.sum), M + 20, y, F(600, 27), l.sum == null ? MUTED : INK, "left");
+    y += 24; x.fillStyle = "#efefef"; x.fillRect(M, y, W - 2 * M, 1);
+  }
+  y += 40;
+  const row = (k, v, big) => { y += big ? 62 : 48; t(k, W - M - 20, y, F(big ? 800 : 400, big ? 34 : 28), big ? BLUE : INK); t(v, M + 20, y, F(big ? 800 : 600, big ? 36 : 28), big ? BLUE : INK, "left") };
+  if (pay.discount) row("خصم", num(pay.discount) + "٪");
+  row("الإجمالي", fin == null ? "بعد التأكيد" : money(fin));
+  if (paid) row("المدفوع", money(paid));
+  if (rest != null) { y += 18; x.fillStyle = "#fff6dc"; x.fillRect(M, y + 12, W - 2 * M, 84); y -= 4; row("المطلوب دفعه", money(rest), true); y += 26 }
+  y += 46; rule(y);
+  y += 50; t("طرق الدفع", W - M, y, F(700, 28), BLUE);
+  for (const [n, id] of payLines(P)) { y += 46; t(n + (id ? ":  " + id : "  (الرابط في الرسالة)"), W - M, y, F(400, 27)) }
+  y += 56; t("اكتب رقم الطلب في ملاحظة التحويل، وابعت صورة التحويل على واتساب.", W - M, y, F(400, 24), MUTED);
+  y += 60; x.fillStyle = BLUE; x.fillRect(0, y, W, 92);
+  t("شكراً لثقتك في إفرست  ·  إيصال طلب وليس فاتورة ضريبية", W / 2, y + 46, F(600, 26), "#fff", "center");
+  const out = document.createElement("canvas"); out.width = W; out.height = y + 92; out.getContext("2d").drawImage(c, 0, 0);
+  return out;
+}
+const dataBlob = url => { const [h, b] = url.split(","), bin = atob(b), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type: h.slice(5, h.indexOf(";"))}) };
+/* على الموبايل: مشاركة الصورة والرسالة مرة واحدة. على الكمبيوتر: تنزيل الصورة + فتح واتساب بالرسالة */
+function sendReceipt(e, pay, msg) {
+  const url = receiptCanvas(e, pay).toDataURL("image/png"), name = "إيصال-" + (pay.no || "طلب") + ".png";
+  if (msg != null && matchMedia("(pointer:coarse)").matches && navigator.canShare) {
+    const file = new File([dataBlob(url)], name, {type: "image/png"});
+    if (navigator.canShare({files: [file]})) { navigator.share({files: [file], text: String(msg)}).catch(() => {}); return "shared" }
+  }
+  const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+  if (msg != null) window.open(waLink(e.phone, msg), "_blank");
+  return "downloaded";
+}
 function bindPay() {
   $$("[data-payid]").forEach(card => {
     const e = EVENTS.find(x => x.id === card.dataset.payid); if (!e || !e.pay) return;
@@ -1220,6 +1305,7 @@ function bindPay() {
       catch (err) { e.pay = old; toast("تعذّر الحفظ – اتأكد إنك شغّلت تحديث قاعدة البيانات (supabase-payments.sql)") }
     };
     card.querySelector("[data-pay-save]").onclick = () => persist(read());
+    card.querySelector("[data-pay-rcpt]").onclick = () => { sendReceipt(e, read(), null); toast("اتنزلت صورة الإيصال ✓") };
     card.querySelector("[data-pay-st]").onchange = () => {
       const pay = read(); if (pay.status === "مدفوع بالكامل" && pay.final != null && !pay.paid) pay.paid = pay.final;
       persist(pay, "تم تحديث حالة الدفع ✓");
@@ -1232,9 +1318,9 @@ function bindPay() {
         P.instapay !== false && (P.instapayUrl || P.instapayId) ? [`⚡ إنستاباي${P.instapayId ? ": " + P.instapayId : ""}`, P.instapayUrl].filter(Boolean).join("\n") : "",
         P.vf !== false && (P.vfUrl || P.vfNumber) ? [`📱 فودافون كاش${P.vfNumber ? ": " + P.vfNumber : ""}`, P.vfUrl].filter(Boolean).join("\n") : ""
       ].filter(Boolean).join("\n\n");
-      const msg = `أهلاً ${e.name || ""} 👋\nمعاك إفرست للدهانات بخصوص طلبك${pay.no ? ` رقم ${pay.no}` : ""}.\n\nالإجمالي النهائي بعد التأكيد: ${money(pay.final)}${pay.paid ? `\nالمدفوع: ${money(pay.paid)}` : ""}\nالمطلوب دفعه: ${money(rest)}\n\nتقدر تدفع عن طريق:\n${how}\n\nمن فضلك اكتب رقم الطلب في ملاحظة التحويل وابعتلنا صورة التحويل هنا. شكراً لثقتك 🙏`;
-      window.open(waLink(e.phone, msg), "_blank");
-      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), "اتفتح واتساب برسالة طلب الدفع ✓");
+      const how_ = how; void how_;
+      const r = sendReceipt(e, pay, receiptText(e, pay, rest));
+      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), r === "shared" ? "اختار واتساب من قايمة المشاركة ✓" : "اتنزلت صورة الإيصال واتفتح واتساب – ارفق الصورة في المحادثة ✓");
     };
   });
 }
