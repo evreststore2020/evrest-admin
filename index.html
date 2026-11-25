@@ -1273,16 +1273,19 @@ function receiptCanvas(e, pay) {
   return out;
 }
 const dataBlob = url => { const [h, b] = url.split(","), bin = atob(b), a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type: h.slice(5, h.indexOf(";"))}) };
-/* على الموبايل: مشاركة الصورة والرسالة مرة واحدة. على الكمبيوتر: تنزيل الصورة + فتح واتساب بالرسالة */
+/* على الموبايل: مشاركة الصورة والرسالة مرة واحدة.
+   على الكمبيوتر: الصورة بتتنسخ (Ctrl+V في واتساب) + واتساب بيتفتح على العميل بالرسالة جاهزة */
 function sendReceipt(e, pay, msg) {
-  const url = receiptCanvas(e, pay).toDataURL("image/png"), name = "إيصال-" + (pay.no || "طلب") + ".png";
+  const url = receiptCanvas(e, pay).toDataURL("image/png"), name = "إيصال-" + (pay.no || "طلب") + ".png", blob = dataBlob(url);
   if (msg != null && matchMedia("(pointer:coarse)").matches && navigator.canShare) {
-    const file = new File([dataBlob(url)], name, {type: "image/png"});
+    const file = new File([blob], name, {type: "image/png"});
     if (navigator.canShare({files: [file]})) { navigator.share({files: [file], text: String(msg)}).catch(() => {}); return "shared" }
   }
-  const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+  let copied = false;
+  try { if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) { navigator.clipboard.write([new ClipboardItem({"image/png": blob})]).catch(() => { const a = document.createElement("a"); a.href = url; a.download = name; a.click(); toast("ما قدرتش أنسخ الصورة – اتنزلت بدالها، ارفقها 📎") }); copied = true } } catch (err) {}
+  if (!copied || msg == null) { const a = document.createElement("a"); a.href = url; a.download = name; a.click() }
   if (msg != null) window.open(waLink(e.phone, msg), "_blank");
-  return "downloaded";
+  return copied ? "copied" : "downloaded";
 }
 function bindPay() {
   $$("[data-payid]").forEach(card => {
@@ -1320,7 +1323,7 @@ function bindPay() {
       ].filter(Boolean).join("\n\n");
       const how_ = how; void how_;
       const r = sendReceipt(e, pay, receiptText(e, pay, rest));
-      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), r === "shared" ? "اختار واتساب من قايمة المشاركة ✓" : "اتنزلت صورة الإيصال واتفتح واتساب – ارفق الصورة في المحادثة ✓");
+      persist(Object.assign(pay, {requested_at: new Date().toISOString()}), r === "shared" ? "اختار واتساب والعميل من قايمة المشاركة ✓" : r === "copied" ? "الإيصال اتنسخ ✓ في واتساب: ابعت الرسالة، وبعدها Ctrl+V وEnter" : "اتنزلت صورة الإيصال واتفتح واتساب – ارفق الصورة 📎");
     };
   });
 }
