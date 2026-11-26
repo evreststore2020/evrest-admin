@@ -82,6 +82,20 @@ label.f > span b{color:var(--ink)}
 .vorder.on{border-style:solid;border-color:#cfd9ee;background:#f6f8fd}
 .vorder .vorder-prod{display:none}.vorder.on .vorder-prod{display:flex}
 .vorder p.vorder-prod{margin:0}
+.mcard .mdata{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.mcard .mdata span{background:var(--bg);padding:5px 10px;font-size:13px;display:flex;flex-direction:column}
+.mcard .mdata small{color:var(--muted);font-size:11px}
+.mdocs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:13px}
+.mctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px;align-items:end}
+.mctl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink-2)}
+.mctl label.switch{flex-direction:row;align-items:center}
+.mctl .switch.dis{opacity:.5}
+.mnotes{grid-column:1/-1}
+.sfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.sf-group{border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px}
+.sf-group>b{color:var(--blue,#003087)}
+.sf-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.sf-row select{max-width:120px}
 .paycard{margin-top:10px;border:1px solid #cfd9ee;background:#f6f8fd;padding:12px 14px}
 .paycard.done{border-color:#bfe3cc;background:#f2fbf5}
 .pc-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
@@ -193,6 +207,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="home"><span class="ic">⌂</span>الرئيسية</button>
       <button data-v="events"><span class="ic">🧾</span>الطلبات والنشاط<span class="badge" id="bdEvents" hidden></span></button>
       <button data-v="customers"><span class="ic">👤</span>العملاء المسجلين<span class="badge" id="bdCust" hidden></span></button>
+      <button data-v="club"><span class="ic">🏅</span>نادي إفرست والشركاء<span class="badge" id="bdClub" hidden></span></button>
       <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
       <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
       <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
@@ -273,6 +288,37 @@ const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) 
 const CUST = t => t === "signup" || t === "login";
 const EVS = () => EVENTS ? EVENTS.filter(e => !CUST(e.type)) : null;
 const emailOf = e => ((e.details || "").match(/(?:^|\n)(?:الإيميل|إيميل العميل): *(\S+)/) || [])[1] || "";
+/* ================= نادي إفرست والشركاء ================= */
+const CLUB_TYPES = ["فني", "مهندس", "مقاول", "تاجر", "شركة"];
+const BIZF = n => [["company", n, "text"], ["cr_no", "رقم السجل التجاري", "text"], ["cr_file", "صورة السجل التجاري", "file"], ["tax_no", "رقم البطاقة الضريبية", "text"], ["tax_file", "صورة البطاقة الضريبية", "file"]];
+/* لازم تطابق الخانات في assets/app.js */
+const XFIELDS = {
+  "عميل": [["ref_phone", "رقم الفني / النقاش اللي جاب العميل", "tel"], ["ref_name", "اسم الفني / النقاش", "text"]],
+  "فني": [["specialty", "التخصص", "select"], ["experience", "سنين الخبرة", "number"], ["id_front", "صورة البطاقة (وش)", "file"], ["id_back", "صورة البطاقة (ضهر)", "file"], ["photo", "صورة شخصية", "file"]],
+  "مهندس": [["specialty", "التخصص", "select"], ["syndicate_no", "رقم عضوية النقابة", "text"], ["syndicate_card", "صورة كارنيه النقابة", "file"]],
+  "مقاول": BIZF("اسم الشركة / المؤسسة"), "تاجر": BIZF("اسم المحل"), "شركة": BIZF("اسم الشركة")
+};
+const xLabel = (t, k) => ((XFIELDS[t] || []).find(f => f[0] === k) || [0, k])[1];
+let MEMBERS = null, mType = "all", mStatus = "all", mQ = "", mAddOpen = false;
+async function loadMembers() {
+  if (!SBC) return;
+  try { const r = await api("members"); if (r.ok) MEMBERS = r.members } catch (e) {}
+  refreshBadges(); if (view === "club") go("club");
+}
+/* عضو واحد لكل رقم (آخر تسجيل)، والمستندات من كل تسجيلاته */
+function clubList() {
+  const map = new Map();
+  for (const r of (MEMBERS || []).slice().reverse()) {
+    let m = map.get(r.phone); if (!m) map.set(r.phone, m = {phone: r.phone, first: r.created_at, docs: {}, count: 0});
+    Object.assign(m, {type: r.type, name: r.name, email: r.email, area: r.area, data: r.data || {}, consent_ticker: r.consent_ticker, consent_events: r.consent_events, status: r.status, on_ticker: r.on_ticker, commission_pct: r.commission_pct, notes: r.notes, last: r.created_at});
+    Object.assign(m.docs, r.docs || {}); m.count++;
+  }
+  return [...map.values()].sort((a, b) => new Date(b.last) - new Date(a.last));
+}
+async function saveTicker() {
+  const list = clubList().filter(m => m.on_ticker).map(m => ({name: m.name, title: m.type === "فني" ? (m.data.specialty || "فني") : m.type === "مهندس" ? "م. " + (m.data.specialty || "") : (m.data.company || m.type)}));
+  const r = await api("ticker", {list}); if (!r.ok) throw 0;
+}
 function customers() {
   const map = new Map();
   for (const e of (EVENTS || []).slice().reverse()) {
@@ -334,6 +380,16 @@ async function sbApi(action, x = {}) {
         await SBC.updatePassword(x.newKey); return {ok: true, token: KEY};
       }
       case "logout": await SBC.signOut(); return {ok: true};
+      case "members": return {ok: true, members: await sbAll("members", "created_at.desc,id.desc")};
+      case "memberAdd": await SBC.insert("members", x.row); return {ok: true};
+      case "memberSet": await SBC.update("members", "phone=eq." + encodeURIComponent(x.phone), x.patch); return {ok: true};
+      case "memberDel": {
+        const rows = await SBC.select("members", "select=docs&phone=eq." + encodeURIComponent(x.phone));
+        for (const r of rows || []) for (const p of Object.values(r.docs || {})) { try { await SBC.removeFile("docs", p) } catch (e) {} }
+        await SBC.del("members", "phone=eq." + encodeURIComponent(x.phone)); return {ok: true};
+      }
+      case "docUrl": return {ok: true, url: await SBC.sign("docs", x.path, 600)};
+      case "ticker": await SBC.upsert("site_data", [{key: "ticker", value: x.list, updated_at: new Date().toISOString()}]); return {ok: true};
       case "fetchJotun": return {ok: false, error: "الإضافة التلقائية من موقع جوتن مش متاحة مع Supabase – استخدم الإضافة السريعة بجانب"};
     }
     return {ok: false, error: "unknown"};
@@ -425,7 +481,7 @@ async function boot() {
       document.body.innerHTML = '<div style="max-width:460px;margin:18vh auto;padding:28px;background:#fff;text-align:center;font-family:inherit"><h2>تعذّر تحميل بيانات المتجر</h2><p>اتأكد من النت وحاول تاني. بياناتك ما اتغيرتش.</p><button class="btn" onclick="location.reload()">حاول تاني</button></div>'; return;
     }
     else { PUB = ""; start(STAT); IMPORT = true }
-    loadEvents(); return;
+    loadEvents(); loadMembers(); return;
   }
   /* لو api.php شغال على الاستضافة → وضع السيرفر، غير كده → وضع الكمبيوتر */
   SERVER = await fetch(API_FILE + "?action=status", {cache: "no-store"}).then(r => r.ok ? r.json() : null).catch(() => null);
@@ -517,6 +573,7 @@ function refreshBadges() {
   const m = missing().length; $("#bdMissing").hidden = !m; $("#bdMissing").textContent = num(m);
   const n = EVENTS ? EVS().filter(e => e.status === "جديد").length : 0; $("#bdEvents").hidden = !n; $("#bdEvents").textContent = num(n);
   const c = EVENTS ? EVENTS.filter(e => e.type === "signup" && e.status === "جديد").length : 0; $("#bdCust").hidden = !c; $("#bdCust").textContent = num(c);
+  const cl = MEMBERS ? clubList().filter(m => m.status === "جديد").length : 0; $("#bdClub").hidden = !cl; $("#bdClub").textContent = num(cl);
 }
 function validate() {
   const ids = new Set();
@@ -544,7 +601,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -810,6 +867,59 @@ events() {
   </div>
   ${list.length ? list.map(evCard).join("") : `<div class="empty">مفيش نتائج</div>`}`;
 },
+club() {
+  if (!SBC) return `<div class="notice blue">نادي إفرست بيشتغل لما المتجر يكون متوصّل بـ Supabase.</div>`;
+  if (!MEMBERS) return `<div class="empty">جاري التحميل…</div>`;
+  const all = clubList(), day = 864e5, cnt = t => all.filter(m => t === "all" || m.type === t).length;
+  const list = all.filter(m => (mType === "all" || m.type === mType) && (mStatus === "all" || m.status === mStatus || (mStatus === "ticker" && m.on_ticker)) &&
+    (!mQ || [m.name, m.phone, m.email, m.area, JSON.stringify(m.data), m.notes].join(" ").toLowerCase().includes(mQ)));
+  const card = m => `<div class="ev mcard ${m.status === "جديد" ? "new" : ""}" data-mphone="${esc(m.phone)}">
+    <div class="ty">${m.type === "فني" ? "🖌️" : m.type === "مهندس" ? "📐" : m.type === "مقاول" ? "🏗️" : m.type === "تاجر" ? "🏪" : "🏢"}</div>
+    <div>
+      <div class="who"><span class="pill blue">${esc(m.type)}</span><b>${esc(m.name)}</b><span dir="ltr" class="hint">${esc(m.phone)}</span>${m.on_ticker ? '<span class="pill ok">⭐ على الشريط</span>' : ""}${m.count > 1 ? `<span class="hint">· ${num(m.count)} تسجيلات</span>` : ""}</div>
+      <div class="hint">${m.area ? "📍 " + esc(m.area) + " · " : ""}${m.email ? `<a dir="ltr" href="mailto:${esc(m.email)}">${esc(m.email)}</a> · ` : ""}اتسجّل ${ago(m.first)}${m.count > 1 ? " · آخر تحديث " + ago(m.last) : ""}</div>
+      <div class="mdata">${Object.entries(m.data).filter(([k, v]) => v !== "" && v != null && !Array.isArray(v) && typeof v !== "boolean" && k !== "source").map(([k, v]) => `<span><small>${esc(xLabel(m.type, k))}</small>${esc(v)}</span>`).join("")}
+        ${m.data.source ? `<span><small>عرفنا من</small>${esc(m.data.source)}</span>` : ""}<span><small>الفعاليات</small>${m.consent_events ? "✓ موافق" : "لا"}</span><span><small>الظهور على الشريط</small>${m.consent_ticker ? "✓ موافق" : "مش موافق"}</span></div>
+      ${Object.keys(m.docs).length ? `<div class="mdocs">🔒 ${Object.entries(m.docs).map(([k, p]) => `<button class="btn light sm" data-doc="${esc(p)}">${esc(xLabel(m.type, k))}</button>`).join("")}</div>` : ""}
+      <div class="mctl">
+        <label><span>الحالة</span><select class="in" data-mset="status">${["جديد", "معتمد", "مرفوض"].map(s => `<option ${s === m.status ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        <label class="switch ${m.consent_ticker ? "" : "dis"}" title="${m.consent_ticker ? "" : "العضو ما وافقش على ظهور اسمه"}"><input type="checkbox" data-mset="on_ticker" ${m.on_ticker ? "checked" : ""} ${m.consent_ticker ? "" : "disabled"}><i></i>⭐ يظهر على الشريط</label>
+        <label><span>عمولة خاصة ٪ <small class="hint">(فاضي = العامة)</small></span><input class="in" type="number" min="0" max="50" step="0.5" data-mset="commission_pct" value="${m.commission_pct ?? ""}"></label>
+        <label class="mnotes"><span>ملاحظات</span><input class="in" data-mset="notes" value="${esc(m.notes || "")}" placeholder="مثال: حضر سمينار نوفمبر"></label>
+      </div>
+    </div>
+    <div class="acts">
+      <a class="btn green sm" target="_blank" href="${waLink(m.phone, `أهلاً ${m.name} 👋 معاك إفرست للدهانات بخصوص ${m.type === "فني" ? "عضويتك في نادي إفرست" : "تسجيلك معانا كشريك"}.`)}">واتساب</a>
+      <a class="btn light sm" href="tel:${esc(m.phone)}">اتصال</a>
+      <button class="btn red sm" data-mdel>حذف</button>
+    </div>
+  </div>`;
+  return `<div class="kpis">
+      <div class="kpi"><small>الأعضاء والشركاء</small><b>${num(all.length)}</b><span class="sub">فنيين: ${num(cnt("فني"))} · مهندسين: ${num(cnt("مهندس"))}</span></div>
+      <div class="kpi"><small>محتاجين مراجعة</small><b style="${all.some(m => m.status === "جديد") ? "color:var(--warn)" : ""}">${num(all.filter(m => m.status === "جديد").length)}</b><span class="sub">حالتهم «جديد»</span></div>
+      <div class="kpi"><small>معتمدين</small><b>${num(all.filter(m => m.status === "معتمد").length)}</b><span class="sub">اتسجّل آخر ٧ أيام: ${num(all.filter(m => Date.now() - new Date(m.first) < 7 * day).length)}</span></div>
+      <div class="kpi"><small>على الشريط الأزرق</small><b>${num(all.filter(m => m.on_ticker).length)}</b><span class="sub">موافقين على الظهور: ${num(all.filter(m => m.consent_ticker).length)}</span></div>
+    </div>
+    <div class="filters">${[["all", "الكل"], ...CLUB_TYPES.map(t => [t, t])].map(([k, n]) => `<button class="chip ${mType === k ? "on" : ""}" data-mt="${esc(k)}">${esc(n)}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
+    <div class="toolbar">
+      <input class="in" id="mQ" placeholder="ابحث بالاسم أو الرقم أو المنطقة أو التخصص…" value="${esc(mQ)}">
+      <select class="in" id="mStatus" style="max-width:190px"><option value="all">كل الحالات</option>${["جديد", "معتمد", "مرفوض"].map(s => `<option ${s === mStatus ? "selected" : ""}>${s}</option>`).join("")}<option value="ticker" ${mStatus === "ticker" ? "selected" : ""}>⭐ على الشريط</option></select>
+      <button class="btn light" id="mRefresh">↻ تحديث</button>
+      <button class="btn light" id="mCsv" ${all.length ? "" : "disabled"}>⬇ Excel</button>
+      <button class="btn" id="mAddT">＋ إضافة عضو</button>
+    </div>
+    ${mAddOpen ? `<div class="card madd" style="margin-bottom:14px"><h3>إضافة عضو يدوي</h3><div class="grid g3">
+      <label class="f"><span>النوع</span><select class="in" id="maType">${CLUB_TYPES.map(t => `<option>${t}</option>`).join("")}</select></label>
+      <label class="f"><span>الاسم</span><input class="in" id="maName"></label>
+      <label class="f"><span>الموبايل</span><input class="in" id="maPhone" dir="ltr"></label>
+      <label class="f"><span>المنطقة</span><input class="in" id="maArea"></label>
+      <label class="f"><span>التخصص / اسم الشركة</span><input class="in" id="maSpec"></label>
+      <label class="f"><span>ملاحظات</span><input class="in" id="maNotes"></label>
+      <label class="switch"><input type="checkbox" id="maTicker"><i></i>موافق يظهر على الشريط (اسأله الأول)</label>
+    </div><div style="margin-top:12px;display:flex;gap:10px"><button class="btn" id="maSave">حفظ العضو</button><button class="btn light" id="maCancel">إلغاء</button></div></div>` : ""}
+    ${list.length ? list.map(card).join("") : `<div class="empty">${all.length ? "مفيش نتائج" : "لسه مفيش أعضاء. أول ما فني أو مهندس أو مقاول أو تاجر أو شركة يسجّل من المتجر هيظهر هنا ببياناته ومستنداته."}</div>`}
+    <p class="hint" style="margin-top:14px">🔒 المستندات بتفتح برابط مؤقت (10 دقايق) ومحدش يقدر يوصلها غير من اللوحة. لما تخلص مراجعة عضو، ممكن تمسح مستنداته بحذف العضو وإضافته يدوي.</p>`;
+},
 customers() {
   if (MODE !== "api") return `<div class="notice blue">العملاء المسجلين بيظهروا هنا لما المتجر يكون متوصّل بـ Supabase.</div>`;
   if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
@@ -1008,6 +1118,10 @@ settings() {
       ${fld("settings.fbPixelId", "Facebook Pixel ID", s.fbPixelId, "text", 'dir="ltr"')}
     </div><p class="hint" style="margin-top:10px">بعد تغيير الدومين أو التقييم أو إضافة منتجات، شغّل <code>node tools/build.js</code> مرة لتحديث صفحات المنتجات لجوجل.</p></div>
     <div class="card" style="margin-bottom:16px"><h3>الباقات</h3><div class="grid g3">${fld("settings.wallFactor", "معامل مساحة الجدران (جدران = مساحة الشقة × المعامل)", s.wallFactor, "number", 'step="0.1"')}</div></div>
+    <div class="card" style="margin-bottom:16px"><h3>📝 خانات التسجيل الإضافية</h3>
+      <p class="hint" style="margin-bottom:12px">الخانات اللي بتفتح حسب نوع العميل في شاشة التسجيل. اختار لكل خانة: <b>اختياري</b> أو <b>إجباري</b> أو <b>مخفي</b>. الاسم والإيميل والموبايل والمنطقة والنوع إجباري دايماً.</p>
+      <div class="sfields">${Object.entries(XFIELDS).map(([t, F]) => `<div class="sf-group"><b>${t}</b>${F.map(([k, label]) => { const key = t + "." + k, v = ((s.signup || {})[t] || {})[k] || "opt"; return `<label class="sf-row"><span>${esc(label)}</span><select class="in" data-p="settings.signup.${key}">${[["opt", "اختياري"], ["req", "إجباري"], ["off", "مخفي"]].map(([o, n]) => `<option value="${o}" ${v === o ? "selected" : ""}>${n}</option>`).join("")}</select></label>` }).join("")}</div>`).join("")}</div>
+      <p class="hint" style="margin-top:10px">التعديلات بتشتغل بعد «حفظ على الموقع».</p></div>
     <div class="card" style="margin-bottom:16px"><h3>📄 بيانات صفحة السياسات</h3><div class="grid g3">
       ${fld("settings.legal.cr", "رقم السجل التجاري", (s.legal || {}).cr, "text", 'dir="ltr"')}
       ${fld("settings.legal.tax", "رقم البطاقة الضريبية", (s.legal || {}).tax, "text", 'dir="ltr"')}
@@ -1069,6 +1183,49 @@ events() {
   $("#eStatus").onchange = e => { eStatus = e.target.value; go("events") };
   $("#eRefresh").onclick = () => { EVENTS = null; go("events"); loadEvents() };
   bindStatus();
+},
+club() {
+  $$("[data-mt]").forEach(b => b.onclick = () => { mType = b.dataset.mt; go("club") });
+  const q = $("#mQ"); if (!q) return;
+  q.oninput = () => { mQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("club"); const n = $("#mQ"); n.focus(); n.setSelectionRange(pos, pos) };
+  $("#mStatus").onchange = e => { mStatus = e.target.value; go("club") };
+  $("#mRefresh").onclick = () => { MEMBERS = null; go("club"); loadMembers() };
+  $("#mAddT").onclick = () => { mAddOpen = !mAddOpen; go("club") };
+  if ($("#maCancel")) $("#maCancel").onclick = () => { mAddOpen = false; go("club") };
+  if ($("#maSave")) $("#maSave").onclick = async () => {
+    const t = $("#maType").value, name = $("#maName").value.trim(), phone = $("#maPhone").value.replace(/[^0-9+]/g, ""), spec = $("#maSpec").value.trim();
+    if (name.length < 2 || phone.length < 8) return toast("اكتب الاسم ورقم صحيح");
+    const data = spec ? (["فني", "مهندس"].includes(t) ? {specialty: spec} : {company: spec}) : {};
+    const tk = $("#maTicker").checked;
+    try { const r = await api("memberAdd", {row: {type: t, name, phone, area: $("#maArea").value.trim() || null, data, status: "معتمد", consent_ticker: tk, notes: $("#maNotes").value.trim() || "إضافة يدوية"}}); if (!r.ok) throw 0; mAddOpen = false; toast("اتضاف ✓"); MEMBERS = null; go("club"); loadMembers() }
+    catch (e) { toast("تعذّر الإضافة – اتأكد إنك شغّلت تحديث قاعدة البيانات (supabase-club.sql)") }
+  };
+  $("#mCsv").onclick = () => {
+    const cell = v => `"${String(v ?? "").replace(/^(?=[=+\-@\t\r])/, "'").replace(/"/g, '""').replace(/\n/g, " | ")}"`;
+    const rows = [["النوع", "الاسم", "الموبايل", "الإيميل", "المنطقة", "التفاصيل", "الحالة", "على الشريط", "موافق على الفعاليات", "عمولة خاصة ٪", "ملاحظات", "أول تسجيل"]].concat(clubList().map(m => [m.type, m.name, m.phone, m.email, m.area, Object.entries(m.data).filter(([, v]) => v && !Array.isArray(v) && typeof v !== "boolean").map(([k, v]) => xLabel(m.type, k) + ": " + v).join(" | "), m.status, m.on_ticker ? "نعم" : "لا", m.consent_events ? "نعم" : "لا", m.commission_pct ?? "", m.notes, new Date(m.first).toLocaleString("ar-EG")]));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + rows.map(r => r.map(cell).join(",")).join("\r\n")], {type: "text/csv;charset=utf-8"})); a.download = "everest-club.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  };
+  $$("[data-doc]").forEach(b => b.onclick = async () => {
+    const w = window.open("about:blank", "_blank");
+    try { const r = await api("docUrl", {path: b.dataset.doc}); if (!r.ok) throw 0; if (w) w.location = r.url; else location.href = r.url } catch (e) { if (w) w.close(); toast("تعذّر فتح المستند") }
+  });
+  $$("[data-mphone]").forEach(card => {
+    const phone = card.dataset.mphone;
+    card.querySelectorAll("[data-mset]").forEach(el => el.onchange = async () => {
+      const k = el.dataset.mset, v = el.type === "checkbox" ? el.checked : k === "commission_pct" ? (el.value === "" ? null : Math.min(50, Math.max(0, +el.value))) : el.value.trim().slice(0, k === "notes" ? 2000 : 30) || (k === "notes" ? null : el.value);
+      try {
+        const r = await api("memberSet", {phone, patch: {[k]: v}}); if (!r.ok) throw 0;
+        for (const row of MEMBERS) if (row.phone === phone) row[k] = v;
+        if (k === "on_ticker") await saveTicker();
+        toast(k === "on_ticker" ? (v ? "ظهر على الشريط الأزرق ✓" : "اتشال من الشريط ✓") : "اتحفظ ✓"); refreshBadges();
+        if (k === "status" || k === "on_ticker") go("club");
+      } catch (e) { toast("تعذّر الحفظ") }
+    });
+    card.querySelector("[data-mdel]").onclick = async () => {
+      if (!confirm("حذف العضو ده وكل تسجيلاته ومستنداته نهائياً؟ مفيش رجوع.")) return;
+      try { const r = await api("memberDel", {phone}); if (!r.ok) throw 0; MEMBERS = MEMBERS.filter(x => x.phone !== phone); await saveTicker(); toast("اتحذف ✓"); go("club") } catch (e) { toast("تعذّر الحذف") }
+    };
+  });
 },
 customers() {
   $$("[data-ct]").forEach(b => b.onclick = () => { cType = b.dataset.ct; go("customers") });
