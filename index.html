@@ -256,10 +256,37 @@ let tt; const toast = t => { $("#toast").textContent = t; $("#toast").classList.
 
 const CATS = {interior: "داخلية", deco: "تأثيرات ديكورية", exterior: "خارجية", prep: "تأسيس ومعاجين", wood: "دهانات أخشاب", industrial: "صناعية"};
 const VARIANTS = ["", "أبيض", "ألوان خاصة", "ألوان جاهزة"];
+/* القوائم اللي تقدر تكتب فيها اختيار جديد ويتحفظ (في الإعدادات settings.opts) */
+const OPT_DEF = {units: ["لتر", "كجم", "قطعة", "كرتونة", "شيكارة", "برميل", "جالون", "علبة", "طقم", "متر"], variants: VARIANTS, cats: Object.keys(CATS)};
+const OPT_LBL = {units: "وحدة جديدة", variants: "نوع جديد", cats: "قسم جديد"};
+const catName = k => CATS[k] || k || "";
+function optList(kind) {
+  const used = kind === "units" ? D.products.flatMap(p => [p.u, ...(p.packs || []).map(k => k.u)]) : kind === "cats" ? D.products.map(p => p.cat) : D.products.flatMap(p => (p.packs || []).map(k => k.v || ""));
+  return [...new Set([...OPT_DEF[kind], ...(((D.settings.opts || {})[kind]) || []), ...used].filter(x => x != null && (x !== "" || kind === "variants")))];
+}
+function optSelect(kind, cur, attrs) {
+  const L = optList(kind); if (cur != null && !L.includes(cur)) L.push(cur);
+  const lbl = v => kind === "cats" ? catName(v) : kind === "variants" ? v || "—" : v;
+  return `<select class="in" data-newopt="${kind}" ${attrs}>${L.map(v => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(lbl(v))}</option>`).join("")}<option value="__new">✏️ اكتب ${OPT_LBL[kind]}…</option></select>`;
+}
+/* لما يختار «اكتب جديد»: بيكتبه، بيتضاف للقايمة ويتحفظ، وبيتختار على طول */
+document.addEventListener("focusin", e => { const s = e.target.closest && e.target.closest("select[data-newopt]"); if (s && s.value !== "__new") s.dataset.prev = s.value }, true);
+document.addEventListener("input", e => {
+  const s = e.target.closest && e.target.closest("select[data-newopt]"); if (!s || s.value !== "__new") { if (s) s.dataset.prev = s.value; return }
+  e.stopImmediatePropagation();
+  const kind = s.dataset.newopt, v = (prompt(`اكتب ${OPT_LBL[kind]}:`) || "").trim().replace(/[<>"|~]/g, "").slice(0, 30);
+  if (!v) { s.value = s.dataset.prev || s.options[0].value; return }
+  const key = kind === "cats" ? (Object.keys(CATS).find(k => CATS[k] === v) || v) : v;
+  const o = D.settings.opts = D.settings.opts || {}; o[kind] = o[kind] || [];
+  if (!optList(kind).includes(key)) o[kind].push(key);
+  if (![...s.options].some(x => x.value === key)) s.querySelector('option[value="__new"]').insertAdjacentHTML("beforebegin", `<option value="${esc(key)}">${esc(kind === "cats" ? catName(key) : key)}</option>`);
+  s.value = key; s.dataset.prev = key; changed();
+  s.dispatchEvent(new Event("input", {bubbles: true})); s.dispatchEvent(new Event("change", {bubbles: true}));
+}, true);
 /* المنتج "ليه سعر" لو أي عبوة ليها سعر، أو (منتج بدون عبوات) ليه سعر للوحدة */
 const hasPack = p => p.packs && p.packs.length;
 const priced = p => hasPack(p) ? p.packs.some(k => k.p != null) : p.price != null;
-const packLbl = k => `${num(k.s)} ${k.u === "كجم" ? "كجم" : "لتر"}${k.v ? " – " + k.v : ""}`;
+const packLbl = k => `${num(k.s)} ${k.u || "لتر"}${k.v ? " – " + k.v : ""}`;
 const TYPES = {order: ["🛒", "طلب شراء", "blue"], booking: ["📅", "حجز معاينة", "ok"], package: ["🏠", "طلب باقة", "warn"], wholesale: ["🏗️", "تسجيل مقاول", "grey"], colour_combo: ["🎨", "تنسيق ألوان", "grey"], contact: ["✉️", "تواصل", "grey"]};
 const STATUSES = ["جديد", "تم التواصل", "جاري التنفيذ", "مكتمل", "ملغي"];
 /* الدفع (لازم يطابق الافتراضي في assets/app.js) */
@@ -675,7 +702,7 @@ let pFilter = "all", pQ = "";
 function packsHTML(p) {
   if (hasPack(p) || p.price == null) return "";
   const s = p.sizes && p.sizes.length ? p.sizes : null;
-  return `<div class="packs">${s ? s.map(z => `<span>${num(z)} ${p.u === "كجم" ? "كجم" : "لتر"} = ${money(p.price * z)}</span>`).join("") : `<span>يُباع بال${p.u === "كجم" ? "كيلو" : "لتر"}</span>`}</div>`;
+  return `<div class="packs">${s ? s.map(z => `<span>${num(z)} ${esc(p.u || "لتر")} = ${money(p.price * z)}</span>`).join("") : `<span>يُباع بال${esc(p.u === "كجم" ? "كيلو" : p.u || "لتر")}</span>`}</div>`;
 }
 /* خانات الأسعار: خانة لكل عبوة، أو خانة واحدة لسعر الوحدة */
 function priceInputs(p, i) {
@@ -684,13 +711,14 @@ function priceInputs(p, i) {
 }
 /* «أبيض / لون» في المتجر: المنتج يتلوّن لو له عبوة بيضا بسعر ومش متقفل هنا (الافتراضي: كل حاجة ما عدا التأسيس والمعاجين) */
 const tintable = p => { const L = p.packs && p.packs.length ? p.packs : []; return L.some(k => (!k.v || k.v === "أبيض") && k.p != null) && !L.some(k => k.v === "ألوان خاصة") };
-const canTint = p => Array.isArray(D.settings.noTint) ? !D.settings.noTint.includes(p.id) : p.cat !== "prep";
+const tintDef = p => p.cat !== "prep" && ["لتر", "كجم"].includes(p.u || "لتر");   // الافتراضي: الدهانات باللتر/الكيلو ما عدا التأسيس
+const canTint = p => Array.isArray(D.settings.noTint) ? !D.settings.noTint.includes(p.id) : tintDef(p);
 function pCard(p, i) {
   const miss = p.active !== false && !priced(p), src = imgOf(p);
   return `<div class="pc ${miss ? "missing" : ""} ${p.active === false ? "hidden-p" : ""}" data-i="${i}">
     <div class="im">${src ? `<img loading="lazy" src="${esc(src)}" alt="">` : `<i class="sw" style="background:${esc(p.col || "#999")}"></i>`}${miss ? `<span class="pill warn">ناقص سعر</span>` : p.active === false ? `<span class="pill grey">مخفي</span>` : ""}</div>
     <div class="bd">
-      <div class="nm"><b>${esc(p.ar)}</b><small>${esc(p.en || "")} · ${CATS[p.cat] || ""}</small></div>
+      <div class="nm"><b>${esc(p.ar)}</b><small>${esc(p.en || "")} · ${esc(catName(p.cat))}</small></div>
       ${priceInputs(p, i)}
       <div data-packs="${i}">${packsHTML(p)}</div>
       <div class="row">
@@ -710,8 +738,8 @@ function productFields(p) {
     <div class="grid g2">
       <label class="f"><span><b>الاسم بالعربي</b></span><input class="in" data-f="ar" value="${esc(p.ar)}"></label>
       <label class="f"><span>الاسم بالإنجليزي</span><input class="in" data-f="en" dir="ltr" value="${esc(p.en || "")}"></label>
-      <label class="f"><span>القسم</span><select class="in" data-f="cat">${o(p.cat, CATS)}</select></label>
-      <label class="f"><span>الوحدة</span><select class="in" data-f="u">${o(p.u, {"لتر": "لتر", "كجم": "كجم"})}</select></label>
+      <label class="f"><span>القسم</span>${optSelect("cats", p.cat, 'data-f="cat"')}</label>
+      <label class="f"><span>الوحدة</span>${optSelect("units", p.u || "لتر", 'data-f="u"')}</label>
     </div>
     <div class="sec-t">العبوات والأسعار</div>
     <div id="packEd"></div>
@@ -768,14 +796,14 @@ function renderPackEd(p) {
       <thead><tr style="color:var(--muted);font-size:12px"><th style="text-align:right;padding:4px">الحجم</th><th style="text-align:right;padding:4px">الوحدة</th><th style="text-align:right;padding:4px">النوع</th><th style="text-align:right;padding:4px">سعر العبوة (ج.م)</th><th></th></tr></thead>
       <tbody>${p.packs.map((k, j) => `<tr>
         <td style="padding:3px"><input class="in" type="number" min="0" step="0.05" data-pe="${j}:s" value="${k.s}"></td>
-        <td style="padding:3px"><select class="in" data-pe="${j}:u">${["لتر", "كجم"].map(u => `<option ${u === k.u ? "selected" : ""}>${u}</option>`).join("")}</select></td>
-        <td style="padding:3px"><select class="in" data-pe="${j}:v">${VARIANTS.map(v => `<option value="${v}" ${v === (k.v || "") ? "selected" : ""}>${v || "—"}</option>`).join("")}</select></td>
+        <td style="padding:3px">${optSelect("units", k.u || "لتر", `data-pe="${j}:u"`)}</td>
+        <td style="padding:3px">${optSelect("variants", k.v || "", `data-pe="${j}:v"`)}</td>
         <td style="padding:3px"><input class="in" type="number" min="0" step="1" data-pe="${j}:p" value="${k.p ?? ""}" placeholder="عند الطلب"></td>
         <td style="padding:3px"><button class="btn red sm" data-pedel="${j}">✕</button></td></tr>`).join("")}</tbody></table></div>
       <button class="btn light sm" id="peAdd" style="margin-top:8px">＋ إضافة عبوة</button>`;
   } else {
     box.innerHTML = `<div class="grid g2">
-      <label class="f"><span><b>السعر لكل ${esc(p.u)}</b> (فاضي = عند الطلب)</span><input class="in" type="number" min="0" step="0.5" data-f="price" data-t="num" value="${p.price ?? ""}"></label>
+      <label class="f"><span><b>السعر لكل ${esc(p.u || "لتر")}</b> (فاضي = عند الطلب)</span><input class="in" type="number" min="0" step="0.5" data-f="price" data-t="num" value="${p.price ?? ""}"></label>
       <label class="f"><span>أحجام العبوات (مفصولة بفاصلة)</span><input class="in" data-f="sizes" data-t="list" value="${(p.sizes || []).join(", ")}" placeholder="مثال: 0.9, 2.7, 9"></label></div>
       <button class="btn light sm" id="peConvert" style="margin-top:8px">تحويل لسعر مستقل لكل عبوة</button>`;
   }
@@ -965,7 +993,7 @@ products() {
     (!pQ || (p.ar + p.en + p.line).toLowerCase().includes(pQ)));
   return `<div class="filters">
     ${[["all", "الكل", counts.all], ["missing", "ناقص سعر", counts.missing], ["hidden", "مخفي", counts.hidden]].map(([k, n, c]) => `<button class="chip ${pFilter === k ? "on" : ""}" data-pf="${k}">${n}<span class="n">${num(c)}</span></button>`).join("")}
-    <span style="width:10px"></span>${Object.entries(CATS).map(([k, n]) => `<button class="chip ${pFilter === k ? "on" : ""}" data-pf="${k}">${n}</button>`).join("")}
+    <span style="width:10px"></span>${optList("cats").filter(k => D.products.some(p => p.cat === k)).map(k => `<button class="chip ${pFilter === k ? "on" : ""}" data-pf="${esc(k)}">${esc(catName(k))}</button>`).join("")}
   </div>
   <div class="toolbar"><input class="in" id="pQ" placeholder="ابحث عن منتج…" value="${esc(pQ)}"><button class="btn" data-go="add">＋ إضافة منتج</button><span class="hint">اكتب السعر في الخانة مباشرة – بيتحفظ تلقائي. سعر العبوة = السعر × حجمها.</span></div>
   ${list.length ? `<div class="pgrid">${list.map(([p, i]) => pCard(p, i)).join("")}</div>` : `<div class="empty">مفيش منتجات هنا</div>`}`;
@@ -985,8 +1013,8 @@ add() {
         <label class="f"><span><b>اسم المنتج</b></span><input class="in" id="qAr" placeholder="مثال: جوتاشيلد إكستريم"></label>
         <label class="f"><span>الاسم بالإنجليزي (اختياري)</span><input class="in" id="qEn" dir="ltr" placeholder="Jotashield Extreme"></label>
         <div class="grid g2">
-          <label class="f"><span>القسم</span><select class="in" id="qCat">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></label>
-          <label class="f"><span>الوحدة</span><select class="in" id="qU"><option>لتر</option><option>كجم</option></select></label>
+          <label class="f"><span>القسم</span>${optSelect("cats", "interior", 'id="qCat"')}</label>
+          <label class="f"><span>الوحدة</span>${optSelect("units", "لتر", 'id="qU"')}</label>
           <label class="f"><span><b>السعر لكل وحدة</b></span><input class="in" id="qPrice" type="number" min="0" step="0.5" placeholder="فاضي = عند الطلب"></label>
           <label class="f"><span>أحجام العبوات</span><input class="in" id="qSizes" placeholder="مثال: 1, 4, 18"></label>
         </div>
@@ -1259,7 +1287,7 @@ add() {
       const p = Object.assign({active: true, f: [], price: null, cov: r.product.cat === "exterior" ? 9 : 11, best: false}, r.product);
       if (D.products.some(x => x.url === p.url)) toast("تنبيه: المنتج ده موجود بالفعل في المتجر");
       p.id = uniqueId(p.id);
-      $("#jResult").innerHTML = `<div class="prev" style="margin-bottom:12px"><div class="im">${p.img ? `<img src="${IMG(p.img)}">` : ""}</div><div><b>${esc(p.ar)}</b><div class="hint">${esc(p.en)} · ${CATS[p.cat]}${p.sizes ? " · عبوات " + p.sizes.join(" / ") + " " + p.u : ""}</div></div></div>
+      $("#jResult").innerHTML = `<div class="prev" style="margin-bottom:12px"><div class="im">${p.img ? `<img src="${IMG(p.img)}">` : ""}</div><div><b>${esc(p.ar)}</b><div class="hint">${esc(p.en)} · ${esc(catName(p.cat))}${p.sizes ? " · عبوات " + p.sizes.join(" / ") + " " + p.u : ""}</div></div></div>
         <div class="f"><span><b>اكتب السعر</b> – ده الشيء الوحيد المطلوب منك</span>
         ${p.sizes ? p.sizes.map(s => `<div class="price-in" style="margin-top:6px"><span style="min-width:90px;color:var(--ink)">${num(s)} ${esc(p.u)}</span><input type="number" min="0" step="1" class="jp" data-s="${s}" placeholder="سعر العبوة"><span>ج.م</span></div>`).join("")
           : `<div class="price-in"><input type="number" min="0" step="0.5" class="jp" placeholder="اكتب السعر"><span>ج.م / ${esc(p.u)}</span></div>`}</div>
@@ -1358,7 +1386,7 @@ function bindProducts() {
   });
   $$("[data-tint]").forEach(el => el.onchange = () => {
     const s = D.settings, id = D.products[+el.dataset.tint].id;
-    if (!Array.isArray(s.noTint)) s.noTint = D.products.filter(p => p.cat === "prep").map(p => p.id);
+    if (!Array.isArray(s.noTint)) s.noTint = D.products.filter(p => !tintDef(p)).map(p => p.id);
     s.noTint = s.noTint.filter(x => x !== id); if (!el.checked) s.noTint.push(id); changed();
   });
   $$("[data-tog]").forEach(el => el.onchange = () => { D.products[+el.dataset.i][el.dataset.tog] = el.checked; changed(); el.closest(".pc").classList.toggle("hidden-p", D.products[+el.dataset.i].active === false) });
