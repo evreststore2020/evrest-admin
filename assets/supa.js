@@ -53,6 +53,8 @@
           x.send(file);
         });
       },
+      /* رابط مؤقت لملف في مخزن خاص (للأدمن) */
+      async sign(bucket, path, expiresIn = 600) { const j = await req(`/storage/v1/object/sign/${bucket}/${path}`, json("POST", {expiresIn})); return base + "/storage/v1" + (j.signedURL || j.signedUrl) },
       removeFile: (bucket, path) => req(`/storage/v1/object/${bucket}`, json("DELETE", {prefixes: [path]})),
 
       /* تحويل بين شكل بيانات الموقع وجداول Supabase */
