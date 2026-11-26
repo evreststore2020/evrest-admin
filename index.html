@@ -211,6 +211,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
       <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
       <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
+      <button data-v="photos"><span class="ic">📸</span>صور أعمالنا</button>
       <button data-v="packages"><span class="ic">🏠</span>الباقات</button>
       <button data-v="reviews"><span class="ic">★</span>آراء العملاء</button>
       <button data-v="codes"><span class="ic">%</span>أكواد الخصم</button>
@@ -546,6 +547,16 @@ $("#logout").onclick = lockNow;
 let idleT; const idle = () => { clearTimeout(idleT); if (!REMEMBER) idleT = setTimeout(() => { if (D && !dirty()) lockNow() }, 30 * 60 * 1000) };
 ["click", "keydown", "scroll", "touchstart"].forEach(ev => addEventListener(ev, idle, {passive: true})); idle();
 
+/* تصغير الصورة قبل الرفع (أقصى ضلع 1600 بكسل، JPG) – بيشيل بيانات المكان من الصورة كمان */
+async function shrinkPhoto(file, max = 1600) {
+  if (!/^image\//.test(file.type || "") && !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || "")) throw new Error("مش صورة");
+  let bmp; try { bmp = await createImageBitmap(file, {imageOrientation: "from-image"}) } catch (e) { throw new Error(/hei[cf]/i.test(file.name + file.type) ? "صيغة HEIC – صوّرها JPG أو ابعتها لنفسك واتساب ونزّلها" : "مش قادر أقرا الصورة") }
+  const r = Math.min(1, max / Math.max(bmp.width, bmp.height)), c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height); bmp.close && bmp.close();
+  const b = await new Promise(res => c.toBlob(res, "image/jpeg", .82)); if (!b) throw new Error("مش قادر أجهّز الصورة");
+  return b;
+}
 /* رفع فيديو للسيرفر على أجزاء (عشان يعدّي من حدود حجم الرفع في الاستضافة) */
 async function uploadToServer(file, onProgress) {
   if (SBC) {
@@ -628,7 +639,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -1026,6 +1037,30 @@ add() {
     </div>
   </div>`;
 },
+photos() {
+  const L = D.settings.projects || [];
+  return `<div class="card" style="margin-bottom:20px"><h3>📸 رفع صور من شغلكم الحقيقي</h3>
+    ${!L.length ? `<div class="notice blue" style="margin-bottom:12px">لحد ما ترفع أول صورة، قسم «أعمالنا» في المتجر بيعرض صور توضيحية. أول ما ترفع، صورك الحقيقية بس هي اللي هتظهر.</div>` : ""}
+    <div class="grid g2">
+      <label class="f"><span><b>الصور</b> (تقدر تختار كذا صورة مرة واحدة)</span><input class="in" type="file" id="phFiles" accept="image/*" multiple></label>
+      <label class="f"><span>اسم الشغلانة</span><input class="in" id="phTitle" placeholder="مثال: شقة 150 متر – دهان كامل"></label>
+      <label class="f"><span>المنطقة</span><input class="in" id="phArea" placeholder="مثال: المرج"></label>
+      <label class="f"><span>النوع</span><input class="in" id="phKind" list="phKinds" placeholder="سكني / تجاري / واجهة…"></label>
+    </div>
+    <datalist id="phKinds">${["سكني", "تجاري", "واجهة", "فيلا", "مكتب", "قبل وبعد"].map(k => `<option value="${k}">`).join("")}</datalist>
+    <div style="margin-top:12px"><button class="btn" id="phUp">رفع الصور</button> <span class="hint" id="phProg"></span></div>
+    <p class="hint">الصور بتتصغّر لوحدها قبل الرفع عشان الموقع يفضل سريع، وبيتشال منها مكان التصوير (GPS). خد موافقة صاحب المكان قبل ما تنشر صور بيته.</p></div>
+  <div class="card"><h3>الصور على المتجر (${num(L.length)}) <span class="hint" style="margin-inline-start:auto;font-weight:400">الترتيب هنا هو ترتيب العرض</span></h3>
+  ${L.length ? L.map((x, i) => `<div class="ed-item" style="display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:start">
+      <img src="${esc(x.src)}" alt="" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;background:#eee">
+      <div>
+        <div class="hd" style="margin-bottom:8px">
+          <label class="switch"><input type="checkbox" data-p="settings.projects.${i}.active" ${x.active !== false ? "checked" : ""}><i></i>ظاهرة</label>
+          <button class="btn light sm" data-phmove="${i}:-1" ${i === 0 ? "disabled" : ""}>↑</button><button class="btn light sm" data-phmove="${i}:1" ${i === L.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="btn red sm" data-phdel="${i}">حذف</button></div>
+        <div class="grid g3">${fld(`settings.projects.${i}.title`, "اسم الشغلانة", x.title)}${fld(`settings.projects.${i}.area`, "المنطقة", x.area)}${fld(`settings.projects.${i}.kind`, "النوع", x.kind, "text", 'list="phKinds"')}</div>
+      </div></div>`).join("") : `<p class="hint">لسه مفيش صور.</p>`}</div>`;
+},
 videos() {
   const V = D.videos || [];
   const vthumb = v => v.thumb || (v.type === "youtube" ? `https://i.ytimg.com/vi/${v.src}/mqdefault.jpg` : v.type === "drive" ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(v.src)}&sz=w320` : "");
@@ -1310,6 +1345,36 @@ add() {
       price: sizes.length ? null : unit, u, sizes: null, packs: sizes.length ? sizes.map(s => ({s, u, p: unit != null ? Math.round(unit * s) : null})) : null, cov: cat === "exterior" ? 9 : 11, url: null, best: false});
     changed(); toast("تمت الإضافة ✓"); pFilter = "all"; go("products"); openEditor(D.products.length - 1);
   };
+},
+photos() {
+  const up = $("#phUp"), prog = $("#phProg");
+  const publish = async () => { const s = await api("save", {data: D}); if (s.ok) { PUB = JSON.stringify(D); ls.del(DRAFT); refreshTop() } return s.ok };
+  up.onclick = async () => {
+    const F = [...$("#phFiles").files]; if (!F.length) return toast("اختار صورة الأول");
+    if (!SBC) return toast("رفع الصور محتاج اللوحة تكون متصلة بـ Supabase");
+    up.disabled = true; let ok = 0; const bad = [];
+    const meta = {title: $("#phTitle").value.trim().slice(0, 80), area: $("#phArea").value.trim().slice(0, 60), kind: $("#phKind").value.trim().slice(0, 30)};
+    D.settings.projects = D.settings.projects || [];
+    for (const [i, f] of F.entries()) {
+      prog.textContent = `جاري رفع ${num(i + 1)} من ${num(F.length)}… سيب الصفحة مفتوحة`;
+      try {
+        const b = await shrinkPhoto(f), path = "projects/" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7) + ".jpg";
+        await SBC.ensureFresh(); await SBC.upload("photos", path, b);
+        D.settings.projects.splice(ok, 0, Object.assign({id: "ph" + Date.now().toString(36) + i, active: true, src: SBC.publicUrl("photos", path), path}, meta)); ok++;
+      } catch (e) { bad.push(f.name + (e.status === 401 || e.status === 403 ? " (الجلسة خلصت – ادخل تاني)" : e.status === 400 || e.status === 404 ? " (مخزن الصور مش متجهز)" : e.message ? " (" + e.message + ")" : "")) }
+    }
+    if (ok) { changed(); await publish() }
+    up.disabled = false; prog.textContent = "";
+    toast(ok ? `اترفع ${num(ok)} صورة ✓ وظاهرة في المتجر${bad.length ? " – ما اترفعش: " + bad.join("، ") : ""}` : "ما اترفعش: " + bad.join("، "));
+    go("photos");
+  };
+  $$("[data-phmove]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.phmove.split(":").map(Number), A = D.settings.projects; [A[i], A[i + d]] = [A[i + d], A[i]]; changed(); go("photos") });
+  $$("[data-phdel]").forEach(b => b.onclick = async () => {
+    const i = +b.dataset.phdel, x = D.settings.projects[i]; if (!confirm(`حذف صورة "${x.title || "الشغلانة"}" من المتجر نهائياً؟`)) return;
+    D.settings.projects.splice(i, 1); changed(); go("photos");
+    if (SBC && x.path) { try { await SBC.removeFile("photos", x.path) } catch (e) {} }
+    try { await publish(); toast("اتمسحت ✓") } catch (e) {}
+  });
 },
 videos() {
   const add = v => { (D.videos = D.videos || []).unshift(Object.assign({id: "v" + Date.now().toString(36), active: true, date: new Date().toISOString().slice(0, 10)}, v)); changed(); go("videos") };
