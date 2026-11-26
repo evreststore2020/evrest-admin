@@ -653,7 +653,7 @@ function payHTML(e) {
     </div>
     ${y.verified && !y.mismatch ? `<div class="hint">✓ الأسعار محسوبة من قاعدة البيانات وقت الطلب${y.discount ? " – خصم " + num(y.discount) + "٪" : ""}. متسلّمش غير بعد ما تشوف المبلغ في حسابك.</div>`
       : `<div class="notice warn">⚠ ${y.mismatch ? "المبلغ اللي ظهر للعميل مختلف عن حساب قاعدة البيانات – راجع الأسعار معاه." : "الأسعار دي جاية من متصفح العميل ومش متراجعة – راجعها بنفسك."}</div>`}
-    ${y.lines.length ? `<pre>${y.lines.map(l => esc(`• ${l.name}${l.pack ? " — " + l.pack.replace("~", " – ") : ""} × ${l.n} = ${l.sum == null ? "السعر بعد التأكيد" : money(l.sum)}${l.tint ? " (يتلوّن)" : ""}`)).join("\n")}</pre>` : ""}
+    ${y.lines.length ? `<pre>${y.lines.map(l => esc(`• ${l.name}${l.pack ? " — " + l.pack.replace(/~/g, " – ") : ""} × ${l.n} = ${l.sum == null ? "السعر بعد التأكيد" : money(l.sum)}${l.tint ? " (يتلوّن)" : ""}`)).join("\n")}</pre>` : ""}
     <div class="pc-grid">
       <label><span>حالة الدفع</span><select class="in" data-pay-st>${PAY_ST.map(s => `<option ${s === st ? "selected" : ""}>${s}</option>`).join("")}</select></label>
       <label><span>${y.due_now ? `مطلوب وقت الطلب: <b>${money(y.due_now)}</b>` : "مطلوب وقت الطلب: —"}</span><span class="hint">${y.fixed ? "الجزء الثابت: " + money(y.fixed) : ""}</span></label>
@@ -682,6 +682,9 @@ function priceInputs(p, i) {
   if (hasPack(p)) return `<div style="display:flex;flex-direction:column;gap:6px">${p.packs.map((k, j) => `<div class="price-in" style="${k.p == null ? "border-color:#e9b949;background:#fffbf0" : ""}"><span style="min-width:120px;color:var(--ink)">${packLbl(k)}</span><input type="number" min="0" step="1" inputmode="decimal" data-pkprice="${i}:${j}" value="${k.p ?? ""}" placeholder="السعر" style="font-size:16px"><span>ج.م</span></div>`).join("")}</div>`;
   return `<div class="price-in"><input type="number" min="0" step="0.5" inputmode="decimal" data-price="${i}" value="${p.price ?? ""}" placeholder="اكتب السعر"><span>ج.م / ${esc(p.u)}</span></div>`;
 }
+/* «أبيض / لون» في المتجر: المنتج يتلوّن لو له عبوة بيضا بسعر ومش متقفل هنا (الافتراضي: كل حاجة ما عدا التأسيس والمعاجين) */
+const tintable = p => { const L = p.packs && p.packs.length ? p.packs : []; return L.some(k => (!k.v || k.v === "أبيض") && k.p != null) && !L.some(k => k.v === "ألوان خاصة") };
+const canTint = p => Array.isArray(D.settings.noTint) ? !D.settings.noTint.includes(p.id) : p.cat !== "prep";
 function pCard(p, i) {
   const miss = p.active !== false && !priced(p), src = imgOf(p);
   return `<div class="pc ${miss ? "missing" : ""} ${p.active === false ? "hidden-p" : ""}" data-i="${i}">
@@ -693,6 +696,7 @@ function pCard(p, i) {
       <div class="row">
         <label class="switch"><input type="checkbox" data-tog="active" data-i="${i}" ${p.active !== false ? "checked" : ""}><i></i>ظاهر</label>
         <label class="switch"><input type="checkbox" data-tog="best" data-i="${i}" ${p.best ? "checked" : ""}><i></i>الأكثر طلباً</label>
+        ${tintable(p) ? `<label class="switch" title="العميل يقدر يختار «لون» بدل «أبيض» والسعر يتأكد معاه"><input type="checkbox" data-tint="${i}" ${canTint(p) ? "checked" : ""}><i></i>🎨 يتلوّن</label>` : ""}
       </div>
     </div>
     <div class="ft"><button class="btn light sm" data-edit="${i}">تعديل كل البيانات</button><button class="btn light sm" data-dup="${i}">نسخ</button><button class="btn red sm" data-del="${i}" style="margin-inline-start:auto">حذف</button></div>
@@ -1352,6 +1356,11 @@ function bindProducts() {
     el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
     changed();
   });
+  $$("[data-tint]").forEach(el => el.onchange = () => {
+    const s = D.settings, id = D.products[+el.dataset.tint].id;
+    if (!Array.isArray(s.noTint)) s.noTint = D.products.filter(p => p.cat === "prep").map(p => p.id);
+    s.noTint = s.noTint.filter(x => x !== id); if (!el.checked) s.noTint.push(id); changed();
+  });
   $$("[data-tog]").forEach(el => el.onchange = () => { D.products[+el.dataset.i][el.dataset.tog] = el.checked; changed(); el.closest(".pc").classList.toggle("hidden-p", D.products[+el.dataset.i].active === false) });
   $$("[data-edit]").forEach(b => b.onclick = () => openEditor(+b.dataset.edit));
   $$("[data-dup]").forEach(b => b.onclick = () => { const src = D.products[+b.dataset.dup], c = JSON.parse(JSON.stringify(src)); c.id = uniqueId(src.id + "-copy"); c.ar = src.ar + " (نسخة)"; c.best = false; D.products.splice(+b.dataset.dup + 1, 0, c); changed(); go(view); openEditor(+b.dataset.dup + 1) });
@@ -1410,7 +1419,7 @@ function receiptCanvas(e, pay) {
   y += 60;
   if (!lines.length) { y += 40; t("التفاصيل في رسالة الطلب", W - M - 20, y, F(400, 26), MUTED); y += 24 }
   for (const l of lines) {
-    y += 40; t(fit(l.name + (l.pack ? " – " + l.pack.replace("~", " – ") : ""), W - M - 520, F(400, 27)), W - M - 20, y, F(400, 27));
+    y += 40; t(fit(l.name + (l.pack ? " – " + l.pack.replace(/~/g, " – ") : ""), W - M - 520, F(400, 27)), W - M - 20, y, F(400, 27));
     t("× " + num(l.n), 420, y, F(400, 27), INK, "center"); t(l.sum == null ? "بعد التأكيد" : money(l.sum), M + 20, y, F(600, 27), l.sum == null ? MUTED : INK, "left");
     y += 24; x.fillStyle = "#efefef"; x.fillRect(M, y, W - 2 * M, 1);
   }
