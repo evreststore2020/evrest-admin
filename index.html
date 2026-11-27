@@ -295,7 +295,7 @@ const PAY_DEF = {instant: true, instapay: true, vf: true, cod: false, instapayUr
 const payCfg = () => { const p = Object.assign({}, PAY_DEF, (D && D.settings && D.settings.pay) || {}); if (!p.instapayId) { const m = String(p.instapayUrl || "").match(/\/S\/([^/]+)\/instapay/i); if (m) p.instapayId = m[1] + "@instapay" } return p };
 const PAY_ST = ["لم يدفع", "دفع جزء", "مدفوع بالكامل"];
 const PAY_MODE = {instant: ["⚡", "دفع فوري", "ok"], confirm: ["🎨", "بعد التأكيد", "warn"], mixed: ["◐", "مخلوط", "blue"]};
-const PAY_METHOD = {instapay: "إنستاباي", vf: "فودافون كاش", cod: "كاش عند الاستلام"};
+const PAY_METHOD = {instapay: "إنستاباي", vf: "محفظة إلكترونية", cod: "كاش عند الاستلام"};
 /* بيانات الدفع جاية من زائر مجهول: بنقبل قيم معروفة وأرقام بس */
 function safePay(y) {
   if (!y || typeof y !== "object" || Array.isArray(y)) return null;
@@ -1147,19 +1147,19 @@ settings() {
       <label class="f" style="grid-column:1/-1"><span>ملاحظة الأسعار اللي بتظهر للعملاء</span><input class="in" data-p="settings.priceNote" value="${esc(s.priceNote || "")}"></label>
     </div></div>
     ${(() => { const P = payCfg(), age = daysSince(s.priceUpdated), sw = (k, label, hint) => `<label class="switch pay-sw"><input type="checkbox" data-p="settings.pay.${k}" ${P[k] !== false ? "checked" : ""}><i></i><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ""}</span></label>`;
-      return `<div class="card" style="margin-bottom:16px" id="payCard"><h3>💳 الدفع: إنستاباي وفودافون كاش</h3>
+      return `<div class="card" style="margin-bottom:16px" id="payCard"><h3>💳 الدفع: إنستاباي والمحفظة الإلكترونية</h3>
       <div class="notice ${P.instant !== false ? "blue" : "warn"}" style="margin-bottom:14px">${P.instant !== false
         ? "✓ <b>الدفع الفوري شغال:</b> الأبيض والألوان الجاهزة وأي منتج ليه سعر ومش «ألوان خاصة» العميل بيدفعه وقت الطلب. المنتجات اللي بتتلوّن بتتدفع بعد ما تأكد السعر."
         : "⏸ <b>الدفع الفوري متوقف:</b> كل الطلبات دلوقتي بتتحول لـ«بعد التأكيد» لحد ما تشغّله تاني."}</div>
       <div class="pay-sws">
         ${sw("instant", "الدفع الفوري للمنتجات ذات السعر الثابت", "اقفله وقت ما الأسعار بتتغير ولسه ما حدّثتهاش")}
-        ${sw("instapay", "إنستاباي")}${sw("vf", "فودافون كاش")}
+        ${sw("instapay", "إنستاباي")}${sw("vf", "محفظة إلكترونية", "العميل بيحوّل من أي محفظة (فودافون كاش، أورانج كاش، اتصالات كاش، WE Pay) على رقم محفظتك")}
       </div>
       <div class="grid g3" style="margin-top:14px">
         <label class="f"><span>رابط الدفع بإنستاباي</span><input class="in" dir="ltr" data-p="settings.pay.instapayUrl" value="${esc(P.instapayUrl)}" placeholder="https://ipn.eg/S/…"></label>
         <label class="f"><span>عنوان إنستاباي (اختياري – بيتطلع من الرابط لوحده)</span><input class="in" dir="ltr" data-p="settings.pay.instapayId" value="${esc((s.pay || {}).instapayId || "")}" placeholder="${esc(P.instapayId || "name@instapay")}"></label>
-        <label class="f"><span>رابط فودافون كاش</span><input class="in" dir="ltr" data-p="settings.pay.vfUrl" value="${esc(P.vfUrl)}" placeholder="http://vf.eg/vfcash?…"></label>
-        <label class="f"><span>رقم فودافون كاش (اختياري)</span><input class="in" dir="ltr" data-p="settings.pay.vfNumber" value="${esc(P.vfNumber)}" placeholder="010xxxxxxxx"></label>
+        <label class="f"><span><b>رقم المحفظة</b> (مهم – العميل بيحوّل عليه من أي محفظة)</span><input class="in" dir="ltr" inputmode="tel" data-p="settings.pay.vfNumber" value="${esc(P.vfNumber)}" placeholder="010xxxxxxxx"></label>
+        <label class="f"><span>رابط فودافون كاش المباشر (اختياري – بيظهر كاختيار إضافي)</span><input class="in" dir="ltr" data-p="settings.pay.vfUrl" value="${esc(P.vfUrl)}" placeholder="http://vf.eg/vfcash?…"></label>
         <label class="f"><span>نبّهني لو الأسعار ما اتحدّثتش من (يوم)</span><input class="in" type="number" min="1" data-t="num" data-p="settings.pay.staleDays" value="${esc(P.staleDays)}"></label>
         <div class="f"><span>آخر تحديث للأسعار</span><b style="padding:10px 0">${s.priceUpdated ? `${new Date(s.priceUpdated).toLocaleDateString("ar-EG", {day: "numeric", month: "long", year: "numeric"})} (منذ ${num(age)} يوم)` : "لسه مسجّلش – بيتسجل لوحده أول ما تعدّل أي سعر"}</b></div>
       </div>
@@ -1465,7 +1465,7 @@ const rDate = iso => { const d = new Date(iso || Date.now()); return isNaN(d) ? 
 function payLines(P) {
   return [
     P.instapay !== false && (P.instapayUrl || P.instapayId) ? ["إنستاباي", P.instapayId || "", P.instapayUrl || ""] : null,
-    P.vf !== false && (P.vfUrl || P.vfNumber) ? ["فودافون كاش", P.vfNumber || "", P.vfUrl || ""] : null
+    P.vf !== false && (P.vfUrl || P.vfNumber) ? ["محفظة إلكترونية (أي محفظة)", P.vfNumber || "", P.vfNumber ? "" : P.vfUrl || ""] : null
   ].filter(Boolean);
 }
 /* نص الرسالة بشكل إيصال – من غير إيموجي */
@@ -1578,7 +1578,7 @@ function bindPay() {
       const rest = Math.max(0, pay.final - (pay.paid || 0)); if (!rest) return toast("مفيش مبلغ متبقي");
       const how = [
         P.instapay !== false && (P.instapayUrl || P.instapayId) ? [`⚡ إنستاباي${P.instapayId ? ": " + P.instapayId : ""}`, P.instapayUrl].filter(Boolean).join("\n") : "",
-        P.vf !== false && (P.vfUrl || P.vfNumber) ? [`📱 فودافون كاش${P.vfNumber ? ": " + P.vfNumber : ""}`, P.vfUrl].filter(Boolean).join("\n") : ""
+        P.vf !== false && (P.vfUrl || P.vfNumber) ? [`📱 محفظة إلكترونية (أي محفظة)${P.vfNumber ? ": " + P.vfNumber : ""}`, P.vfNumber ? "" : P.vfUrl].filter(Boolean).join("\n") : ""
       ].filter(Boolean).join("\n\n");
       const how_ = how; void how_;
       const r = sendReceipt(e, pay, receiptText(e, pay, rest));
