@@ -209,6 +209,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="customers"><span class="ic">👤</span>العملاء المسجلين<span class="badge" id="bdCust" hidden></span></button>
       <button data-v="club"><span class="ic">🏅</span>نادي إفرست والشركاء<span class="badge" id="bdClub" hidden></span></button>
       <button data-v="sponsors"><span class="ic">🎁</span>الداعمين والنقط</button>
+      <button data-v="partners"><span class="ic">⭐</span>الشركاء والتقييمات<span class="badge" id="bdPart" hidden></span></button>
       <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
       <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
       <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
@@ -378,6 +379,16 @@ function sponsorList() {
   return [...map.values()].sort((a, b) => b.balance - a.balance || b.sales - a.sales);
 }
 let spQ = "";
+/* ================= شركاء النادي: صفحاتهم + صور شغلهم + تقييمات العملاء ================= */
+let PARTS = null, PARTS_ERR = false, ptab = "works", wSt = "جديد", rvT = "all";
+async function loadParts() {
+  if (!SBC) return;
+  try { const r = await api("partners"); if (r.ok) { PARTS = {pros: r.pros || [], works: r.works || [], reviews: r.reviews || []}; PARTS_ERR = false } else throw 0 } catch (e) { PARTS = PARTS || {pros: [], works: [], reviews: []}; PARTS_ERR = true }
+  refreshBadges(); if (view === "partners") go("partners");
+}
+const proOf = phone => PARTS && PARTS.pros.find(p => nph(p.phone) === nph(phone));
+const proName = id => id === "store" ? "المتجر" : ((PARTS && PARTS.pros.find(p => p.id === id)) || {}).name || "شريك محذوف";
+const starTxt = n => "★".repeat(n) + "☆".repeat(5 - n);
 const copy = async (t, b) => { try { await navigator.clipboard.writeText(t); if (b) { const o = b.textContent; b.textContent = "✓ اتنسخ"; setTimeout(() => b.textContent = o, 1500) } } catch (e) { prompt("انسخ:", t) } };
 /* عضو واحد لكل رقم (آخر تسجيل)، والمستندات من كل تسجيلاته */
 function clubList() {
@@ -462,6 +473,31 @@ async function sbApi(action, x = {}) {
         for (const r of rows || []) for (const p of Object.values(r.docs || {})) { try { await SBC.removeFile("docs", p) } catch (e) {} }
         await SBC.del("members", "phone=eq." + encodeURIComponent(x.phone)); return {ok: true};
       }
+      case "partners": { const [pros, works, reviews] = await Promise.all([sbAll("pros", "sort.asc,created_at.asc"), sbAll("works", "created_at.desc,id.desc"), sbAll("reviews", "created_at.desc,id.desc")]); return {ok: true, pros, works, reviews} }
+      case "proAdd": await SBC.insert("pros", x.row); return {ok: true};
+      case "proSet": await SBC.update("pros", "id=eq." + encodeURIComponent(x.id), x.patch); return {ok: true};
+      case "proDel": await SBC.del("pros", "id=eq." + encodeURIComponent(x.id)); return {ok: true};
+      case "workUrl": return {ok: true, url: await SBC.sign("work", x.path, 600)};
+      case "workPublish": {
+        let url = x.url;
+        if (!url) {
+          const blob = await (await fetch(await SBC.sign("work", x.path, 300))).blob(), path = "pros/" + x.id + "." + (/png/.test(blob.type) ? "png" : /webp/.test(blob.type) ? "webp" : "jpg");
+          try { await SBC.upload("photos", path, new File([blob], "w", {type: blob.type || "image/jpeg"})) } catch (e) { if (!/exist|duplicate/i.test(e.message)) throw e }
+          url = SBC.publicUrl("photos", path);
+        }
+        await SBC.update("works", "id=eq." + encodeURIComponent(x.id), {status: "منشور", url, in_gallery: !!x.gallery});
+        if (x.path) { try { await SBC.removeFile("work", x.path) } catch (e) {} }
+        return {ok: true};
+      }
+      case "workSet": await SBC.update("works", "id=eq." + encodeURIComponent(x.id), x.patch); return {ok: true};
+      case "workDel": {
+        if (x.path) { try { await SBC.removeFile("work", x.path) } catch (e) {} }
+        const pre = SBC.publicUrl("photos", ""); if (String(x.url || "").startsWith(pre)) { try { await SBC.removeFile("photos", x.url.slice(pre.length)) } catch (e) {} }
+        await SBC.del("works", "id=eq." + encodeURIComponent(x.id)); return {ok: true};
+      }
+      case "avatar": { const path = "pros/avatar-" + x.id + "-" + Date.now().toString(36) + ".jpg"; await SBC.upload("photos", path, x.file); const url = SBC.publicUrl("photos", path); await SBC.update("pros", "id=eq." + encodeURIComponent(x.id), {avatar: url}); return {ok: true, url} }
+      case "reviewSet": await SBC.update("reviews", "id=eq." + encodeURIComponent(x.id), x.patch); return {ok: true};
+      case "reviewDel": await SBC.del("reviews", "id=eq." + encodeURIComponent(x.id)); return {ok: true};
       case "rewards": return {ok: true, rewards: await sbAll("rewards", "created_at.desc,id.desc")};
       case "rewardAdd": await SBC.insert("rewards", x.row); return {ok: true};
       case "rewardDel": await SBC.del("rewards", "id=eq." + encodeURIComponent(x.id)); return {ok: true};
@@ -661,6 +697,7 @@ function refreshBadges() {
   const n = EVENTS ? EVS().filter(e => e.status === "جديد").length : 0; $("#bdEvents").hidden = !n; $("#bdEvents").textContent = num(n);
   const c = EVENTS ? EVENTS.filter(e => e.type === "signup" && e.status === "جديد").length : 0; $("#bdCust").hidden = !c; $("#bdCust").textContent = num(c);
   const cl = MEMBERS ? clubList().filter(m => m.status === "جديد").length : 0; $("#bdClub").hidden = !cl; $("#bdClub").textContent = num(cl);
+  const pw = PARTS ? PARTS.works.filter(w => w.status === "جديد").length : 0; $("#bdPart").hidden = !pw; $("#bdPart").textContent = num(pw);
 }
 function validate() {
   const ids = new Set();
@@ -688,7 +725,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -1087,6 +1124,52 @@ add() {
     </div>
   </div>`;
 },
+partners() {
+  if (!SBC) return `<div class="notice blue">الشركاء والتقييمات بيشتغلوا لما اللوحة تكون متوصّلة بـ Supabase.</div>`;
+  if (!PARTS) return `<div class="empty">جاري التحميل…</div>`;
+  const P = PARTS, nW = P.works.filter(w => w.status === "جديد").length, cfg = D.settings.reviewsCfg || {};
+  const tabs = [["works", `📸 صور الشغل${nW ? " (" + num(nW) + " جديد)" : ""}`], ["pros", `👷 صفحات الشركاء (${num(P.pros.length)})`], ["reviews", `💬 التقييمات (${num(P.reviews.length)})`]];
+  let body = "";
+  if (ptab === "works") {
+    const L = P.works.filter(w => wSt === "all" || w.status === wSt);
+    body = `<div class="chips" style="margin-bottom:12px">${[["جديد", "مستنية موافقة"], ["منشور", "منشورة"], ["مخفي", "مخفية"], ["all", "الكل"]].map(([k, n]) => `<button class="chip ${wSt === k ? "on" : ""}" data-wst="${k}">${n}</button>`).join("")}</div>
+      ${L.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">${L.map(w => { const pr = proOf(w.phone); return `<div class="ed-item" style="margin:0">
+        <div class="wthumb" data-wimg="${esc(w.id)}" style="aspect-ratio:4/3;background:#eee center/cover no-repeat;${w.url ? `background-image:url('${esc(w.url)}')` : ""};display:grid;place-items:center;color:#999">${w.url ? "" : "…"}</div>
+        <div style="margin:8px 0 4px"><b>${esc(w.name || "")}</b> <span class="hint" dir="ltr">${esc(w.phone)}</span> <span class="pill ${w.status === "منشور" ? "ok" : w.status === "جديد" ? "warn" : "grey"}">${esc(w.status)}</span></div>
+        <div class="hint">${esc([w.title, w.area].filter(Boolean).join(" – ") || "من غير عنوان")} · ${esc(rDate(w.created_at))}</div>
+        ${pr ? `<div class="hint">صفحته: ${esc(pr.name)}${pr.active ? "" : " (مقفولة)"}</div>` : `<div class="notice warn" style="margin:6px 0;padding:6px 8px;font-size:12px">العضو ده لسه ملوش صفحة – الصورة مش هتظهر غير لما تعمله صفحة. <button class="btn sm" data-mkpro="${esc(w.phone)}">اعمل صفحته</button></div>`}
+        <label class="switch" style="margin:6px 0"><input type="checkbox" data-wgal="${esc(w.id)}" ${w.in_gallery ? "checked" : ""}><i></i>تظهر كمان في «أعمالنا»</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${w.status !== "منشور" ? `<button class="btn sm" data-wpub="${esc(w.id)}">✅ انشر</button>` : `<button class="btn light sm" data-whide="${esc(w.id)}">🙈 اخفي</button>`}<button class="btn red sm" data-wdel="${esc(w.id)}">🗑 حذف</button></div>
+      </div>` }).join("")}</div>` : `<p class="hint">مفيش صور هنا. الأعضاء بيرفعوا صور شغلهم من «حسابي» في المتجر.</p>`}`;
+  } else if (ptab === "pros") {
+    const cand = clubList().filter(m => m.status !== "مرفوض" && !proOf(m.phone));
+    body = `<div class="card" style="margin-bottom:12px"><h3>＋ صفحة جديدة لعضو</h3>${cand.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap"><select class="in" id="npSel" style="max-width:340px">${cand.map(m => `<option value="${esc(m.phone)}">${esc(m.name)} – ${esc(m.type)} (${esc(m.phone)})</option>`).join("")}</select><button class="btn" id="npAdd">اعمل الصفحة</button></div>` : `<p class="hint">كل أعضاء النادي ليهم صفحات${MEMBERS ? "" : " (جاري تحميل الأعضاء…)"}.</p>`}</div>
+      ${P.pros.map(p => { const rv = P.reviews.filter(r => r.target === p.id && r.status === "ظاهر"), avg = rv.length ? (rv.reduce((a, r) => a + r.stars, 0) / rv.length).toFixed(1) : null, nw = P.works.filter(w => nph(w.phone) === nph(p.phone) && w.status === "منشور").length; return `<div class="ed-item" data-pro="${esc(p.id)}">
+        <div class="hd" style="flex-wrap:wrap;gap:10px"><div style="width:54px;height:54px;border-radius:50%;overflow:hidden;background:#eef1f7;display:grid;place-items:center;font-weight:700">${p.avatar ? `<img src="${esc(p.avatar)}" style="width:100%;height:100%;object-fit:cover">` : esc((p.name || "؟")[0])}</div>
+          <b>${esc(p.name)}</b><span class="hint" dir="ltr">${esc(p.phone)}</span><span class="hint">${avg ? "★ " + avg + " (" + num(rv.length) + ")" : "مفيش تقييمات"} · ${num(nw)} صورة</span>
+          <label class="switch" style="margin-inline-start:auto"><input type="checkbox" data-pact="${esc(p.id)}" ${p.active ? "checked" : ""}><i></i>ظاهرة في المتجر</label></div>
+        <div class="grid g3" style="margin-top:8px">
+          <label class="f"><span>الاسم</span><input class="in" data-pf2="name" value="${esc(p.name)}"></label>
+          <label class="f"><span>الصفة</span><input class="in" data-pf2="kind" value="${esc(p.kind || "")}" list="pKinds"></label>
+          <label class="f"><span>التخصص</span><input class="in" data-pf2="specialty" value="${esc(p.specialty || "")}"></label>
+          <label class="f"><span>المنطقة</span><input class="in" data-pf2="area" value="${esc(p.area || "")}"></label>
+          <label class="f"><span>الترتيب (الأصغر الأول)</span><input class="in" type="number" data-pf2="sort" value="${esc(p.sort ?? 0)}"></label>
+          <label class="f"><span>صورة شخصية</span><input class="in" type="file" accept="image/*" data-pav="${esc(p.id)}"></label>
+          <label class="f" style="grid-column:1/-1"><span>نبذة (بتظهر في صفحته)</span><textarea class="in" rows="2" maxlength="600" data-pf2="bio">${esc(p.bio || "")}</textarea></label></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-psave="${esc(p.id)}">💾 حفظ</button><button class="btn light sm" data-plink="${esc(STORE_BASE + "#pro-" + p.id)}">🔗 نسخ رابط صفحته</button><a class="btn light sm" target="_blank" rel="noopener" href="${waLink(p.phone, `أهلاً ${String(p.name).split(" ")[0]}\nصفحتك في نادي إفرست بقت على الموقع: ${STORE_BASE}#pro-${p.id}\nابعتها لعملائك عشان يشوفوا شغلك ويقيّموك. وتقدر ترفع صور شغلك من «حسابي» في المتجر.`)}">📲 ابعتله رابطه</a><button class="btn red sm" data-pdel="${esc(p.id)}" style="margin-inline-start:auto">حذف الصفحة</button></div>
+      </div>` }).join("") || `<p class="hint">لسه مفيش صفحات.</p>`}
+      <datalist id="pKinds">${["فني", "نقاش", "مهندس", "مقاول", "شركة مقاولات", "فني ديكور"].map(k => `<option value="${k}">`).join("")}</datalist>`;
+  } else {
+    const L = P.reviews.filter(r => rvT === "all" || (rvT === "store" ? r.target === "store" : r.target !== "store"));
+    body = `<div class="card" style="margin-bottom:12px"><label class="switch"><input type="checkbox" data-p="settings.reviewsCfg.auto" ${cfg.auto !== false ? "checked" : ""}><i></i><b>التقييمات الجديدة تظهر على طول</b> <span class="hint">(لو قفلته: كل تقييم جديد بيستنى لحد ما تظهّره – بيشتغل بعد «حفظ على الموقع»)</span></label></div>
+      <div class="chips" style="margin-bottom:12px">${[["all", "الكل"], ["store", "تقييمات المتجر"], ["pros", "تقييمات الشركاء"]].map(([k, n]) => `<button class="chip ${rvT === k ? "on" : ""}" data-rvt="${k}">${n}</button>`).join("")}</div>
+      ${L.length ? L.map(r => `<div class="ed-item" style="${r.status === "مخفي" ? "opacity:.6" : ""}"><div class="hd" style="flex-wrap:wrap;gap:8px"><span style="color:#f2b01e;font-size:18px">${starTxt(r.stars)}</span><b>${esc(r.name)}</b><span class="hint" dir="ltr">${esc(r.phone)}</span>${r.verified ? '<span class="pill ok">✓ اشترى</span>' : ""}<span class="pill blue">${esc(proName(r.target))}</span><span class="hint">${esc(rDate(r.created_at))}</span>
+        <label class="switch" style="margin-inline-start:auto"><input type="checkbox" data-rvshow="${esc(r.id)}" ${r.status === "ظاهر" ? "checked" : ""}><i></i>ظاهر</label><button class="btn red sm" data-rvdel="${esc(r.id)}">حذف</button></div>
+        ${r.body ? `<p style="margin:8px 0 0">${esc(r.body)}</p>` : ""}</div>`).join("") : `<p class="hint">لسه مفيش تقييمات.</p>`}`;
+  }
+  return `${PARTS_ERR ? `<div class="notice warn" style="margin-bottom:12px">⚠ جداول الشركاء والتقييمات مش متجهزة – شغّل ملف supabase-pros.sql في Supabase.</div>` : ""}
+    <div class="chips" style="margin-bottom:16px">${tabs.map(([k, n]) => `<button class="chip ${ptab === k ? "on" : ""}" data-ptab="${k}">${n}</button>`).join("")}<button class="chip" id="ptRefresh">↻ تحديث</button></div>${body}`;
+},
 sponsors() {
   if (!SBC) return `<div class="notice blue">برنامج الداعمين بيشتغل لما اللوحة تكون متوصّلة بـ Supabase.</div>`;
   if (!EVENTS || !REWARDS) return `<div class="empty">جاري التحميل…</div>`;
@@ -1448,6 +1531,36 @@ add() {
       price: sizes.length ? null : unit, u, sizes: null, packs: sizes.length ? sizes.map(s => ({s, u, p: unit != null ? Math.round(unit * s) : null})) : null, cov: cat === "exterior" ? 9 : 11, url: null, best: false});
     changed(); toast("تمت الإضافة ✓"); pFilter = "all"; go("products"); openEditor(D.products.length - 1);
   };
+},
+partners() {
+  if (!SBC) return;
+  if (!PARTS) loadParts(); if (!MEMBERS) loadMembers();
+  const run = async (action, x, msg) => { try { const r = await api(action, x); if (!r.ok) throw new Error(r.error); if (msg) toast(msg); await loadParts(); return r } catch (e) { toast("ما اتنفذش: " + (e.message || "جرّب تاني")) } };
+  $$("[data-ptab]").forEach(b => b.onclick = () => { ptab = b.dataset.ptab; go("partners") });
+  $$("[data-wst]").forEach(b => b.onclick = () => { wSt = b.dataset.wst; go("partners") });
+  $$("[data-rvt]").forEach(b => b.onclick = () => { rvT = b.dataset.rvt; go("partners") });
+  const rf = $("#ptRefresh"); if (rf) rf.onclick = () => { PARTS = null; go("partners") };
+  /* صور مستنية: رابط مؤقت من المخزن الخاص */
+  $$("[data-wimg]").forEach(async d => { const w = PARTS.works.find(x => x.id === d.dataset.wimg); if (!w || w.url || !w.path) return; try { const r = await api("workUrl", {path: w.path}); if (r.ok) { d.style.backgroundImage = `url('${r.url}')`; d.textContent = "" } } catch (e) {} });
+  const W = id => PARTS.works.find(x => x.id === id);
+  $$("[data-wpub]").forEach(b => b.onclick = () => { const w = W(b.dataset.wpub), g = $(`[data-wgal="${w.id}"]`); b.disabled = true; b.textContent = "جاري النشر…"; run("workPublish", {id: w.id, path: w.url ? null : w.path, url: w.url, gallery: g && g.checked}, "اتنشرت ✓") });
+  $$("[data-whide]").forEach(b => b.onclick = () => run("workSet", {id: b.dataset.whide, patch: {status: "مخفي"}}, "اتخفت ✓"));
+  $$("[data-wgal]").forEach(c => c.onchange = () => { const w = W(c.dataset.wgal); if (w.status === "منشور") run("workSet", {id: w.id, patch: {in_gallery: c.checked}}, c.checked ? "بقت في «أعمالنا» ✓" : "اتشالت من «أعمالنا»") });
+  $$("[data-wdel]").forEach(b => b.onclick = () => { const w = W(b.dataset.wdel); if (confirm("حذف الصورة دي نهائياً؟")) run("workDel", {id: w.id, path: w.status === "منشور" ? null : w.path, url: w.url}, "اتمسحت ✓") });
+  const mkPro = phone => { const m = clubList().find(x => nph(x.phone) === nph(phone)), w = PARTS.works.find(x => nph(x.phone) === nph(phone));
+    const row = {phone: (m && m.phone) || phone, name: (m && m.name) || (w && w.name) || "شريك", kind: (m && m.type) || "فني", specialty: (m && m.data && m.data.specialty) || null, area: (m && m.area) || null, active: true};
+    run("proAdd", {row}, "اتعملت الصفحة ✓ – كمّل بياناتها من «صفحات الشركاء»") };
+  $$("[data-mkpro]").forEach(b => b.onclick = () => mkPro(b.dataset.mkpro));
+  const np = $("#npAdd"); if (np) np.onclick = () => mkPro($("#npSel").value);
+  $$("[data-pact]").forEach(c => c.onchange = () => run("proSet", {id: c.dataset.pact, patch: {active: c.checked}}, c.checked ? "الصفحة ظاهرة ✓" : "الصفحة اتقفلت"));
+  $$("[data-psave]").forEach(b => b.onclick = () => { const box = b.closest("[data-pro]"), patch = {};
+    box.querySelectorAll("[data-pf2]").forEach(i => { const k = i.dataset.pf2; patch[k] = k === "sort" ? (+i.value || 0) : i.value.trim().slice(0, k === "bio" ? 600 : 80) || (k === "name" ? null : null) });
+    if (!patch.name || patch.name.length < 2) return toast("اكتب الاسم"); patch.kind = patch.kind || "فني"; run("proSet", {id: b.dataset.psave, patch}, "اتحفظ ✓") });
+  $$("[data-pav]").forEach(i => i.onchange = async () => { const f = i.files[0]; if (!f) return; try { const b = await shrinkPhoto(f, 600); await run("avatar", {id: i.dataset.pav, file: new File([b], "a.jpg", {type: "image/jpeg"})}, "الصورة اتغيرت ✓") } catch (e) { toast(e.message || "مش قادر أرفع الصورة") } });
+  $$("[data-plink]").forEach(b => b.onclick = () => copy(b.dataset.plink, b));
+  $$("[data-pdel]").forEach(b => b.onclick = () => { if (confirm("حذف صفحة الشريك؟ صوره المنشورة هتختفي من المتجر (تقدر تعمل الصفحة تاني بعدين).")) run("proDel", {id: b.dataset.pdel}, "اتمسحت ✓") });
+  $$("[data-rvshow]").forEach(c => c.onchange = () => run("reviewSet", {id: c.dataset.rvshow, patch: {status: c.checked ? "ظاهر" : "مخفي"}}, c.checked ? "التقييم ظاهر ✓" : "التقييم اتحجب ✓"));
+  $$("[data-rvdel]").forEach(b => b.onclick = () => { if (confirm("حذف التقييم نهائياً؟")) run("reviewDel", {id: b.dataset.rvdel}, "اتمسح ✓") });
 },
 sponsors() {
   if (!SBC) return;
