@@ -3,7 +3,7 @@
    بتكلم: قاعدة البيانات (REST) – تسجيل الدخول (Auth) – تخزين الفيديوهات (Storage)
    ===================================================================== */
 (function () {
-  const PRODUCT_COLS = ["id", "sort", "active", "cat", "line", "ar", "en", "d", "f", "img", "image", "col", "price", "u", "sizes", "packs", "cov", "url", "best", "is_new", "floor"];
+  const PRODUCT_COLS = ["id", "sort", "active", "cat", "line", "ar", "en", "d", "f", "img", "image", "col", "price", "u", "sizes", "packs", "cov", "url", "best", "is_new", "floor", "brand"];
   const SITE_KEYS = ["settings", "packages", "reviews", "discountCodes", "videos"];
 
   function Supa(cfg) {
@@ -58,7 +58,7 @@
       removeFile: (bucket, path) => req(`/storage/v1/object/${bucket}`, json("DELETE", {prefixes: [path]})),
 
       /* تحويل بين شكل بيانات الموقع وجداول Supabase */
-      toRow(p, i) { const r = {}; for (const c of PRODUCT_COLS) r[c] = null; Object.assign(r, {id: p.id, sort: i, active: p.active !== false, cat: p.cat || "interior", line: p.line || null, ar: p.ar || "", en: p.en || null, d: p.d || null, f: p.f || [], img: p.img || null, image: p.image || null, col: p.col || null, price: p.price ?? null, u: p.u || "لتر", sizes: p.sizes || null, packs: p.packs || null, cov: p.cov || 10, url: p.url || null, best: !!p.best, is_new: !!p.isNew, floor: !!p.floor}); return r },
+      toRow(p, i) { const r = {}; for (const c of PRODUCT_COLS) r[c] = null; Object.assign(r, {id: p.id, sort: i, active: p.active !== false, cat: p.cat || "interior", line: p.line || null, ar: p.ar || "", en: p.en || null, d: p.d || null, f: p.f || [], img: p.img || null, image: p.image || null, col: p.col || null, price: p.price ?? null, u: p.u || "لتر", sizes: p.sizes || null, packs: p.packs || null, cov: p.cov || 10, url: p.url || null, best: !!p.best, is_new: !!p.isNew, floor: !!p.floor, brand: p.brand && !/^(jotun|جوتن)$/i.test(String(p.brand).trim()) ? String(p.brand).trim().slice(0, 40) : null}); return r },
       fromRow(r) { const p = {}; for (const c of PRODUCT_COLS) if (r[c] !== null && r[c] !== undefined && c !== "sort" && c !== "is_new") p[c] = r[c]; if (r.is_new) p.isNew = true; if (!r.floor) delete p.floor; if (!r.best) p.best = false; return p },
       async loadAll(adminView) {
         const [rows, site] = await Promise.all([
