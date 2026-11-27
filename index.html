@@ -235,6 +235,7 @@ button.kpi:hover{border-color:var(--ink)}
 .acc-t{width:100%;border-collapse:collapse;font-size:13px}
 .acc-t th{text-align:right;color:var(--muted);font-weight:600;padding:6px;border-bottom:1px solid var(--line)}
 .acc-t td{padding:7px 6px;border-bottom:1px solid #f0f0f0}
+#nav button[hidden]{display:none!important}
 @media (max-width:700px){.fl-steps li span{font-size:9.5px}.fl-steps li i{width:26px;height:26px;font-size:12px}.fl-money b{font-size:14px}}
 </style>
 </head>
@@ -264,7 +265,9 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="packages"><span class="ic">🏠</span>الباقات</button>
       <button data-v="reviews"><span class="ic">★</span>آراء العملاء</button>
       <button data-v="codes"><span class="ic">%</span>أكواد الخصم</button>
+      <button data-v="team"><span class="ic">👥</span>فريق العمل والسجل</button>
       <button data-v="settings"><span class="ic">⚙</span>الإعدادات</button>
+      <button data-v="me"><span class="ic">🔑</span>حسابي وكلمة السر</button>
       <button data-v="guide"><span class="ic">?</span>الاستضافة والمساعدة</button>
     </nav>
     <div class="foot">
@@ -376,7 +379,7 @@ function safePay(y) {
     ref: typeof y.ref === "string" ? y.ref.replace(/[^\d+]/g, "").slice(0, 20) : "", ref_disc: y.ref_disc === true,
     pending_items: nm(y.pending_items) || 0, discount: nm(y.discount) || 0, verified: y.verified === true, unverified: y.unverified === true, mismatch: y.mismatch === true,
     requested_at: typeof y.requested_at === "string" && !isNaN(Date.parse(y.requested_at)) ? y.requested_at : null,
-    payments: Array.isArray(y.payments) ? y.payments.slice(-30).filter(o => o && typeof o === "object").map(o => ({a: nm(o.a) || 0, m: one(o.m, ["instapay", "vf", "cash", "bank"], "cash"), at: typeof o.at === "string" && !isNaN(Date.parse(o.at)) ? o.at : null, r: str(o.r, 60)})) : [],
+    payments: Array.isArray(y.payments) ? y.payments.slice(-30).filter(o => o && typeof o === "object").map(o => ({a: nm(o.a) || 0, m: one(o.m, ["instapay", "vf", "cash", "bank"], "cash"), at: typeof o.at === "string" && !isNaN(Date.parse(o.at)) ? o.at : null, r: str(o.r, 60), by: str(o.by, 30)})) : [],
     lines: Array.isArray(y.lines) ? y.lines.slice(0, 40).filter(l => l && typeof l === "object").map(l => ({id: str(l.id, 60), name: str(l.name, 80), pack: str(l.pack, 40), n: nm(l.n) || 0, sum: nm(l.sum), tint: l.tint === true})) : []
   };
 }
@@ -451,13 +454,13 @@ let accP = "month";
 const accRange = p => { const n = new Date(), d0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()); return p === "today" ? [d0, null] : p === "7d" ? [new Date(d0 - 6 * 864e5), null] : p === "month" ? [new Date(n.getFullYear(), n.getMonth(), 1), null] : p === "last" ? [new Date(n.getFullYear(), n.getMonth() - 1, 1), new Date(n.getFullYear(), n.getMonth(), 1)] : [null, null] };
 function accData() {
   const ords = (EVENTS || []).filter(e => e.type === "order" && e.pay && stageOf(e) !== "ملغي");
-  const pays = ords.flatMap(e => payList(e).map(p => ({a: +p.a || 0, m: p.m, at: p.at || e.date, r: p.r, no: e.pay.no, name: e.name, phone: e.phone}))).sort((a, b) => new Date(b.at) - new Date(a.at));
+  const pays = ords.flatMap(e => payList(e).map(p => ({a: +p.a || 0, m: p.m, at: p.at || e.date, r: p.r, by: p.by || "", no: e.pay.no, name: e.name, phone: e.phone}))).sort((a, b) => new Date(b.at) - new Date(a.at));
   const owe = ords.filter(e => { const f = finalOf(e); return f != null && f - (+e.pay.paid || 0) > 0 && ["اتأكد", "اتدفع", "بيتجهز", "في الطريق", "اتسلّم"].includes(stageOf(e)) }).map(e => ({e, rest: finalOf(e) - (+e.pay.paid || 0)}));
   return {ords, pays, owe};
 }
 function accCSV(rows) {
   const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const csv = "\ufeff" + [["التاريخ", "رقم الطلب", "العميل", "الموبايل", "الطريقة", "المبلغ", "رقم العملية"].map(q).join(","), ...rows.map(p => [new Date(p.at).toLocaleString("ar-EG"), p.no, p.name, p.phone, PAY_METHOD[p.m] || p.m, p.a, p.r].map(q).join(","))].join("\n");
+  const csv = "\ufeff" + [["التاريخ", "رقم الطلب", "العميل", "الموبايل", "الطريقة", "المبلغ", "رقم العملية", "سجّلها"].map(q).join(","), ...rows.map(p => [new Date(p.at).toLocaleString("ar-EG"), p.no, p.name, p.phone, PAY_METHOD[p.m] || p.m, p.a, p.r, p.by].map(q).join(","))].join("\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"})); a.download = `everest-payments-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
 }
 /* ================= التسويق: شريط العرض + السلات المتروكة + طلب تقييم جوجل ================= */
@@ -519,6 +522,14 @@ const CTYPES = ["عميل", "فني", "مهندس", "مقاول", "تاجر", "�
 const DRAFT = "everest-admin-draft", AUTH = "everest-admin-auth";
 
 let MODE = null, API = "", KEY = "", D = null, PUB = "", EVENTS = null, view = "home";
+/* الدور: "admin" (المالك – كل حاجة) أو "staff" (موظف – الطلبات والعملاء والنادي بس، والمنع الحقيقي في قاعدة البيانات) */
+let ROLE = "admin";
+const ADM = () => ROLE !== "staff", STAFF_VIEWS = ["events", "customers", "club", "me"];
+let TEAM = null, LOG = null, lgQ = "", lgWho = "all";
+async function loadTeam() {
+  try { const [a, b] = await Promise.all([api("staffList"), api("log")]); TEAM = a.ok ? a.staff : []; LOG = b.ok ? b.log : [] } catch (e) { TEAM = TEAM || []; LOG = LOG || [] }
+  if (view === "team") go("team");
+}
 const dirty = () => JSON.stringify(D) !== PUB;
 const missing = () => D.products.filter(p => p.active !== false && !priced(p));
 
@@ -542,7 +553,12 @@ async function sbApi(action, x = {}) {
   try {
     await SBC.ensureFresh(); if (KEY) saveAuth();
     switch (action) {
-      case "ping": return {ok: (await SBC.rpc("is_admin")) === true};
+      case "ping": return {ok: ["admin", "staff"].includes(await SBC.rpc("team_role"))};
+      case "staffList": return {ok: true, staff: await SBC.rpc("staff_list") || []};
+      case "staffAdd": return {ok: true, res: await SBC.rpc("staff_add", {p_email: x.email, p_name: x.name})};
+      case "staffSet": await SBC.rpc("staff_set", {p_uid: x.uid, p_active: !!x.active}); return {ok: true};
+      case "staffDel": await SBC.rpc("staff_del", {p_uid: x.uid}); return {ok: true};
+      case "log": return {ok: true, log: await SBC.select("order_log", "select=*&order=at.desc,id.desc&limit=500") || []};
       case "save": await SBC.saveAll(JSON.parse(JSON.stringify(x.data))); return {ok: true};
       case "events": {
         const rows = await sbAll("orders", "created_at.desc,id.desc");
@@ -644,7 +660,7 @@ function showLock(msg) {
     <label class="switch"><input type="checkbox" id="pwRem" ${REMEMBER ? "checked" : ""}><i></i>تذكرني على هذا الجهاز (30 يوم)</label>
     <button class="btn" id="pwGo">${first ? "حفظ ودخول" : "دخول"}</button>
     <div class="hint" id="pwErr" style="color:var(--red);min-height:1.5em"></div>
-    <p class="hint">${SBC ? "🔐 الدخول بحساب الأدمن في Supabase." : MODE === "api" ? "🔐 كلمة السر محفوظة متشفرة على السيرفر بتاعك بس." : "💻 وضع الكمبيوتر: اللوحة شغالة على جهازك من غير سيرفر."}</p>
+    <p class="hint">${SBC ? "🔐 الدخول بحساب صاحب المحل أو حساب الموظف." : MODE === "api" ? "🔐 كلمة السر محفوظة متشفرة على السيرفر بتاعك بس." : "💻 وضع الكمبيوتر: اللوحة شغالة على جهازك من غير سيرفر."}</p>
     <a href="https://everest-paints.com/everest-store/" class="hint" style="text-align:center" target="_blank" rel="noopener">فتح المتجر ↗</a>`;
   setTimeout(() => ($("#pwEmail") || $("#pw1")).focus(), 50);
   $("#lockBox").onkeydown = e => { if (e.key === "Enter") $("#pwGo").click() };
@@ -657,7 +673,9 @@ function showLock(msg) {
       if (SBC) {
         const email = $("#pwEmail").value.trim(); if (!email) return err("اكتب الإيميل");
         try { await SBC.signIn(email, pw) } catch (e) { return err(e.status === 400 ? "الإيميل أو كلمة السر غلط" : e.status === 429 ? "محاولات كتير – استنى شوية وجرّب تاني" : "تعذّر الاتصال بـ Supabase") }
-        if ((await SBC.rpc("claim_admin")) !== true) { await SBC.signOut(); return err("الحساب ده مش مسجّل كأدمن للمتجر") }
+        if ((await SBC.rpc("claim_admin")) === true) ROLE = "admin";
+        else if ((await SBC.rpc("team_role").catch(() => null)) === "staff") ROLE = "staff";
+        else { await SBC.signOut(); return err("الحساب ده مش مسجّل في فريق المتجر – كلّم صاحب المحل يضيفك") }
         KEY = "sb"; saveAuth();
       } else if (MODE === "api") {
         const r = await post({action: first ? "setup" : "login", password: pw, remember: REMEMBER});
@@ -688,7 +706,7 @@ async function boot() {
   if (SBC) {
     MODE = "api"; API = "supabase"; SERVER = {setup: true, maxVideoMB: 50, chunkMB: 50, supabase: true};
     const saved = loadAuth();
-    if (saved && saved.sb) { SBC.setSession(saved.sb); try { await SBC.ensureFresh(); if ((await SBC.rpc("is_admin")) === true) { KEY = "sb"; saveAuth() } } catch (e) {} }
+    if (saved && saved.sb) { SBC.setSession(saved.sb); try { await SBC.ensureFresh(); const rl = await SBC.rpc("team_role"); if (rl === "admin" || rl === "staff") { ROLE = rl; KEY = "sb"; saveAuth() } } catch (e) {} }
     if (!KEY) await askKey();
     let live = null; try { live = await SBC.loadAll(true) } catch (e) { toast("تعذّر تحميل البيانات من Supabase: " + e.message) }
     if (live && live.products.length) { PUB = JSON.stringify(live); STAT = live; start(live) }
@@ -727,7 +745,13 @@ function start(base) {
   $("#login").style.display = "none"; $("#app").style.display = "block";
   $("#modeLbl").textContent = SBC ? "● متصلة بـ Supabase – محمية" : MODE === "api" ? "● متصلة بالسيرفر – محمية" : "● وضع الكمبيوتر";
   $("#logout").textContent = "🔒 قفل اللوحة وتسجيل الخروج";
-  go(location.hash.slice(1) || "home"); refreshTop();
+  applyRole(); go(location.hash.slice(1) || (ADM() ? "home" : "events")); refreshTop();
+}
+function applyRole() {
+  const st = !ADM();
+  $$("#nav button").forEach(b => b.hidden = st ? !STAFF_VIEWS.includes(b.dataset.v) : b.dataset.v === "me");
+  ["#previewBtn", "#publishBtn", "#pubState"].forEach(q => $(q).style.display = st ? "none" : "");
+  if (st) $("#modeLbl").textContent = "● حساب موظف: " + ((SBC && SBC.session && SBC.session.email) || "");
 }
 async function lockNow() { if (MODE === "api" && KEY) { try { await post({action: "logout", token: KEY}) } catch (e) {} } KEY = ""; clearAuth(); location.reload() }
 $("#logout").onclick = lockNow;
@@ -826,12 +850,12 @@ $("#publishBtn").onclick = async () => {
   refreshTop(); if (view === "home") go("home");
 };
 $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast(err); ls.set(DRAFT, D); window.open("https://everest-paints.com/everest-store/index.html?preview=1", "_blank") };
-addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
+addEventListener("beforeunload", e => { if (D && MODE === "api" && ADM() && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", accounts: "الحسابات", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات", marketing: "التسويق والعروض",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", accounts: "الحسابات", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات", marketing: "التسويق والعروض",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", team: "فريق العمل والسجل", me: "حسابي", guide: "الاستضافة والمساعدة"};
 function go(v) {
-  if (!TITLES[v]) v = "home"; view = v; location.hash = v;
+  if (!TITLES[v]) v = "home"; if (!ADM() && !STAFF_VIEWS.includes(v)) v = "events"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
   $("#vTitle").textContent = TITLES[v]; $("#side").classList.remove("open");
   $("#view").innerHTML = VIEWS[v](); (AFTER[v] || (() => {}))();
@@ -879,7 +903,7 @@ function flowHTML(e) {
     ${y.verified && !y.mismatch ? "" : `<div class="notice warn">⚠ ${y.mismatch ? "المبلغ اللي ظهر للعميل مختلف عن حساب قاعدة البيانات – راجع الأسعار معاه." : "الأسعار دي مش متراجعة – راجعها بنفسك."}</div>`}
     ${y.lines.length ? `<pre>${y.lines.map(l => esc(`• ${l.name}${l.pack ? " — " + l.pack.replace(/~/g, " – ") : ""} × ${l.n} = ${l.sum == null ? "السعر بعد التأكيد" : money(l.sum)}${l.tint ? " (يتلوّن)" : ""}`)).join("\n")}</pre>` : ""}
     <div class="fl-money"><span>الإجمالي<b>${fin != null ? money(fin) : "لسه ما اتحددش"}</b></span><span>وصل<b>${money(paid)}</b></span><span class="${rest > 0 ? "due" : ""}">المتبقي<b>${rest == null ? "—" : rest > 0 ? money(rest) : "✓ مفيش"}</b></span></div>
-    ${P.length ? `<div class="fl-pays">${P.map(p => `<span>💰 ${money(p.a)} · ${esc(PAY_METHOD[p.m] || p.m)}${p.at ? " · " + esc(rDate(p.at)) : ""}${p.r ? " · " + esc(p.r) : ""}${p.legacy ? " (قديم)" : ""}</span>`).join("")}</div>` : ""}
+    ${P.length ? `<div class="fl-pays">${P.map(p => `<span>💰 ${money(p.a)} · ${esc(PAY_METHOD[p.m] || p.m)}${p.at ? " · " + esc(rDate(p.at)) : ""}${p.r ? " · " + esc(p.r) : ""}${p.by ? " · سجّلها: " + esc(p.by) : ""}${p.legacy ? " (قديم)" : ""}</span>`).join("")}</div>` : ""}
     ${cancel ? `<div class="fl-act"><button class="btn light sm" data-fx="uncancel">↩ رجّع الطلب</button></div>` : `
     <div class="fl-act">
       ${st === "جديد" ? `${fin == null || y.mode !== "instant" ? `<label class="fl-in">السعر النهائي<input class="in" type="number" min="0" step="1" data-fx-final value="${fin ?? ""}" placeholder="اكتب الإجمالي"></label>` : ""}<button class="btn" data-fx="confirm">✅ أكّد الطلب</button><button class="btn light" data-fx="payform">💰 الفلوس وصلت</button>` : ""}
@@ -1100,7 +1124,44 @@ document.addEventListener("input", e => {
 });
 
 /* ================= الشاشات ================= */
+const PW_CARD = () => `<div class="card"><h3>🔒 كلمة السر</h3>
+      <div class="grid g3">
+        <label class="f"><span>كلمة السر الحالية</span><input class="in" id="pwCur" type="password" dir="ltr" autocomplete="current-password"></label>
+        <label class="f"><span>كلمة السر الجديدة</span><input class="in" id="pwNew" type="password" dir="ltr" autocomplete="new-password"></label>
+        <label class="f"><span>اكتب الجديدة تاني</span><input class="in" id="pwNew2" type="password" dir="ltr" autocomplete="new-password"></label>
+      </div>
+      <p class="hint" style="margin-top:8px">8 حروف على الأقل وفيها أرقام وحروف. بعد التغيير كل الأجهزة التانية بتخرج تلقائي.</p>
+      <button class="btn" id="savePw" style="margin-top:12px">تغيير كلمة السر</button>
+    </div>`;
 const VIEWS = {
+me() {
+  return `<div class="card" style="margin-bottom:16px"><h3>👤 حسابك</h3>
+      <p>داخل بـ <b dir="ltr">${esc((SBC && SBC.session && SBC.session.email) || "")}</b> ${ADM() ? '<span class="pill ok">صاحب المحل</span>' : '<span class="pill blue">موظف</span>'}</p>
+      ${ADM() ? "" : `<p class="hint">تقدر: تتابع الطلبات وتأكّدها وتسجّل الفلوس اللي وصلت وتغيّر مرحلة الطلب، وتتابع العملاء المسجلين، وتراجع طلبات نادي إفرست وتغيّر حالتها.<br>كل عملية بتعملها بتتسجّل باسمك عند صاحب المحل. سجّل الفلوس بس بعد ما تتأكد إنها وصلت فعلاً.</p>`}
+    </div>${PW_CARD()}`;
+},
+team() {
+  if (!SBC) return `<div class="notice blue">فريق العمل بيشتغل لما المتجر يكون متوصّل بـ Supabase.</div>`;
+  if (!TEAM || !LOG) return `<div class="empty">جاري التحميل…</div>`;
+  const who = [...new Set(LOG.map(l => l.by_name).filter(Boolean))];
+  const list = LOG.filter(l => (lgWho === "all" || l.by_name === lgWho) && (!lgQ || (l.what + " " + l.by_name).toLowerCase().includes(lgQ)));
+  return `<div class="card" style="margin-bottom:16px"><h3>👥 الموظفين (${num(TEAM.length)})</h3>
+      ${TEAM.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>الاسم</th><th>الإيميل</th><th>الحالة</th><th>آخر دخول</th><th></th></tr>${TEAM.map(t => `<tr><td><b>${esc(t.name || "-")}</b></td><td dir="ltr">${esc(t.email)}</td><td>${t.active ? '<span class="pill ok">شغّال</span>' : '<span class="pill grey">موقوف</span>'}</td><td>${t.last_sign_in_at ? ago(t.last_sign_in_at) : "لسه ما دخلش"}</td>
+        <td style="white-space:nowrap"><button class="btn light sm" data-stset="${esc(t.user_id)}" data-on="${t.active ? 0 : 1}">${t.active ? "⏸ إيقاف" : "▶ تفعيل"}</button> <button class="btn red sm" data-stdel="${esc(t.user_id)}">حذف</button></td></tr>`).join("")}</table></div>` : `<p class="hint">لسه مفيش موظفين.</p>`}
+      <h3 style="margin-top:18px">＋ إضافة موظف</h3>
+      <ol class="hint" style="line-height:2;padding-inline-start:20px">
+        <li>من <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">Supabase</a>: <b>Authentication ← Users ← Add user ← Create new user</b>. اكتب إيميل الموظف وكلمة سر مؤقتة، وعلّم على <b>Auto Confirm User</b>.</li>
+        <li>اكتب اسمه وإيميله هنا واضغط «إضافة».</li>
+        <li>ادّيله الإيميل وكلمة السر المؤقتة ولينك اللوحة، وأول ما يدخل يغيّرها من «حسابي وكلمة السر».</li>
+      </ol>
+      <div class="grid g3" style="align-items:end"><label class="f"><span>اسم الموظف (بيظهر في السجل)</span><input class="in" id="stName" maxlength="30" placeholder="مثال: أحمد"></label><label class="f"><span>إيميله</span><input class="in" id="stEmail" type="email" dir="ltr"></label><button class="btn" id="stAdd">إضافة</button></div>
+      <p class="hint" style="margin-top:10px">🔒 الموظف بيشوف: الطلبات والعملاء ونادي إفرست بس. ما يقدرش يغيّر أسعار أو إعدادات، ولا يمسح حاجة، ولا يعدّل فلوس اتسجّلت قبل كده، ولا يشوف الحسابات أو السجل ده. لو موظف ساب الشغل اضغط «إيقاف» فوراً.</p>
+    </div>
+    <div class="card"><h3>📜 سجل العمليات (آخر ${num(LOG.length)})</h3>
+      <div class="toolbar"><input class="in" id="lgQ" placeholder="ابحث برقم الطلب أو اسم العميل…" value="${esc(lgQ)}"><select class="in" id="lgWho" style="max-width:200px"><option value="all">كل الناس</option>${who.map(w => `<option ${w === lgWho ? "selected" : ""}>${esc(w)}</option>`).join("")}</select><button class="btn light" id="lgRef">↻ تحديث</button></div>
+      ${list.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>الوقت</th><th>مين</th><th>عمل إيه</th></tr>${list.map(l => `<tr><td style="white-space:nowrap">${esc(rDate(l.at))}</td><td><b>${esc(l.by_name || "")}</b>${l.by_role === "staff" ? ' <span class="pill blue">موظف</span>' : ""}</td><td>${esc(l.what || "")}</td></tr>`).join("")}</table></div>` : `<p class="hint">${LOG.length ? "مفيش نتائج" : "لسه مفيش عمليات. أي تأكيد طلب أو تسجيل فلوس أو تغيير حالة هيظهر هنا باسم اللي عمله."}</p>`}
+    </div>`;
+},
 home() {
   const m = missing(), S = D.settings, act = D.products.filter(p => p.active !== false).length;
   const now = new Date(), mon = EVENTS ? EVS().filter(e => { const d = new Date(e.date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }) : [];
@@ -1173,15 +1234,15 @@ club() {
       ${Object.keys(m.docs).length ? `<div class="mdocs">🔒 ${Object.entries(m.docs).map(([k, p]) => `<button class="btn light sm" data-doc="${esc(p)}">${esc(xLabel(m.type, k))}</button>`).join("")}</div>` : ""}
       <div class="mctl">
         <label><span>الحالة</span><select class="in" data-mset="status">${["جديد", "معتمد", "مرفوض"].map(s => `<option ${s === m.status ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-        <label class="switch ${m.consent_ticker ? "" : "dis"}" title="${m.consent_ticker ? "" : "العضو ما وافقش على ظهور اسمه"}"><input type="checkbox" data-mset="on_ticker" ${m.on_ticker ? "checked" : ""} ${m.consent_ticker ? "" : "disabled"}><i></i>⭐ يظهر على الشريط</label>
-        <label><span>عمولة خاصة ٪ <small class="hint">(فاضي = العامة)</small></span><input class="in" type="number" min="0" max="50" step="0.5" data-mset="commission_pct" value="${m.commission_pct ?? ""}"></label>
+        ${ADM() ? `<label class="switch ${m.consent_ticker ? "" : "dis"}" title="${m.consent_ticker ? "" : "العضو ما وافقش على ظهور اسمه"}"><input type="checkbox" data-mset="on_ticker" ${m.on_ticker ? "checked" : ""} ${m.consent_ticker ? "" : "disabled"}><i></i>⭐ يظهر على الشريط</label>
+        <label><span>عمولة خاصة ٪ <small class="hint">(فاضي = العامة)</small></span><input class="in" type="number" min="0" max="50" step="0.5" data-mset="commission_pct" value="${m.commission_pct ?? ""}"></label>` : ""}
         <label class="mnotes"><span>ملاحظات</span><input class="in" data-mset="notes" value="${esc(m.notes || "")}" placeholder="مثال: حضر سمينار نوفمبر"></label>
       </div>
     </div>
     <div class="acts">
       <a class="btn green sm" target="_blank" href="${waLink(m.phone, `أهلاً ${m.name} 👋 معاك إفرست للدهانات بخصوص ${m.type === "فني" ? "عضويتك في نادي إفرست" : "تسجيلك معانا كشريك"}.`)}">واتساب</a>
       <a class="btn light sm" href="tel:${esc(m.phone)}">اتصال</a>
-      <button class="btn red sm" data-mdel>حذف</button>
+      ${ADM() ? `<button class="btn red sm" data-mdel>حذف</button>` : ""}
     </div>
   </div>`;
   return `<div class="kpis">
@@ -1195,10 +1256,10 @@ club() {
       <input class="in" id="mQ" placeholder="ابحث بالاسم أو الرقم أو المنطقة أو التخصص…" value="${esc(mQ)}">
       <select class="in" id="mStatus" style="max-width:190px"><option value="all">كل الحالات</option>${["جديد", "معتمد", "مرفوض"].map(s => `<option ${s === mStatus ? "selected" : ""}>${s}</option>`).join("")}<option value="ticker" ${mStatus === "ticker" ? "selected" : ""}>⭐ على الشريط</option></select>
       <button class="btn light" id="mRefresh">↻ تحديث</button>
-      <button class="btn light" id="mCsv" ${all.length ? "" : "disabled"}>⬇ Excel</button>
-      <button class="btn" id="mAddT">＋ إضافة عضو</button>
+      ${ADM() ? `<button class="btn light" id="mCsv" ${all.length ? "" : "disabled"}>⬇ Excel</button>
+      <button class="btn" id="mAddT">＋ إضافة عضو</button>` : ""}
     </div>
-    ${mAddOpen ? `<div class="card madd" style="margin-bottom:14px"><h3>إضافة عضو يدوي</h3><div class="grid g3">
+    ${mAddOpen && ADM() ? `<div class="card madd" style="margin-bottom:14px"><h3>إضافة عضو يدوي</h3><div class="grid g3">
       <label class="f"><span>النوع</span><select class="in" id="maType">${CLUB_TYPES.map(t => `<option>${t}</option>`).join("")}</select></label>
       <label class="f"><span>الاسم</span><input class="in" id="maName"></label>
       <label class="f"><span>الموبايل</span><input class="in" id="maPhone" dir="ltr"></label>
@@ -1227,7 +1288,7 @@ customers() {
   <div class="toolbar">
     <input class="in" id="cQ" placeholder="ابحث بالاسم أو الإيميل أو الرقم أو المنطقة…" value="${esc(cQ)}">
     <button class="btn light" id="cRefresh">↻ تحديث</button>
-    <button class="btn light" id="cCsv" ${all.length ? "" : "disabled"}>⬇ تنزيل Excel</button>
+    ${ADM() ? `<button class="btn light" id="cCsv" ${all.length ? "" : "disabled"}>⬇ تنزيل Excel</button>` : ""}
   </div>
   ${list.length ? list.map(c => `<div class="ev ${c.signup && c.signup.status === "جديد" ? "new" : ""}">
     <div class="ty">👤</div>
@@ -1328,7 +1389,7 @@ accounts() {
     <div class="card" style="margin-bottom:16px"><h3>⏳ فلوس لسه ما وصلتش (${num(owe.length)})</h3>
       ${owe.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>الطلب</th><th>العميل</th><th>الإجمالي</th><th>وصل</th><th>المتبقي</th><th>الخطوة</th></tr>${owe.map(({e, rest}) => `<tr><td dir="ltr">${esc(e.pay.no || "")}</td><td>${esc(e.name || "")}<br><span class="hint" dir="ltr">${esc(e.phone || "")}</span></td><td>${money(finalOf(e))}</td><td>${money(+e.pay.paid || 0)}</td><td><b style="color:#7a5a00">${money(rest)}</b></td><td>${esc(stageOf(e))} · <a href="#events" data-accopen="${esc(e.pay.no || e.name || "")}">افتح الطلب</a></td></tr>`).join("")}</table></div>` : `<p class="hint">كل الطلبات المتأكدة اتدفعت ✓</p>`}</div>
     <div class="card"><h3>💰 كشف الفلوس اللي وصلت (${num(L.length)}) <button class="btn light sm" id="accCsv" style="margin-inline-start:auto" ${L.length ? "" : "disabled"}>⬇ تنزيل Excel</button></h3>
-      ${L.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>التاريخ</th><th>الطلب</th><th>العميل</th><th>الطريقة</th><th>المبلغ</th><th>رقم العملية</th></tr>${L.map(p => `<tr><td>${esc(rDate(p.at))}</td><td dir="ltr">${esc(p.no || "")}</td><td>${esc(p.name || "")}</td><td>${esc(PAY_METHOD[p.m] || p.m)}</td><td><b>${money(p.a)}</b></td><td>${esc(p.r || "")}</td></tr>`).join("")}<tr><td colspan="4"><b>الإجمالي</b></td><td><b>${money(tot)}</b></td><td></td></tr></table></div>` : `<p class="hint">مفيش فلوس اتسجّلت في الفترة دي. لما الفلوس توصل لأي طلب، افتحه من «الطلبات والنشاط» واضغط «💰 سجّل الفلوس اللي وصلت».</p>`}</div>`;
+      ${L.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>التاريخ</th><th>الطلب</th><th>العميل</th><th>الطريقة</th><th>المبلغ</th><th>رقم العملية</th><th>سجّلها</th></tr>${L.map(p => `<tr><td>${esc(rDate(p.at))}</td><td dir="ltr">${esc(p.no || "")}</td><td>${esc(p.name || "")}</td><td>${esc(PAY_METHOD[p.m] || p.m)}</td><td><b>${money(p.a)}</b></td><td>${esc(p.r || "")}</td><td>${esc(p.by || "")}</td></tr>`).join("")}<tr><td colspan="4"><b>الإجمالي</b></td><td><b>${money(tot)}</b></td><td></td><td></td></tr></table></div>` : `<p class="hint">مفيش فلوس اتسجّلت في الفترة دي. لما الفلوس توصل لأي طلب، افتحه من «الطلبات والنشاط» واضغط «💰 سجّل الفلوس اللي وصلت».</p>`}</div>`;
 },
 marketing() {
   const P = D.settings.promo || {}, A = CARTS && EVENTS ? abandoned() : null, asked = new Set(ls.get(ASKED, []) || []);
@@ -1704,6 +1765,25 @@ guide() {
 
 /* ================= تفاعلات كل شاشة ================= */
 const AFTER = {
+me() { $("#savePw").onclick = async () => { $("#savePw").disabled = true; try { await changePassword() } finally { $("#savePw").disabled = false } } },
+team() {
+  if (!TEAM || !LOG) { loadTeam(); return }
+  const q = $("#lgQ"); q.oninput = () => { lgQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("team"); const n = $("#lgQ"); n.focus(); n.setSelectionRange(pos, pos) };
+  $("#lgWho").onchange = e => { lgWho = e.target.value; go("team") };
+  $("#lgRef").onclick = () => { TEAM = LOG = null; go("team") };
+  $("#stAdd").onclick = async () => {
+    const name = $("#stName").value.trim(), email = $("#stEmail").value.trim();
+    if (name.length < 2 || !/^\S+@\S+\.\S+$/.test(email)) return toast("اكتب اسم الموظف وإيميله صح");
+    try {
+      const r = await api("staffAdd", {email, name}); if (!r.ok) throw new Error(r.error);
+      if (r.res === "no_user") return toast("الإيميل ده مالوش حساب في Supabase لسه – اعمله من Authentication ← Users الأول");
+      if (r.res === "is_admin") return toast("ده حساب صاحب المحل نفسه");
+      toast("اتضاف ✓ دلوقتي يقدر يدخل اللوحة بإيميله"); TEAM = LOG = null; go("team");
+    } catch (e) { toast("ما اتضافش – اتأكد إنك شغّلت supabase-staff.sql") }
+  };
+  $$("[data-stset]").forEach(b => b.onclick = async () => { const on = b.dataset.on === "1"; if (!on && !confirm("إيقاف الموظف ده؟ مش هيقدر يدخل اللوحة لحد ما تفعّله تاني.")) return; try { const r = await api("staffSet", {uid: b.dataset.stset, active: on}); if (!r.ok) throw 0; toast(on ? "اتفعّل ✓" : "اتوقف ✓"); TEAM = null; loadTeam() } catch (e) { toast("ما اتنفذش") } });
+  $$("[data-stdel]").forEach(b => b.onclick = async () => { if (!confirm("حذف الموظف من الفريق؟ (حسابه في Supabase بيفضل موجود، امسحه من هناك لو عايز)")) return; try { const r = await api("staffDel", {uid: b.dataset.stdel}); if (!r.ok) throw 0; toast("اتشال من الفريق ✓"); TEAM = null; loadTeam() } catch (e) { toast("ما اتنفذش") } });
+},
 home() { bindProducts(); if (EVENTS) bindStatus();const b = $("#dlOnce"); if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click() } },
 events() {
   $$("[data-et]").forEach(b => b.onclick = () => { eType = b.dataset.et; eStage = "all"; go("events") });
@@ -1719,7 +1799,7 @@ club() {
   q.oninput = () => { mQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("club"); const n = $("#mQ"); n.focus(); n.setSelectionRange(pos, pos) };
   $("#mStatus").onchange = e => { mStatus = e.target.value; go("club") };
   $("#mRefresh").onclick = () => { MEMBERS = null; go("club"); loadMembers() };
-  $("#mAddT").onclick = () => { mAddOpen = !mAddOpen; go("club") };
+  if ($("#mAddT")) $("#mAddT").onclick = () => { mAddOpen = !mAddOpen; go("club") };
   if ($("#maCancel")) $("#maCancel").onclick = () => { mAddOpen = false; go("club") };
   if ($("#maSave")) $("#maSave").onclick = async () => {
     const t = $("#maType").value, name = $("#maName").value.trim(), phone = $("#maPhone").value.replace(/[^0-9+]/g, ""), spec = $("#maSpec").value.trim();
@@ -1729,7 +1809,7 @@ club() {
     try { const r = await api("memberAdd", {row: {type: t, name, phone, area: $("#maArea").value.trim() || null, data, status: "معتمد", consent_ticker: tk, notes: $("#maNotes").value.trim() || "إضافة يدوية"}}); if (!r.ok) throw 0; mAddOpen = false; toast("اتضاف ✓"); MEMBERS = null; go("club"); loadMembers() }
     catch (e) { toast("تعذّر الإضافة – اتأكد إنك شغّلت تحديث قاعدة البيانات (supabase-club.sql)") }
   };
-  $("#mCsv").onclick = () => {
+  if ($("#mCsv")) $("#mCsv").onclick = () => {
     const cell = v => `"${String(v ?? "").replace(/^(?=[=+\-@\t\r])/, "'").replace(/"/g, '""').replace(/\n/g, " | ")}"`;
     const rows = [["النوع", "الاسم", "الموبايل", "الإيميل", "المنطقة", "التفاصيل", "الحالة", "على الشريط", "موافق على الفعاليات", "عمولة خاصة ٪", "ملاحظات", "أول تسجيل"]].concat(clubList().map(m => [m.type, m.name, m.phone, m.email, m.area, Object.entries(m.data).filter(([, v]) => v && !Array.isArray(v) && typeof v !== "boolean").map(([k, v]) => xLabel(m.type, k) + ": " + v).join(" | "), m.status, m.on_ticker ? "نعم" : "لا", m.consent_events ? "نعم" : "لا", m.commission_pct ?? "", m.notes, new Date(m.first).toLocaleString("ar-EG")]));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + rows.map(r => r.map(cell).join(",")).join("\r\n")], {type: "text/csv;charset=utf-8"})); a.download = "everest-club.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
@@ -1750,7 +1830,7 @@ club() {
         if (k === "status" || k === "on_ticker") go("club");
       } catch (e) { toast("تعذّر الحفظ") }
     });
-    card.querySelector("[data-mdel]").onclick = async () => {
+    const del = card.querySelector("[data-mdel]"); if (del) del.onclick = async () => {
       if (!confirm("حذف العضو ده وكل تسجيلاته ومستنداته نهائياً؟ مفيش رجوع.")) return;
       try { const r = await api("memberDel", {phone}); if (!r.ok) throw 0; MEMBERS = MEMBERS.filter(x => x.phone !== phone); await saveTicker(); toast("اتحذف ✓"); go("club") } catch (e) { toast("تعذّر الحذف") }
     };
@@ -1761,7 +1841,7 @@ customers() {
   const q = $("#cQ"); if (!q) return;
   q.oninput = () => { cQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("customers"); const n = $("#cQ"); n.focus(); n.setSelectionRange(pos, pos) };
   $("#cRefresh").onclick = () => { EVENTS = null; go("customers"); loadEvents() };
-  $("#cCsv").onclick = () => {
+  if ($("#cCsv")) $("#cCsv").onclick = () => {
     const cell = v => `"${String(v ?? "").replace(/^(?=[=+\-@\t\r])/, "'").replace(/"/g, '""').replace(/\n/g, " | ")}"`;
     const rows = [["الاسم", "النوع", "الإيميل", "الموبايل","المنطقة", "بيانات إضافية", "أول تسجيل", "آخر دخول", "عدد الزيارات", "عدد الطلبات"]].concat(customers().map(c => [c.name, c.ctype || "", c.email, c.phone, c.area, (c.signup ? c.signup.details : "").split("\n").filter(l => !/^(الإيميل|نوع العميل):/.test(l)).join(" | "), new Date(c.first).toLocaleString("ar-EG"), new Date(c.last).toLocaleString("ar-EG"), c.visits, c.orders]));
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + rows.map(r => r.map(cell).join(",")).join("\r\n")], {type: "text/csv;charset=utf-8"}));
