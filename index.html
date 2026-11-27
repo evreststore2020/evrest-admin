@@ -309,7 +309,7 @@ function safePay(y) {
     ref: typeof y.ref === "string" ? y.ref.replace(/[^\d+]/g, "").slice(0, 20) : "", ref_disc: y.ref_disc === true,
     pending_items: nm(y.pending_items) || 0, discount: nm(y.discount) || 0, verified: y.verified === true, unverified: y.unverified === true, mismatch: y.mismatch === true,
     requested_at: typeof y.requested_at === "string" && !isNaN(Date.parse(y.requested_at)) ? y.requested_at : null,
-    lines: Array.isArray(y.lines) ? y.lines.slice(0, 40).filter(l => l && typeof l === "object").map(l => ({name: str(l.name, 80), pack: str(l.pack, 40), n: nm(l.n) || 0, sum: nm(l.sum), tint: l.tint === true})) : []
+    lines: Array.isArray(y.lines) ? y.lines.slice(0, 40).filter(l => l && typeof l === "object").map(l => ({id: str(l.id, 60), name: str(l.name, 80), pack: str(l.pack, 40), n: nm(l.n) || 0, sum: nm(l.sum), tint: l.tint === true})) : []
   };
 }
 const unpaid = e => e.pay && e.pay.status !== "مدفوع بالكامل" && e.status !== "ملغي" && e.status !== "مكتمل";
@@ -356,7 +356,12 @@ async function loadRewards() {
 }
 function sponsorList() {
   const T = refView().tiers.map(t => ({n: String(t.n || ""), min: +t.min || 0, pct: +t.pct || 0})).sort((a, b) => a.min - b.min);
-  const tierOf = s => T.filter(t => s >= t.min).pop() || T[0] || {n: "", min: 0, pct: 0};
+  const NONE = {n: "لسه ما وصلش", min: 0, pct: 0}, tierOf = s => T.filter(t => s >= t.min).pop() || NONE;
+  /* نصيب المنتجات اللي بتكسب نقط من الطلب (المقفولة من كارت المنتج ما بتتحسبش) */
+  const noP = new Set(D.settings.noPoints || []), byName = new Map(D.products.map(p => [p.ar, p.id]));
+  const share = e => { const L = (e.pay.lines || []).map(l => ({id: l.id || byName.get(l.name) || "", sum: l.sum})); if (!L.length || !noP.size) return 1;
+    const known = L.filter(l => l.sum != null), base = known.length ? known : L, w = l => known.length ? +l.sum || 0 : 1, tot = base.reduce((a, l) => a + w(l), 0);
+    return tot ? base.filter(l => !noP.has(l.id)).reduce((a, l) => a + w(l), 0) / tot : 1 };
   const mem = new Map(clubList().map(m => [nph(m.phone), m])), cus = new Map(customers().filter(c => c.phone).map(c => [nph(c.phone), c]));
   const map = new Map();
   const add = r => { let s = map.get(r); if (!s) { const m = mem.get(r), c = cus.get(r); map.set(r, s = {phone: r, name: (m && m.name) || (c && c.name) || "", type: (m && m.type) || (c && c.ctype) || "", member: m, orders: [], buyers: new Set(), sales: 0, earned: 0, open: 0, moves: [], adj: 0}) } return s };
@@ -365,7 +370,7 @@ function sponsorList() {
     const r = nph(e.pay.ref); if (r.length < 10 || r === nph(e.phone)) continue;
     const s = add(r); s.orders.push(e); s.buyers.add(nph(e.phone) || e.name);
     const amt = e.pay.status === "مدفوع بالكامل" ? +(e.pay.final ?? e.total) || 0 : 0;
-    if (amt > 0) { const pct = s.member && s.member.commission_pct != null ? +s.member.commission_pct : tierOf(s.sales).pct; e._pct = pct; e._pts = Math.round(amt * pct / 100); s.earned += e._pts; s.sales += amt }
+    if (amt > 0) { const pct = s.member && s.member.commission_pct != null ? +s.member.commission_pct : tierOf(s.sales).pct, sh = share(e); e._pct = pct; e._sh = sh; e._pts = Math.round(amt * sh * pct / 100); s.earned += e._pts; s.sales += amt * sh }
     else { e._pts = 0; e._pct = null; s.open++ }
   }
   for (const w of REWARDS || []) { const s = add(nph(w.phone)); s.moves.push(w); s.adj += +w.points || 0 }
@@ -779,6 +784,7 @@ function pCard(p, i) {
       <div class="row">
         <label class="switch"><input type="checkbox" data-tog="active" data-i="${i}" ${p.active !== false ? "checked" : ""}><i></i>ظاهر</label>
         <label class="switch"><input type="checkbox" data-tog="best" data-i="${i}" ${p.best ? "checked" : ""}><i></i>الأكثر طلباً</label>
+        <label class="switch" title="لو هامش المنتج قليل اقفله: طلباته مش بتدّي نقط للداعم"><input type="checkbox" data-pts="${i}" ${!(D.settings.noPoints || []).includes(p.id) ? "checked" : ""}><i></i>🎁 بيكسب نقط</label>
         ${tintable(p) ? `<label class="switch" title="العميل يقدر يختار «لون» بدل «أبيض» والسعر يتأكد معاه"><input type="checkbox" data-tint="${i}" ${canTint(p) ? "checked" : ""}><i></i>🎨 يتلوّن</label>` : ""}
       </div>
     </div>
@@ -1093,12 +1099,12 @@ sponsors() {
       <div class="sec-t" style="margin-top:14px">الشرائح – النسبة بتطلع كل ما مبيعات الناس اللي الداعم عرّفهم (المدفوعة بالكامل) توصل للحد</div>
       ${C.tiers.map((t, i) => `<div class="grid g3" style="align-items:end;margin-bottom:8px">${fld(`settings.referral.tiers.${i}.n`, "اسم الشريحة", t.n)}${fld(`settings.referral.tiers.${i}.min`, "تبدأ من مبيعات (ج.م)", t.min, "number", 'min="0"')}<div style="display:flex;gap:8px;align-items:end">${fld(`settings.referral.tiers.${i}.pct`, "نسبة النقط ٪", t.pct, "number", 'min="0" max="30" step="0.5"')}<button class="btn red sm" data-rtdel="${i}" ${C.tiers.length < 2 ? "disabled" : ""} style="margin-bottom:4px">✕</button></div></div>`).join("")}
       <button class="btn light sm" id="rtAdd">＋ شريحة</button>
-      <p class="hint" style="margin-top:10px">لو عضو في النادي ليه «نسبة عمولة» خاصة متحددة في صفحته، بتتحسب هي بدل الشريحة. التعديلات بتشتغل بعد «حفظ على الموقع».</p>
+      <p class="hint" style="margin-top:10px">قبل ما مبيعات الداعم توصل حد أول شريحة مفيش نقط. المنتجات اللي هامشها قليل اقفل فيها «🎁 بيكسب نقط» من كارت المنتج في «المنتجات والأسعار». لو عضو في النادي ليه «نسبة عمولة» خاصة متحددة في صفحته، بتتحسب هي بدل الشريحة. التعديلات بتشتغل بعد «حفظ على الموقع».</p>
     </div></details>`;
   const card = s => {
     const nm = s.name || "داعم", link = refLink(s.phone);
     return `<div class="ed-item" data-sp="${esc(s.phone)}">
-      <div class="hd" style="flex-wrap:wrap;gap:8px"><b>${esc(nm)}</b>${s.type ? `<span class="pill blue">${esc(s.type)}</span>` : ""}<span class="hint" dir="ltr">0${esc(s.phone)}</span><span class="pill ok">🏅 ${esc(s.tier.n || "—")} · ${num(s.pct)}٪</span>
+      <div class="hd" style="flex-wrap:wrap;gap:8px"><b>${esc(nm)}</b>${s.type ? `<span class="pill blue">${esc(s.type)}</span>` : ""}<span class="hint" dir="ltr">0${esc(s.phone)}</span><span class="pill ${s.pct ? "ok" : "grey"}">🏅 ${esc(s.tier.n || "—")} · ${num(s.pct)}٪</span>
         <b style="margin-inline-start:auto;font-size:20px;color:${s.balance > 0 ? "var(--ok,#0a7d32)" : "inherit"}">${num(s.balance)} <small style="font-size:12px;font-weight:400">نقطة</small></b></div>
       <div class="grid g3" style="font-size:13px;margin:8px 0">
         <span>👥 عرّف <b>${num(s.buyers.size)}</b> عميل · <b>${num(s.orders.length)}</b> طلب${s.open ? ` <span class="hint">(${num(s.open)} مستني دفع)</span>` : ""}</span>
@@ -1114,7 +1120,7 @@ sponsors() {
       </div>
       <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">الطلبات والحركات (${num(s.orders.length + s.moves.length)})</summary>
         <div class="tbl-wrap"><table style="width:100%;font-size:13px;border-collapse:collapse;margin-top:8px">
-          ${s.orders.slice().reverse().map(e => `<tr style="border-top:1px solid var(--line)"><td style="padding:5px">${esc(rDate(e.date))}</td><td dir="ltr">${esc(e.pay.no || "")}</td><td>${esc(e.name || "")}${e.pay.ref_disc ? ' <span class="pill grey">خصم أول طلب</span>' : ""}</td><td>${e.pay.status === "مدفوع بالكامل" ? money(+(e.pay.final ?? e.total) || 0) : `<span class="hint">${esc(e.pay.status)}</span>`}</td><td><b>${e._pts ? "+" + num(e._pts) + " نقطة (" + num(e._pct) + "٪)" : "—"}</b></td></tr>`).join("")}
+          ${s.orders.slice().reverse().map(e => `<tr style="border-top:1px solid var(--line)"><td style="padding:5px">${esc(rDate(e.date))}</td><td dir="ltr">${esc(e.pay.no || "")}</td><td>${esc(e.name || "")}${e.pay.ref_disc ? ' <span class="pill grey">خصم أول طلب</span>' : ""}</td><td>${e.pay.status === "مدفوع بالكامل" ? money(+(e.pay.final ?? e.total) || 0) : `<span class="hint">${esc(e.pay.status)}</span>`}</td><td><b>${e._pts ? "+" + num(e._pts) + " نقطة (" + num(e._pct) + "٪" + (e._sh < 1 ? " من " + num(Math.round(e._sh * 100)) + "٪ من الطلب" : "") + ")" : "—"}</b></td></tr>`).join("")}
           ${s.moves.map(w => `<tr style="border-top:1px solid var(--line)"><td style="padding:5px">${esc(rDate(w.created_at))}</td><td>${w.kind === "redeem" ? "💳 صرف" : "✏️ تعديل"}</td><td>${esc(w.note || "")}</td><td></td><td><b>${(+w.points > 0 ? "+" : "") + num(+w.points)} نقطة</b> <button class="btn red sm" data-rwdel="${esc(w.id)}" title="حذف الحركة">✕</button></td></tr>`).join("")}
         </table></div></details>
     </div>`;
@@ -1569,6 +1575,10 @@ function bindProducts() {
     el.closest(".price-in").style.cssText = p.packs[j].p == null ? "border-color:#e9b949;background:#fffbf0" : "";
     el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
     changed();
+  });
+  $$("[data-pts]").forEach(el => el.onchange = () => {
+    const s = D.settings, id = D.products[+el.dataset.pts].id;
+    s.noPoints = (Array.isArray(s.noPoints) ? s.noPoints : []).filter(x => x !== id); if (!el.checked) s.noPoints.push(id); changed();
   });
   $$("[data-tint]").forEach(el => el.onchange = () => {
     const s = D.settings, id = D.products[+el.dataset.tint].id;
