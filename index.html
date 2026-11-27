@@ -268,7 +268,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="guide"><span class="ic">?</span>الاستضافة والمساعدة</button>
     </nav>
     <div class="foot">
-      <a href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/" target="_blank" rel="noopener">فتح المتجر ↗</a>
+      <a href="https://everest-paints.com/everest-store/" target="_blank" rel="noopener">فتح المتجر ↗</a>
       <button id="logout">تسجيل الخروج</button>
     </div>
   </aside>
@@ -300,7 +300,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const num = n => (+n).toLocaleString("ar-EG");
 const money = n => Math.round(n).toLocaleString("ar-EG") + " ج.م";
 const IMG = (id, w = 240) => `https://cdn-pim.jotun.com/images/ProductImages/${id}/1300x1334/${id}.png?format=webp&width=${w}&quality=60`;
-const imgOf = (p, w) => p.img ? IMG(p.img, w) : p.image ? (/^https?:/.test(p.image) ? p.image : "https://evreststore2020.github.io/everest-paints.github.io/everest-store/" + p.image) : "";
+const imgOf = (p, w) => p.img ? IMG(p.img, w) : p.image ? (/^https?:/.test(p.image) ? p.image : "https://everest-paints.com/everest-store/" + p.image) : "";
 const ls = {get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch (e) { return d } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} }, del(k) { try { localStorage.removeItem(k) } catch (e) {} }};
 let tt; const toast = t => { $("#toast").textContent = t; $("#toast").classList.add("on"); clearTimeout(tt); tt = setTimeout(() => $("#toast").classList.remove("on"), 2600) };
 
@@ -408,7 +408,7 @@ async function loadMembers() {
    - النقط = نسبة الشريحة × الطلبات المدفوعة بالكامل اللي فيها رقم الداعم (1 نقطة = 1 جنيه خصم)
    - الشريحة بتطلع كل ما مبيعات الناس اللي عرّفهم تزيد (نسبة العضو الخاصة من النادي بتغلب لو متحددة)
    - الصرف والتعديل اليدوي بيتسجلوا في جدول rewards */
-const STORE_BASE = "https://evreststore2020.github.io/everest-paints.github.io/everest-store/";
+const STORE_BASE = "https://everest-paints.com/everest-store/";
 const REF_DEF = {on: true, newPct: 3, minRedeem: 100, tiers: [{n: "برونزي", min: 0, pct: 2}, {n: "فضي", min: 10000, pct: 3}, {n: "ذهبي", min: 50000, pct: 5}]};
 const clone = o => JSON.parse(JSON.stringify(o));
 const refView = () => { const r = D.settings.referral || {}; return Object.assign(clone(REF_DEF), r, {tiers: Array.isArray(r.tiers) && r.tiers.length ? r.tiers : clone(REF_DEF.tiers)}) };
@@ -645,7 +645,7 @@ function showLock(msg) {
     <button class="btn" id="pwGo">${first ? "حفظ ودخول" : "دخول"}</button>
     <div class="hint" id="pwErr" style="color:var(--red);min-height:1.5em"></div>
     <p class="hint">${SBC ? "🔐 الدخول بحساب الأدمن في Supabase." : MODE === "api" ? "🔐 كلمة السر محفوظة متشفرة على السيرفر بتاعك بس." : "💻 وضع الكمبيوتر: اللوحة شغالة على جهازك من غير سيرفر."}</p>
-    <a href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/" class="hint" style="text-align:center" target="_blank" rel="noopener">فتح المتجر ↗</a>`;
+    <a href="https://everest-paints.com/everest-store/" class="hint" style="text-align:center" target="_blank" rel="noopener">فتح المتجر ↗</a>`;
   setTimeout(() => ($("#pwEmail") || $("#pw1")).focus(), 50);
   $("#lockBox").onkeydown = e => { if (e.key === "Enter") $("#pwGo").click() };
   $("#pwGo").onclick = async () => {
@@ -682,7 +682,7 @@ function showLock(msg) {
 
 /* ================= فتح اللوحة ================= */
 async function boot() {
-  STAT = await fetch("https://evreststore2020.github.io/everest-paints.github.io/everest-store/data/store.json", {cache: "no-cache"}).then(r => r.json()).catch(() => null);
+  STAT = await fetch("https://everest-paints.com/everest-store/data/store.json", {cache: "no-cache"}).then(r => r.json()).catch(() => null);
   if (!STAT && SBC) STAT = {settings: {}, products: [], packages: [], reviews: [], discountCodes: [], videos: []};
   if (!STAT) { $("#bootMsg").textContent = "تعذّر تحميل data/store.json – افتح اللوحة من نفس المكان اللي عليه الموقع."; return }
   if (SBC) {
@@ -825,7 +825,7 @@ $("#publishBtn").onclick = async () => {
   catch (e) { toast("تعذّر النشر، حاول تاني") }
   refreshTop(); if (view === "home") go("home");
 };
-$("#previewBtn").onclick = () => { const err = validate(); if (err) return toast(err); ls.set(DRAFT, D); window.open("https://evreststore2020.github.io/everest-paints.github.io/everest-store/index.html?preview=1", "_blank") };
+$("#previewBtn").onclick = () => { const err = validate(); if (err) return toast(err); ls.set(DRAFT, D); window.open("https://everest-paints.com/everest-store/index.html?preview=1", "_blank") };
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
@@ -1019,7 +1019,7 @@ function openEditor(i) {
       p.image = r.url; const inp = $('[data-f="image"]'); if (inp) inp.value = r.url; $("#edPrevIm").innerHTML = `<img src="${esc(r.url)}">`; st.textContent = "✓ اترفعت – متنساش «حفظ على الموقع»"; changed() }
     catch (e) { st.textContent = "ما اترفعتش: " + (e.message || "جرّب تاني") }
   };
-  $("#dFoot").innerHTML = `<button class="btn" id="dDone">تم</button><a class="btn light" target="_blank" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/index.html?preview=1#shop" id="dPrev">معاينة على الموقع</a>`;
+  $("#dFoot").innerHTML = `<button class="btn" id="dDone">تم</button><a class="btn light" target="_blank" href="https://everest-paints.com/everest-store/index.html?preview=1#shop" id="dPrev">معاينة على الموقع</a>`;
   $("#dBody").oninput = e => {
     const el = e.target.closest("[data-f]"); if (!el) return;
     let v = readField(el);
@@ -1678,7 +1678,7 @@ guide() {
     <ol>
       <li>افتح <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a> ← <b>Start your project</b> ← اعمل حساب.</li>
       <li><b>New project</b>: اكتب اسم (مثلاً everest)، واختار كلمة سر لقاعدة البيانات واحفظها، والمنطقة الأقرب (مثلاً Frankfurt) ← Create.</li>
-      <li>من القائمة: <b>SQL Editor</b> ← New query ← الصق ملف الإعداد كله ← <b>Run</b>.<div style="margin-top:8px"><button class="btn sm" id="copySql">نسخ ملف الإعداد</button> <a class="btn light sm" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/tools/supabase-setup.sql" target="_blank">عرض الملف</a></div></li>
+      <li>من القائمة: <b>SQL Editor</b> ← New query ← الصق ملف الإعداد كله ← <b>Run</b>.<div style="margin-top:8px"><button class="btn sm" id="copySql">نسخ ملف الإعداد</button> <a class="btn light sm" href="https://everest-paints.com/everest-store/tools/supabase-setup.sql" target="_blank">عرض الملف</a></div></li>
       <li><b>Authentication</b> ← <b>Users</b> ← <b>Add user</b> ← Create new user: إيميلك وكلمة سر قوية، وعلّم على <b>Auto Confirm User</b>.</li>
       <li>للأمان: <b>Authentication</b> ← <b>Sign In / Providers</b> ← اقفل <b>Allow new users to sign up</b>.</li>
       <li><b>Project Settings</b> ← <b>API</b>: انسخ <b>Project URL</b> و <b>anon public key</b> وحطهم في ملف <code>assets/config.js</code> (أو ابعتهملي وأنا أحطهم).</li>
@@ -2007,7 +2007,7 @@ settings() {
   };
   $("#savePw").onclick = async () => { $("#savePw").disabled = true; try { await changePassword() } finally { $("#savePw").disabled = false } };
 },
-guide() { const b = $("#copySql"); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(await fetch("https://evreststore2020.github.io/everest-paints.github.io/everest-store/tools/supabase-setup.sql").then(r => r.text())); toast("تم نسخ ملف الإعداد ✓") } catch (e) { toast("افتح الملف وانسخه يدوي") } } }
+guide() { const b = $("#copySql"); if (b) b.onclick = async () => { try { await navigator.clipboard.writeText(await fetch("https://everest-paints.com/everest-store/tools/supabase-setup.sql").then(r => r.text())); toast("تم نسخ ملف الإعداد ✓") } catch (e) { toast("افتح الملف وانسخه يدوي") } } }
 };
 function bindProducts() {
   $$("[data-price]").forEach(el => el.oninput = () => {
