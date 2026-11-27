@@ -193,6 +193,49 @@ button.kpi:hover{border-color:var(--ink)}
 .ed-item{background:#fff;border:1px solid var(--line);padding:18px;margin-bottom:14px}
 .ed-item .hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .ed-item .hd b{margin-inline-end:auto}
+
+/* ---------- دورة الطلب ---------- */
+.flow{border:1px solid var(--line);background:#fff;padding:14px;margin-top:10px;display:flex;flex-direction:column;gap:10px}
+.flow.cancel{opacity:.75;background:#fafafa}
+.fl-x{background:#fdecee;color:#a10f25;padding:8px 12px;font-weight:700}
+.fl-steps{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin:0;padding:0;position:relative}
+.fl-steps::before{content:"";position:absolute;top:16px;inset-inline:8%;height:2px;background:#e3e6ec}
+.fl-steps li{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;color:#9aa1ad;text-align:center;position:relative;line-height:1.3}
+.fl-steps li i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:15px;background:#fff;border:2px solid #e3e6ec}
+.fl-steps li.done{color:var(--ink)}.fl-steps li.done i{background:#0b2a4a;border-color:#0b2a4a;color:#fff;font-size:13px;font-weight:700}
+.fl-steps li.now{color:var(--ink);font-weight:700}.fl-steps li.now i{background:#f6c400;border-color:#f6c400;box-shadow:0 0 0 4px rgba(246,196,0,.25)}
+.fl-money{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fl-money span{border:1px solid var(--line);padding:8px 10px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.fl-money b{font-size:16px;color:var(--ink)}
+.fl-money .due{border-color:#f2cf55;background:#fffbea}.fl-money .due b{color:#7a5a00}
+.fl-pays{display:flex;flex-wrap:wrap;gap:6px}.fl-pays span{font-size:12px;background:#eef7f1;color:#0a5b2b;padding:3px 8px}
+.fl-act{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.fl-act .btn{font-size:15px}
+.fl-in{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.fl-in .in{min-width:140px}
+.fl-pay{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:end;background:#f6f8fb;border:1px dashed #c8d2e2;padding:12px}
+.fl-pay[hidden]{display:none}
+.fl-mini{display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:8px}
+.fl-mini button{background:none;border:0;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline}
+.fl-mini button.red{color:var(--red)}
+.stg-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px;background:#fff;border:1px solid var(--line)}
+.stg-bar>b{font-size:13px;margin-inline-end:4px}
+.stg{border:1px solid var(--line);background:#fff;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.stg .n{background:#eef0f4;padding:0 7px;border-radius:10px;font-size:12px}
+.stg.hot .n{background:#f6c400;color:#0b2a4a;font-weight:700}
+.stg.on{background:#0b2a4a;color:#fff;border-color:#0b2a4a}.stg.on .n{background:rgba(255,255,255,.2);color:#fff}
+/* ---------- الحسابات ---------- */
+.acc-k{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.acc-k>div{background:#fff;border:1px solid var(--line);padding:14px}
+.acc-k small{color:var(--muted);display:block}.acc-k b{font-size:22px;display:block;margin-top:4px}
+.acc-k .sub{font-size:12px;color:var(--muted)}
+.acc-bars{display:grid;gap:8px}
+.acc-bar{display:grid;grid-template-columns:110px 1fr 110px;gap:10px;align-items:center;font-size:13px}
+.acc-bar i{display:block;height:12px;background:#0b2a4a;border-radius:2px}
+.acc-t{width:100%;border-collapse:collapse;font-size:13px}
+.acc-t th{text-align:right;color:var(--muted);font-weight:600;padding:6px;border-bottom:1px solid var(--line)}
+.acc-t td{padding:7px 6px;border-bottom:1px solid #f0f0f0}
+@media (max-width:700px){.fl-steps li span{font-size:9.5px}.fl-steps li i{width:26px;height:26px;font-size:12px}.fl-money b{font-size:14px}}
 </style>
 </head>
 <body>
@@ -206,6 +249,7 @@ button.kpi:hover{border-color:var(--ink)}
     <nav id="nav">
       <button data-v="home"><span class="ic">⌂</span>الرئيسية</button>
       <button data-v="events"><span class="ic">🧾</span>الطلبات والنشاط<span class="badge" id="bdEvents" hidden></span></button>
+      <button data-v="accounts"><span class="ic">📊</span>الحسابات</button>
       <button data-v="customers"><span class="ic">👤</span>العملاء المسجلين<span class="badge" id="bdCust" hidden></span></button>
       <button data-v="club"><span class="ic">🏅</span>نادي إفرست والشركاء<span class="badge" id="bdClub" hidden></span></button>
       <button data-v="sponsors"><span class="ic">🎁</span>الداعمين والنقط</button>
@@ -309,7 +353,17 @@ const PAY_DEF = {instant: true, instapay: true, vf: true, cod: false, instapayUr
 const payCfg = () => { const p = Object.assign({}, PAY_DEF, (D && D.settings && D.settings.pay) || {}); if (!p.instapayId) { const m = String(p.instapayUrl || "").match(/\/S\/([^/]+)\/instapay/i); if (m) p.instapayId = m[1] + "@instapay" } return p };
 const PAY_ST = ["لم يدفع", "دفع جزء", "مدفوع بالكامل"];
 const PAY_MODE = {instant: ["⚡", "دفع فوري", "ok"], confirm: ["🎨", "بعد التأكيد", "warn"], mixed: ["◐", "مخلوط", "blue"]};
-const PAY_METHOD = {instapay: "إنستاباي", vf: "محفظة إلكترونية", cod: "كاش عند الاستلام"};
+const PAY_METHOD = {instapay: "إنستاباي", vf: "محفظة إلكترونية", cash: "كاش", bank: "تحويل بنكي", cod: "كاش عند الاستلام"};
+/* ================= دورة الطلب: 6 خطوات بالترتيب ================= */
+const STAGES = [["جديد", "🆕", "طلب جديد"], ["اتأكد", "✅", "اتأكد – مستني الفلوس"], ["اتدفع", "💰", "الفلوس وصلت"], ["بيتجهز", "📦", "بيتجهز"], ["في الطريق", "🚚", "في الطريق"], ["اتسلّم", "🏁", "اتسلّم"]];
+const SK = STAGES.map(s => s[0]);
+/* الطلبات القديمة (بالحالات القديمة) بتتحوّل للخطوة المناسبة */
+const stageOf = e => { const st = e.status, full = !!(e.pay && e.pay.status === "مدفوع بالكامل");
+  if (st === "ملغي") return "ملغي"; if (SK.includes(st)) return st; if (st === "مكتمل") return "اتسلّم";
+  if (st === "جاري التنفيذ") return full ? "بيتجهز" : "اتأكد"; if (st === "تم التواصل") return full ? "اتدفع" : "اتأكد"; return full ? "اتدفع" : "جديد" };
+const finalOf = e => { const y = e.pay || {}; return y.final != null ? +y.final : y.mode === "instant" && e.total !== "" && e.total != null ? +e.total : null };
+/* حركات الفلوس للطلب (والطلبات القديمة اللي اتسجّل فيها مدفوع من غير تفاصيل) */
+const payList = e => { const y = e.pay || {}; if (Array.isArray(y.payments) && y.payments.length) return y.payments; return +y.paid > 0 ? [{a: +y.paid, m: y.method === "vf" || y.method === "instapay" ? y.method : "cash", at: e.date, r: "", legacy: true}] : [] };
 /* بيانات الدفع جاية من زائر مجهول: بنقبل قيم معروفة وأرقام بس */
 function safePay(y) {
   if (!y || typeof y !== "object" || Array.isArray(y)) return null;
@@ -322,10 +376,11 @@ function safePay(y) {
     ref: typeof y.ref === "string" ? y.ref.replace(/[^\d+]/g, "").slice(0, 20) : "", ref_disc: y.ref_disc === true,
     pending_items: nm(y.pending_items) || 0, discount: nm(y.discount) || 0, verified: y.verified === true, unverified: y.unverified === true, mismatch: y.mismatch === true,
     requested_at: typeof y.requested_at === "string" && !isNaN(Date.parse(y.requested_at)) ? y.requested_at : null,
+    payments: Array.isArray(y.payments) ? y.payments.slice(-30).filter(o => o && typeof o === "object").map(o => ({a: nm(o.a) || 0, m: one(o.m, ["instapay", "vf", "cash", "bank"], "cash"), at: typeof o.at === "string" && !isNaN(Date.parse(o.at)) ? o.at : null, r: str(o.r, 60)})) : [],
     lines: Array.isArray(y.lines) ? y.lines.slice(0, 40).filter(l => l && typeof l === "object").map(l => ({id: str(l.id, 60), name: str(l.name, 80), pack: str(l.pack, 40), n: nm(l.n) || 0, sum: nm(l.sum), tint: l.tint === true})) : []
   };
 }
-const unpaid = e => e.pay && e.pay.status !== "مدفوع بالكامل" && e.status !== "ملغي" && e.status !== "مكتمل";
+const unpaid = e => e.type === "order" && e.pay && e.pay.status !== "مدفوع بالكامل" && !["ملغي", "اتسلّم"].includes(stageOf(e));
 const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
 /* تسجيلات ودخول العملاء ليها صفحة "العملاء" لوحدها ومش بتتحسب مع الطلبات */
 const CUST = t => t === "signup" || t === "login";
@@ -347,7 +402,7 @@ let MEMBERS = null, mType = "all", mStatus = "all", mQ = "", mAddOpen = false;
 async function loadMembers() {
   if (!SBC) return;
   try { const r = await api("members"); if (r.ok) MEMBERS = r.members } catch (e) {}
-  refreshBadges(); if (view === "club" || view === "sponsors") go(view);
+  refreshBadges(); if (["club", "sponsors", "accounts"].includes(view)) go(view);
 }
 /* ================= برنامج الداعمين: نقط من طلبات الناس اللي عرّفوهم =================
    - النقط = نسبة الشريحة × الطلبات المدفوعة بالكامل اللي فيها رقم الداعم (1 نقطة = 1 جنيه خصم)
@@ -365,7 +420,7 @@ let REWARDS_ERR = false;
 async function loadRewards() {
   if (!SBC) return;
   try { const r = await api("rewards"); if (r.ok) { REWARDS = r.rewards; REWARDS_ERR = false } else throw 0 } catch (e) { REWARDS = REWARDS || []; REWARDS_ERR = true }
-  if (view === "sponsors") go("sponsors");
+  if (view === "sponsors" || view === "accounts") go(view);
 }
 function sponsorList() {
   const T = refView().tiers.map(t => ({n: String(t.n || ""), min: +t.min || 0, pct: +t.pct || 0})).sort((a, b) => a.min - b.min);
@@ -391,6 +446,20 @@ function sponsorList() {
   return [...map.values()].sort((a, b) => b.balance - a.balance || b.sales - a.sales);
 }
 let spQ = "";
+/* ================= الحسابات: الفلوس اللي وصلت + اللي لسه ================= */
+let accP = "month";
+const accRange = p => { const n = new Date(), d0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()); return p === "today" ? [d0, null] : p === "7d" ? [new Date(d0 - 6 * 864e5), null] : p === "month" ? [new Date(n.getFullYear(), n.getMonth(), 1), null] : p === "last" ? [new Date(n.getFullYear(), n.getMonth() - 1, 1), new Date(n.getFullYear(), n.getMonth(), 1)] : [null, null] };
+function accData() {
+  const ords = (EVENTS || []).filter(e => e.type === "order" && e.pay && stageOf(e) !== "ملغي");
+  const pays = ords.flatMap(e => payList(e).map(p => ({a: +p.a || 0, m: p.m, at: p.at || e.date, r: p.r, no: e.pay.no, name: e.name, phone: e.phone}))).sort((a, b) => new Date(b.at) - new Date(a.at));
+  const owe = ords.filter(e => { const f = finalOf(e); return f != null && f - (+e.pay.paid || 0) > 0 && ["اتأكد", "اتدفع", "بيتجهز", "في الطريق", "اتسلّم"].includes(stageOf(e)) }).map(e => ({e, rest: finalOf(e) - (+e.pay.paid || 0)}));
+  return {ords, pays, owe};
+}
+function accCSV(rows) {
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = "\ufeff" + [["التاريخ", "رقم الطلب", "العميل", "الموبايل", "الطريقة", "المبلغ", "رقم العملية"].map(q).join(","), ...rows.map(p => [new Date(p.at).toLocaleString("ar-EG"), p.no, p.name, p.phone, PAY_METHOD[p.m] || p.m, p.a, p.r].map(q).join(","))].join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"})); a.download = `everest-payments-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
 /* ================= التسويق: شريط العرض + السلات المتروكة + طلب تقييم جوجل ================= */
 let CARTS = null, CARTS_ERR = false;
 async function loadCarts() { if (!SBC) return; try { const r = await api("carts"); if (r.ok) { CARTS = r.carts || []; CARTS_ERR = false } else throw 0 } catch (e) { CARTS = CARTS || []; CARTS_ERR = true } refreshBadges(); if (view === "marketing") go("marketing") }
@@ -760,7 +829,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات", marketing: "التسويق والعروض",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", accounts: "الحسابات", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات", marketing: "التسويق والعروض",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -778,7 +847,7 @@ document.addEventListener("click", e => { const a = e.target.closest && e.target
 async function loadEvents() {
   if (MODE !== "api") return;
   try { const r = await api("events", {limit: 2000}); if (r.ok) EVENTS = r.events } catch (e) {}
-  refreshBadges(); if (view === "events" || view === "home" || view === "customers" || view === "sponsors" || view === "marketing") go(view);
+  refreshBadges(); if (["events", "home", "customers", "sponsors", "marketing", "accounts"].includes(view)) go(view);
 }
 const ago = iso => { const d = new Date(iso), s = (Date.now() - d) / 1000; if (s < 60) return "الآن"; if (s < 3600) return `منذ ${num(Math.floor(s / 60))} دقيقة`; if (s < 86400) return `منذ ${num(Math.floor(s / 3600))} ساعة`; if (s < 7 * 86400) return `منذ ${num(Math.floor(s / 86400))} يوم`; return d.toLocaleDateString("ar-EG", {day: "numeric", month: "long"}) };
 const waLink = (phone, msg) => { let p = String(phone || "").replace(/[^\d]/g, ""); if (p.startsWith("0")) p = "2" + p; return `https://wa.me/${p}?text=${encodeURIComponent(String(msg).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, "").replace(/[ \t]{2,}/g, " ").trim())}` };
@@ -790,16 +859,45 @@ function evCard(e) {
       <div class="who"><span class="pill ${t[2]}">${t[1]}</span><b>${esc(e.name || "زائر")}</b>${e.phone ? `<span dir="ltr" class="hint">${esc(e.phone)}</span>` : ""}<span class="hint">· ${ago(e.date)}</span>${e.total ? `<span class="pill grey">${money(e.total)}</span>` : ""}</div>
       ${e.area ? `<div class="hint">📍 ${esc(e.area)}</div>` : ""}
       ${e.details ? `<pre>${esc(e.details)}</pre>` : ""}
-      ${payHTML(e)}
+      ${e.type === "order" && e.pay ? flowHTML(e) : payHTML(e)}
     </div>
     <div class="acts">
-      <select class="in" data-status="${esc(e.id)}">${STATUSES.map(s => `<option ${s === e.status ? "selected" : ""}>${s}</option>`).join("")}</select>
-      ${e.phone && e.type === "order" && e.status === "مكتمل" ? `<a class="btn sm" target="_blank" href="${reviewAsk(e)}" data-asked="${esc(e.id)}">⭐ اطلب تقييم</a>` : ""}
+      ${e.type === "order" && e.pay ? "" : `<select class="in" data-status="${esc(e.id)}">${STATUSES.map(s => `<option ${s === e.status ? "selected" : ""}>${s}</option>`).join("")}</select>`}
+      ${e.phone && e.type === "order" && stageOf(e) === "اتسلّم" ? `<a class="btn sm" target="_blank" href="${reviewAsk(e)}" data-asked="${esc(e.id)}">⭐ اطلب تقييم</a>` : ""}
       ${e.phone ? `<a class="btn green sm" target="_blank" href="${waLink(e.phone, `أهلاً ${e.name || ""}، معاك إفرست للدهانات بخصوص ${t[1]} اللي بعته من الموقع.`)}">واتساب العميل</a><a class="btn light sm" href="tel:${esc(e.phone)}">اتصال</a>` : ""}
     </div>
   </div>`;
 }
 /* صندوق الدفع في كارت الطلب: الحالة + السعر النهائي + طلب الدفع على واتساب */
+function flowHTML(e) {
+  const y = e.pay, st = stageOf(e), si = SK.indexOf(st), fin = finalOf(e), paid = +y.paid || 0, rest = fin != null ? Math.max(0, fin - paid) : null, P = payList(e), cancel = st === "ملغي";
+  const MO = Object.entries({instapay: "إنستاباي", vf: "محفظة", cash: "كاش", bank: "تحويل بنكي"}).map(([k, n]) => `<option value="${k}" ${(y.method === k ? "selected" : "")}>${n}</option>`).join("");
+  const nextBtn = {"اتدفع": "📦 ابدأ التجهيز", "بيتجهز": "🚚 خرج للتوصيل", "في الطريق": "🏁 اتسلّم"}[st];
+  return `<div class="flow ${cancel ? "cancel" : ""}" data-flow="${esc(e.id)}">
+    ${cancel ? `<div class="fl-x">❌ الطلب ده اتلغى</div>` : `<ol class="fl-steps">${STAGES.map(([k, ic, t], i) => `<li class="${i < si ? "done" : i === si ? "now" : ""}"><i>${i < si ? "✓" : ic}</i><span>${t}</span></li>`).join("")}</ol>`}
+    <div class="pc-top"><span class="pill ${PAY_MODE[y.mode][2]}">${PAY_MODE[y.mode][0]} ${PAY_MODE[y.mode][1]}</span><span class="pill grey">العميل اختار: ${esc(PAY_METHOD[y.method] || y.method || "-")}</span>${y.no ? `<span class="pill grey" dir="ltr">${esc(y.no)}</span>` : ""}${y.discount ? `<span class="pill blue">خصم ${num(y.discount)}٪${y.ref_disc ? " (أول طلب – داعم)" : ""}</span>` : ""}${y.ref ? `<span class="hint">داعم: ${esc(y.ref)}</span>` : ""}</div>
+    ${y.verified && !y.mismatch ? "" : `<div class="notice warn">⚠ ${y.mismatch ? "المبلغ اللي ظهر للعميل مختلف عن حساب قاعدة البيانات – راجع الأسعار معاه." : "الأسعار دي مش متراجعة – راجعها بنفسك."}</div>`}
+    ${y.lines.length ? `<pre>${y.lines.map(l => esc(`• ${l.name}${l.pack ? " — " + l.pack.replace(/~/g, " – ") : ""} × ${l.n} = ${l.sum == null ? "السعر بعد التأكيد" : money(l.sum)}${l.tint ? " (يتلوّن)" : ""}`)).join("\n")}</pre>` : ""}
+    <div class="fl-money"><span>الإجمالي<b>${fin != null ? money(fin) : "لسه ما اتحددش"}</b></span><span>وصل<b>${money(paid)}</b></span><span class="${rest > 0 ? "due" : ""}">المتبقي<b>${rest == null ? "—" : rest > 0 ? money(rest) : "✓ مفيش"}</b></span></div>
+    ${P.length ? `<div class="fl-pays">${P.map(p => `<span>💰 ${money(p.a)} · ${esc(PAY_METHOD[p.m] || p.m)}${p.at ? " · " + esc(rDate(p.at)) : ""}${p.r ? " · " + esc(p.r) : ""}${p.legacy ? " (قديم)" : ""}</span>`).join("")}</div>` : ""}
+    ${cancel ? `<div class="fl-act"><button class="btn light sm" data-fx="uncancel">↩ رجّع الطلب</button></div>` : `
+    <div class="fl-act">
+      ${st === "جديد" ? `${fin == null || y.mode !== "instant" ? `<label class="fl-in">السعر النهائي<input class="in" type="number" min="0" step="1" data-fx-final value="${fin ?? ""}" placeholder="اكتب الإجمالي"></label>` : ""}<button class="btn" data-fx="confirm">✅ أكّد الطلب</button><button class="btn light" data-fx="payform">💰 الفلوس وصلت</button>` : ""}
+      ${st === "اتأكد" ? `<button class="btn" data-fx="payform">💰 سجّل الفلوس اللي وصلت</button>${e.phone && rest > 0 ? `<button class="btn light" data-fx="req">📲 ابعتله الفاتورة وطلب الدفع${y.requested_at ? " (اتبعت " + ago(y.requested_at) + ")" : ""}</button>` : ""}` : ""}
+      ${nextBtn ? `<button class="btn" data-fx="next">${nextBtn}</button>${rest > 0 ? `<button class="btn light" data-fx="payform">💰 سجّل فلوس</button>` : ""}` : ""}
+      ${st === "اتسلّم" ? `<span class="hint">✓ الطلب خلص${rest > 0 ? ` – بس لسه فيه متبقي ${money(rest)}` : ""}</span>${rest > 0 ? `<button class="btn light" data-fx="payform">💰 سجّل فلوس</button>` : ""}` : ""}
+    </div>
+    <div class="fl-pay" hidden>
+      ${fin == null ? `<label class="fl-in">السعر النهائي<input class="in" type="number" min="0" step="1" data-pf-final placeholder="الإجمالي"></label>` : ""}
+      <label class="fl-in">المبلغ اللي وصل<input class="in" type="number" min="1" step="1" data-pf-a value="${rest > 0 ? rest : ""}"></label>
+      <label class="fl-in">وصل إزاي<select class="in" data-pf-m>${MO}</select></label>
+      <label class="fl-in">رقم العملية (اختياري)<input class="in" data-pf-r maxlength="60" placeholder="من رسالة البنك أو المحفظة"></label>
+      <button class="btn" data-fx="paysave">تأكيد استلام المبلغ</button>
+      <p class="hint" style="grid-column:1/-1">⚠ سجّل المبلغ بس بعد ما تشوفه بنفسك في حسابك أو محفظتك – مش من صورة العميل.</p>
+    </div>
+    <div class="fl-mini">${si > 0 ? `<button data-fx="back">↩ رجوع خطوة</button>` : ""}<button data-fx="rcpt">🧾 الإيصال</button><button data-fx="cancel" class="red">❌ إلغاء الطلب</button></div>`}
+  </div>`;
+}
 function payHTML(e) {
   const y = e.pay; if (!y) return "";
   const md = PAY_MODE[y.mode], st = y.status || "لم يدفع";
@@ -830,7 +928,8 @@ function payHTML(e) {
     </div>
   </div>`;
 }
-let eType = "all", eStatus = "all", eQ = "";
+let eType = "all", eStatus = "all", eQ = "", eStage = "all";
+document.addEventListener("click", ev => { const b = ev.target.closest && ev.target.closest("[data-stg]"); if (b) { eStage = b.dataset.stg; if (eStage !== "all") eType = "order"; go("events") } });
 
 /* ================= المنتجات ================= */
 let pFilter = "all", pQ = "";
@@ -1046,8 +1145,10 @@ events() {
   if (!KEY) return `<div class="empty">الطلبات محمية. <button class="btn sm" onclick="askKey().catch(()=>{})">اكتب كلمة السر مرة واحدة لعرضها</button></div>`;
   if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
   const cnt = t => EVS().filter(e => t === "all" || (t === "unpaid" ? unpaid(e) : e.type === t)).length;
-  let list = EVS().filter(e => (eType === "all" || (eType === "unpaid" ? unpaid(e) : e.type === eType)) && (eStatus === "all" || e.status === eStatus) && (!eQ || (e.name + e.phone + e.details + e.area).toLowerCase().includes(eQ)));
-  return `<div class="filters">${[["all", "الكل"], ["unpaid", "💳 مستني دفع"], ...Object.entries(TYPES).map(([k, v]) => [k, v[1]])].map(([k, n]) => `<button class="chip ${eType === k ? "on" : ""}" data-et="${k}">${n}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
+  const ORD = EVS().filter(e => e.type === "order" && e.pay), sc = k => ORD.filter(e => stageOf(e) === k).length;
+  let list = EVS().filter(e => (eStage === "all" || (e.type === "order" && e.pay && stageOf(e) === eStage)) && (eType === "all" || (eType === "unpaid" ? unpaid(e) : e.type === eType)) && (eStatus === "all" || e.status === eStatus) && (!eQ || (e.name + e.phone + e.details + e.area).toLowerCase().includes(eQ)));
+  return `<div class="stg-bar"><b>دورة الطلبات:</b>${[["all", "📋 الكل", ORD.length], ["جديد", "🆕 محتاج تأكيد", sc("جديد")], ["اتأكد", "✅ مستني فلوس", sc("اتأكد")], ["اتدفع", "💰 جاهز للتجهيز", sc("اتدفع")], ["بيتجهز", "📦 بيتجهز", sc("بيتجهز")], ["في الطريق", "🚚 في الطريق", sc("في الطريق")], ["اتسلّم", "🏁 خلصت", sc("اتسلّم")], ["ملغي", "❌ ملغي", sc("ملغي")]].map(([k, n, c]) => `<button class="stg ${eStage === k ? "on" : ""} ${c && ["جديد", "اتأكد", "اتدفع"].includes(k) ? "hot" : ""}" data-stg="${k}">${n}<span class="n">${num(c)}</span></button>`).join("")}</div>
+  <div class="filters">${[["all", "الكل"], ["unpaid", "💳 مستني دفع"], ...Object.entries(TYPES).map(([k, v]) => [k, v[1]])].map(([k, n]) => `<button class="chip ${eType === k ? "on" : ""}" data-et="${k}">${n}<span class="n">${num(cnt(k))}</span></button>`).join("")}</div>
   <div class="toolbar">
     <input class="in" id="eQ" placeholder="ابحث بالاسم أو الرقم أو المنتج…" value="${esc(eQ)}">
     <select class="in" id="eStatus" style="max-width:180px"><option value="all">كل الحالات</option>${STATUSES.map(s => `<option ${s === eStatus ? "selected" : ""}>${s}</option>`).join("")}</select>
@@ -1208,9 +1309,29 @@ cats() {
     ${SG.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${SG.map(p => `<span class="pill blue">${esc(p.ar)}</span>`).join("")}</div>` : `<p class="hint">لسه ما اخترتش منتجات.</p>`}
   </div>`;
 },
+accounts() {
+  if (MODE !== "api") return `<div class="notice blue">الحسابات بتشتغل لما اللوحة تكون متوصّلة بقاعدة البيانات.</div>`;
+  if (!EVENTS) return `<div class="empty">جاري التحميل…</div>`;
+  const {pays, owe} = accData(), [from, to] = accRange(accP), inP = p => (!from || new Date(p.at) >= from) && (!to || new Date(p.at) < to), L = pays.filter(inP);
+  const sum = A => A.reduce((s, p) => s + p.a, 0), tot = sum(L), byM = Object.keys(PAY_METHOD).map(m => [m, sum(L.filter(p => p.m === m))]).filter(x => x[1] > 0), mx = Math.max(1, ...byM.map(x => x[1]));
+  const nOrd = new Set(L.map(p => p.no)).size, oweT = owe.reduce((s, x) => s + x.rest, 0);
+  const sp = REWARDS && MEMBERS ? sponsorList().reduce((s, x) => s + Math.max(0, x.balance), 0) : null;
+  return `<div class="chips" style="margin-bottom:14px">${[["today", "النهارده"], ["7d", "آخر 7 أيام"], ["month", "الشهر ده"], ["last", "الشهر اللي فات"], ["all", "من الأول"]].map(([k, n]) => `<button class="chip ${accP === k ? "on" : ""}" data-accp="${k}">${n}</button>`).join("")}<button class="chip" id="accRef">↻ تحديث</button></div>
+    <div class="acc-k">
+      <div><small>💰 الفلوس اللي وصلت</small><b>${money(tot)}</b><span class="sub">${num(L.length)} عملية · ${num(nOrd)} طلب</span></div>
+      <div><small>📈 متوسط الطلب</small><b>${nOrd ? money(tot / nOrd) : "—"}</b></div>
+      <div><small>⏳ فلوس لسه ما وصلتش</small><b style="color:#7a5a00">${money(oweT)}</b><span class="sub">${num(owe.length)} طلب اتأكد ولسه ما اتدفعش كله</span></div>
+      <div><small>🎁 نقط الداعمين المستحقة</small><b>${sp == null ? "—" : num(sp)}</b><span class="sub">${sp == null ? '<a href="#sponsors" data-go="sponsors">افتح شاشة الداعمين</a>' : "= " + money(sp) + " خصم"}</span></div>
+    </div>
+    <div class="card" style="margin-bottom:16px"><h3>حسب طريقة الدفع</h3>${byM.length ? `<div class="acc-bars">${byM.map(([m, v]) => `<div class="acc-bar"><span>${esc(PAY_METHOD[m])}</span><i style="width:${Math.max(3, v / mx * 100)}%"></i><b>${money(v)}</b></div>`).join("")}</div>` : `<p class="hint">مفيش فلوس اتسجّلت في الفترة دي.</p>`}</div>
+    <div class="card" style="margin-bottom:16px"><h3>⏳ فلوس لسه ما وصلتش (${num(owe.length)})</h3>
+      ${owe.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>الطلب</th><th>العميل</th><th>الإجمالي</th><th>وصل</th><th>المتبقي</th><th>الخطوة</th></tr>${owe.map(({e, rest}) => `<tr><td dir="ltr">${esc(e.pay.no || "")}</td><td>${esc(e.name || "")}<br><span class="hint" dir="ltr">${esc(e.phone || "")}</span></td><td>${money(finalOf(e))}</td><td>${money(+e.pay.paid || 0)}</td><td><b style="color:#7a5a00">${money(rest)}</b></td><td>${esc(stageOf(e))} · <a href="#events" data-accopen="${esc(e.pay.no || e.name || "")}">افتح الطلب</a></td></tr>`).join("")}</table></div>` : `<p class="hint">كل الطلبات المتأكدة اتدفعت ✓</p>`}</div>
+    <div class="card"><h3>💰 كشف الفلوس اللي وصلت (${num(L.length)}) <button class="btn light sm" id="accCsv" style="margin-inline-start:auto" ${L.length ? "" : "disabled"}>⬇ تنزيل Excel</button></h3>
+      ${L.length ? `<div class="tbl-wrap"><table class="acc-t"><tr><th>التاريخ</th><th>الطلب</th><th>العميل</th><th>الطريقة</th><th>المبلغ</th><th>رقم العملية</th></tr>${L.map(p => `<tr><td>${esc(rDate(p.at))}</td><td dir="ltr">${esc(p.no || "")}</td><td>${esc(p.name || "")}</td><td>${esc(PAY_METHOD[p.m] || p.m)}</td><td><b>${money(p.a)}</b></td><td>${esc(p.r || "")}</td></tr>`).join("")}<tr><td colspan="4"><b>الإجمالي</b></td><td><b>${money(tot)}</b></td><td></td></tr></table></div>` : `<p class="hint">مفيش فلوس اتسجّلت في الفترة دي. لما الفلوس توصل لأي طلب، افتحه من «الطلبات والنشاط» واضغط «💰 سجّل الفلوس اللي وصلت».</p>`}</div>`;
+},
 marketing() {
   const P = D.settings.promo || {}, A = CARTS && EVENTS ? abandoned() : null, asked = new Set(ls.get(ASKED, []) || []);
-  const done = (EVENTS || []).filter(e => e.type === "order" && e.status === "مكتمل" && e.phone && Date.now() - new Date(e.date) < 90 * 864e5);
+  const done = (EVENTS || []).filter(e => e.type === "order" && stageOf(e) === "اتسلّم" && e.phone && Date.now() - new Date(e.date) < 90 * 864e5);
   const live = P.on && P.text && !(P.until && new Date(P.until) < Date.now());
   return `<div class="card" style="margin-bottom:16px"><h3>📣 شريط العرض فوق الصفحة ${live ? '<span class="pill ok">ظاهر دلوقتي</span>' : '<span class="pill grey">مش ظاهر</span>'}</h3>
       <label class="switch" style="margin-bottom:10px"><input type="checkbox" data-p="settings.promo.on" ${P.on ? "checked" : ""}><i></i><b>شغّل الشريط</b></label>
@@ -1584,7 +1705,7 @@ guide() {
 const AFTER = {
 home() { bindProducts(); if (EVENTS) bindStatus();const b = $("#dlOnce"); if (b) b.onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click() } },
 events() {
-  $$("[data-et]").forEach(b => b.onclick = () => { eType = b.dataset.et; go("events") });
+  $$("[data-et]").forEach(b => b.onclick = () => { eType = b.dataset.et; eStage = "all"; go("events") });
   const q = $("#eQ"); if (!q) return;
   q.oninput = () => { eQ = q.value.trim().toLowerCase(); const pos = q.selectionStart; go("events"); const n = $("#eQ"); n.focus(); n.setSelectionRange(pos, pos) };
   $("#eStatus").onchange = e => { eStatus = e.target.value; go("events") };
@@ -1700,6 +1821,13 @@ cats() {
   const add = (id, name) => edit(C => { if (!C.some(c => c.id === id)) C.push({id, name}) });
   $("#cAdd").onclick = () => { const n = $("#cNew").value.trim().slice(0, 40); if (!n) return toast("اكتب اسم القسم"); add("c-" + Date.now().toString(36), n) };
   const acc = $("#cAcc"); if (acc) acc.onclick = () => edit(C => [["acc-materials", "مواد مساعدة"], ["acc-tools", "أدوات الدهان"], ["acc-protect", "الحماية والتغطية"], ["acc-safety", "السلامة"]].forEach(([id, name]) => { if (!C.some(c => c.id === id)) C.push({id, name}) }));
+},
+accounts() {
+  if (!EVENTS) loadEvents(); if (SBC && !REWARDS) loadRewards(); if (SBC && !MEMBERS) loadMembers();
+  $$("[data-accp]").forEach(b => b.onclick = () => { accP = b.dataset.accp; go("accounts") });
+  const r = $("#accRef"); if (r) r.onclick = () => { EVENTS = null; go("accounts"); loadEvents() };
+  const c = $("#accCsv"); if (c) c.onclick = () => { const {pays} = accData(), [from, to] = accRange(accP); accCSV(pays.filter(p => (!from || new Date(p.at) >= from) && (!to || new Date(p.at) < to))) };
+  $$("[data-accopen]").forEach(a => a.onclick = ev => { ev.preventDefault(); eQ = a.dataset.accopen.toLowerCase(); eType = "all"; eStage = "all"; go("events") });
 },
 marketing() {
   if (!EVENTS) loadEvents(); if (!CARTS && SBC) loadCarts();
@@ -2039,8 +2167,54 @@ function bindPay() {
     };
   });
 }
+/* أزرار دورة الطلب */
+function bindFlow() {
+  $$("[data-flow]").forEach(card => {
+    const e = EVENTS.find(x => x.id === card.dataset.flow); if (!e || !e.pay) return;
+    const save = async (patch, msg) => {
+      const old = {status: e.status, pay: e.pay};
+      try {
+        if (patch.pay) { e.pay = patch.pay; const r = await api("pay", {id: e.id, pay: patch.pay}); if (!r.ok) throw 0 }
+        if (patch.status) { e.status = patch.status; const r = await api("status", {id: e.id, status: patch.status}); if (!r.ok) throw 0 }
+        toast(msg || "اتحفظ ✓"); refreshBadges(); go(view);
+      } catch (err) { Object.assign(e, old); toast("ما اتحفظش – جرّب تاني"); go(view) }
+    };
+    const st = stageOf(e), si = SK.indexOf(st);
+    card.addEventListener("click", ev => {
+      const b = ev.target.closest("[data-fx]"); if (!b) return; const fx = b.dataset.fx, y = Object.assign({}, e.pay);
+      if (fx === "payform") { const f = card.querySelector(".fl-pay"); f.hidden = !f.hidden; if (!f.hidden) (f.querySelector("[data-pf-final]") || f.querySelector("[data-pf-a]")).focus(); return }
+      if (fx === "confirm") {
+        const inp = card.querySelector("[data-fx-final]"), fin = inp ? (inp.value === "" ? null : +inp.value) : finalOf(e);
+        if (fin == null || !(fin >= 0)) return toast("اكتب السعر النهائي الأول");
+        y.final = fin; if (+y.paid >= fin && fin > 0) y.status = "مدفوع بالكامل";
+        return save({pay: y, status: y.status === "مدفوع بالكامل" ? "اتدفع" : "اتأكد"}, "الطلب اتأكد ✓ ابعتله الفاتورة وطلب الدفع");
+      }
+      if (fx === "paysave") {
+        const f = card.querySelector(".fl-pay"), fi = f.querySelector("[data-pf-final]"), a = +f.querySelector("[data-pf-a]").value, m = f.querySelector("[data-pf-m]").value, r = f.querySelector("[data-pf-r]").value.trim();
+        let fin = finalOf(e); if (fi) { if (fi.value === "") return toast("اكتب السعر النهائي"); fin = +fi.value }
+        if (!(a > 0)) return toast("اكتب المبلغ اللي وصل");
+        const P = payList(e).filter(p => !p.legacy).concat(payList(e).filter(p => p.legacy).map(({legacy, ...p}) => p));
+        y.payments = [...P, {a, m, at: new Date().toISOString(), r}].slice(-30); y.paid = (+y.paid || 0) + a; y.final = fin;
+        y.status = fin != null && y.paid >= fin ? "مدفوع بالكامل" : "دفع جزء";
+        const ns = y.status === "مدفوع بالكامل" ? (si < 2 ? "اتدفع" : st) : (si < 1 ? "اتأكد" : st);
+        return save({pay: y, status: ns}, y.status === "مدفوع بالكامل" ? "💰 المبلغ اتسجّل – الطلب مدفوع بالكامل ✓" : `💰 اتسجّل ${money(a)} – لسه متبقي ${money(fin - y.paid)}`);
+      }
+      if (fx === "next") return save({status: SK[si + 1]}, STAGES[si + 1][1] + " " + STAGES[si + 1][2] + " ✓");
+      if (fx === "back") { if (!confirm(`ترجع الطلب لخطوة «${STAGES[si - 1][2]}»؟`)) return; return save({status: SK[si - 1]}, "رجع خطوة ✓") }
+      if (fx === "cancel") { if (!confirm("إلغاء الطلب ده؟")) return; return save({status: "ملغي"}, "الطلب اتلغى") }
+      if (fx === "uncancel") return save({status: y.status === "مدفوع بالكامل" ? "اتدفع" : y.final != null ? "اتأكد" : "جديد"}, "الطلب رجع ✓");
+      if (fx === "rcpt") { sendReceipt(e, y, null); return toast("اتنزلت صورة الإيصال ✓") }
+      if (fx === "req") {
+        const fin = finalOf(e); if (fin == null) return toast("أكّد السعر الأول"); y.final = fin;
+        const rest = Math.max(0, fin - (+y.paid || 0)); if (!rest) return toast("مفيش مبلغ متبقي");
+        const r = sendReceipt(e, y, receiptText(e, y, rest));
+        return save({pay: Object.assign(y, {requested_at: new Date().toISOString()})}, r === "shared" ? "اختار واتساب والعميل من قايمة المشاركة ✓" : r === "copied" ? "الإيصال اتنسخ ✓ في واتساب: ابعت الرسالة، وبعدها Ctrl+V وEnter" : "اتنزلت صورة الإيصال واتفتح واتساب – ارفق الصورة 📎");
+      }
+    });
+  });
+}
 function bindStatus() {
-  bindPay();
+  bindPay(); bindFlow();
   $$("[data-status]").forEach(s => s.onchange = async () => {
     const e = EVENTS.find(x => x.id === s.dataset.status); const old = e.status; e.status = s.value; refreshBadges();
     try { const r = await api("status", {id: e.id, status: s.value}); if (!r.ok) throw 0; toast("تم تحديث الحالة ✓"); s.closest(".ev").classList.toggle("new", e.status === "جديد") } catch (err) { e.status = old; s.value = old; toast("تعذّر التحديث") }
