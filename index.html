@@ -884,6 +884,7 @@ function flowHTML(e) {
     <div class="fl-act">
       ${st === "جديد" ? `${fin == null || y.mode !== "instant" ? `<label class="fl-in">السعر النهائي<input class="in" type="number" min="0" step="1" data-fx-final value="${fin ?? ""}" placeholder="اكتب الإجمالي"></label>` : ""}<button class="btn" data-fx="confirm">✅ أكّد الطلب</button><button class="btn light" data-fx="payform">💰 الفلوس وصلت</button>` : ""}
       ${st === "اتأكد" ? `<button class="btn" data-fx="payform">💰 سجّل الفلوس اللي وصلت</button>${e.phone && rest > 0 ? `<button class="btn light" data-fx="req">📲 ابعتله الفاتورة وطلب الدفع${y.requested_at ? " (اتبعت " + ago(y.requested_at) + ")" : ""}</button>` : ""}` : ""}
+      ${si >= 2 && e.phone ? `<button class="btn light" data-fx="rcptwa">🧾 ابعتله الإيصال على واتساب</button>` : ""}
       ${nextBtn ? `<button class="btn" data-fx="next">${nextBtn}</button>${rest > 0 ? `<button class="btn light" data-fx="payform">💰 سجّل فلوس</button>` : ""}` : ""}
       ${st === "اتسلّم" ? `<span class="hint">✓ الطلب خلص${rest > 0 ? ` – بس لسه فيه متبقي ${money(rest)}` : ""}</span>${rest > 0 ? `<button class="btn light" data-fx="payform">💰 سجّل فلوس</button>` : ""}` : ""}
     </div>
@@ -895,7 +896,7 @@ function flowHTML(e) {
       <button class="btn" data-fx="paysave">تأكيد استلام المبلغ</button>
       <p class="hint" style="grid-column:1/-1">⚠ سجّل المبلغ بس بعد ما تشوفه بنفسك في حسابك أو محفظتك – مش من صورة العميل.</p>
     </div>
-    <div class="fl-mini">${si > 0 ? `<button data-fx="back">↩ رجوع خطوة</button>` : ""}<button data-fx="rcpt">🧾 الإيصال</button><button data-fx="cancel" class="red">❌ إلغاء الطلب</button></div>`}
+    <div class="fl-mini">${si > 0 ? `<button data-fx="back">↩ رجوع خطوة</button>` : ""}<button data-fx="rcpt">🧾 نزّل الإيصال صورة</button><button data-fx="cancel" class="red">❌ إلغاء الطلب</button></div>`}
   </div>`;
 }
 function payHTML(e) {
@@ -2204,6 +2205,12 @@ function bindFlow() {
       if (fx === "cancel") { if (!confirm("إلغاء الطلب ده؟")) return; return save({status: "ملغي"}, "الطلب اتلغى") }
       if (fx === "uncancel") return save({status: y.status === "مدفوع بالكامل" ? "اتدفع" : y.final != null ? "اتأكد" : "جديد"}, "الطلب رجع ✓");
       if (fx === "rcpt") { sendReceipt(e, y, null); return toast("اتنزلت صورة الإيصال ✓") }
+      if (fx === "rcptwa") {
+        const fin = finalOf(e), paid = +y.paid || 0, rest = fin != null ? Math.max(0, fin - paid) : 0;
+        const msg = [`أهلاً ${String(e.name || "").split(" ")[0]}`, `ده إيصال طلبك${y.no ? " رقم " + y.no : ""} من ${D.settings.storeName || "إفرست للدهانات"}.`, rest > 0 ? `المدفوع: ${money(paid)} – المتبقي: ${money(rest)}` : "تم استلام المبلغ بالكامل ✓ شكراً لثقتك فينا.", `تقدر تتابع طلبك من هنا: ${STORE_BASE}#track`].join("\n");
+        const r = sendReceipt(e, y, msg);
+        return toast(r === "shared" ? "اختار واتساب والعميل من قايمة المشاركة ✓" : r === "copied" ? "الإيصال اتنسخ ✓ في واتساب: ابعت الرسالة، وبعدها Ctrl+V وEnter" : "اتنزلت صورة الإيصال واتفتح واتساب – ارفق الصورة 📎");
+      }
       if (fx === "req") {
         const fin = finalOf(e); if (fin == null) return toast("أكّد السعر الأول"); y.final = fin;
         const rest = Math.max(0, fin - (+y.paid || 0)); if (!rest) return toast("مفيش مبلغ متبقي");
