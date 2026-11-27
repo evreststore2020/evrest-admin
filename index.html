@@ -212,6 +212,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="partners"><span class="ic">⭐</span>الشركاء والتقييمات<span class="badge" id="bdPart" hidden></span></button>
       <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
       <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
+      <button data-v="cats"><span class="ic">🗂️</span>الأقسام والمستلزمات</button>
       <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
       <button data-v="photos"><span class="ic">📸</span>صور أعمالنا</button>
       <button data-v="packages"><span class="ic">🏠</span>الباقات</button>
@@ -262,10 +263,18 @@ const VARIANTS = ["", "أبيض", "ألوان خاصة", "ألوان جاهزة"
 /* القوائم اللي تقدر تكتب فيها اختيار جديد ويتحفظ (في الإعدادات settings.opts) */
 const OPT_DEF = {units: ["لتر", "كجم", "قطعة", "كرتونة", "شيكارة", "برميل", "جالون", "علبة", "طقم", "متر"], variants: VARIANTS, cats: Object.keys(CATS)};
 const OPT_LBL = {units: "وحدة جديدة", variants: "نوع جديد", cats: "قسم جديد"};
-const catName = k => CATS[k] || k || "";
+/* الأقسام بتتعدّل من شاشة «🗂️ الأقسام» (settings.cats): الاسم والصورة والترتيب والظهور في القايمة الزرقا */
+const STORE_CN = {interior: "داخلية", deco: "تأثيرات ديكورية", exterior: "خارجية", prep: "تأسيس ومعاجين", wood: "دهانات أخشاب", industrial: "صناعية ومعادن"};
+const CAT_IMG = {interior: 209770, deco: 202622, exterior: 220575, prep: 199487};
+const catList = () => Array.isArray(D.settings.cats) ? D.settings.cats : [...Object.keys(STORE_CN).map(id => ({id, name: STORE_CN[id]})), ...[...new Set(D.products.map(p => p.cat))].filter(c => c && !STORE_CN[c]).map(id => ({id, name: id}))];
+const ensureCats = () => { if (!Array.isArray(D.settings.cats)) D.settings.cats = JSON.parse(JSON.stringify(catList())) };
+const catName = k => { const c = Array.isArray(D.settings.cats) && D.settings.cats.find(x => x.id === k); return (c && c.name) || STORE_CN[k] || CATS[k] || k || "" };
+/* الماركة: فاضية أو Jotun = جوتن */
+const isJA = p => !p.brand || /^(jotun|جوتن)$/i.test(String(p.brand).trim());
 function optList(kind) {
   const used = kind === "units" ? D.products.flatMap(p => [p.u, ...(p.packs || []).map(k => k.u)]) : kind === "cats" ? D.products.map(p => p.cat) : D.products.flatMap(p => (p.packs || []).map(k => k.v || ""));
-  return [...new Set([...OPT_DEF[kind], ...(((D.settings.opts || {})[kind]) || []), ...used].filter(x => x != null && (x !== "" || kind === "variants")))];
+  const base = kind === "cats" ? catList().map(c => c.id) : OPT_DEF[kind];
+  return [...new Set([...base, ...(((D.settings.opts || {})[kind]) || []), ...used].filter(x => x != null && (x !== "" || kind === "variants")))];
 }
 function optSelect(kind, cur, attrs) {
   const L = optList(kind); if (cur != null && !L.includes(cur)) L.push(cur);
@@ -282,6 +291,7 @@ document.addEventListener("input", e => {
   const key = kind === "cats" ? (Object.keys(CATS).find(k => CATS[k] === v) || v) : v;
   const o = D.settings.opts = D.settings.opts || {}; o[kind] = o[kind] || [];
   if (!optList(kind).includes(key)) o[kind].push(key);
+  if (kind === "cats") { ensureCats(); if (!D.settings.cats.some(c => c.id === key)) D.settings.cats.push({id: key, name: key}) }
   if (![...s.options].some(x => x.value === key)) s.querySelector('option[value="__new"]').insertAdjacentHTML("beforebegin", `<option value="${esc(key)}">${esc(kind === "cats" ? catName(key) : key)}</option>`);
   s.value = key; s.dataset.prev = key; changed();
   s.dispatchEvent(new Event("input", {bubbles: true})); s.dispatchEvent(new Event("change", {bubbles: true}));
@@ -473,6 +483,7 @@ async function sbApi(action, x = {}) {
         for (const r of rows || []) for (const p of Object.values(r.docs || {})) { try { await SBC.removeFile("docs", p) } catch (e) {} }
         await SBC.del("members", "phone=eq." + encodeURIComponent(x.phone)); return {ok: true};
       }
+      case "upimg": { const path = String(x.folder || "misc").replace(/[^a-z-]/g, "") + "/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + ".jpg"; await SBC.upload("photos", path, x.file); return {ok: true, url: SBC.publicUrl("photos", path)} }
       case "partners": { const [pros, works, reviews] = await Promise.all([sbAll("pros", "sort.asc,created_at.asc"), sbAll("works", "created_at.desc,id.desc"), sbAll("reviews", "created_at.desc,id.desc")]); return {ok: true, pros, works, reviews} }
       case "proAdd": await SBC.insert("pros", x.row); return {ok: true};
       case "proSet": await SBC.update("pros", "id=eq." + encodeURIComponent(x.id), x.patch); return {ok: true};
@@ -725,7 +736,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -807,7 +818,7 @@ function priceInputs(p, i) {
   return `<div class="price-in"><input type="number" min="0" step="0.5" inputmode="decimal" data-price="${i}" value="${p.price ?? ""}" placeholder="اكتب السعر"><span>ج.م / ${esc(p.u)}</span></div>`;
 }
 /* «أبيض / لون» في المتجر: المنتج يتلوّن لو له عبوة بيضا بسعر ومش متقفل هنا (الافتراضي: كل حاجة ما عدا التأسيس والمعاجين) */
-const tintable = p => { const L = p.packs && p.packs.length ? p.packs : []; return L.some(k => (!k.v || k.v === "أبيض") && k.p != null) && !L.some(k => k.v === "ألوان خاصة") };
+const tintable = p => { if (!isJA(p)) return false; const L = p.packs && p.packs.length ? p.packs : []; return L.some(k => (!k.v || k.v === "أبيض") && k.p != null) && !L.some(k => k.v === "ألوان خاصة") };
 const tintDef = p => p.cat !== "prep" && ["لتر", "كجم"].includes(p.u || "لتر");   // الافتراضي: الدهانات باللتر/الكيلو ما عدا التأسيس
 const canTint = p => Array.isArray(D.settings.noTint) ? !D.settings.noTint.includes(p.id) : tintDef(p);
 function pCard(p, i) {
@@ -815,12 +826,13 @@ function pCard(p, i) {
   return `<div class="pc ${miss ? "missing" : ""} ${p.active === false ? "hidden-p" : ""}" data-i="${i}">
     <div class="im">${src ? `<img loading="lazy" src="${esc(src)}" alt="">` : `<i class="sw" style="background:${esc(p.col || "#999")}"></i>`}${miss ? `<span class="pill warn">ناقص سعر</span>` : p.active === false ? `<span class="pill grey">مخفي</span>` : ""}</div>
     <div class="bd">
-      <div class="nm"><b>${esc(p.ar)}</b><small>${esc(p.en || "")} · ${esc(catName(p.cat))}</small></div>
+      <div class="nm"><b>${esc(p.ar)}</b><small>${esc(p.en || "")} · ${esc(catName(p.cat))}${isJA(p) ? "" : ` · <b>${esc(p.brand)}</b>`}</small></div>
       ${priceInputs(p, i)}
       <div data-packs="${i}">${packsHTML(p)}</div>
       <div class="row">
         <label class="switch"><input type="checkbox" data-tog="active" data-i="${i}" ${p.active !== false ? "checked" : ""}><i></i>ظاهر</label>
         <label class="switch"><input type="checkbox" data-tog="best" data-i="${i}" ${p.best ? "checked" : ""}><i></i>الأكثر طلباً</label>
+        <label class="switch" title="بيظهر للعميل في السلة «ما تنساش» لما يكون شاري دهان"><input type="checkbox" data-psug="${i}" ${(D.settings.suggest || []).includes(p.id) ? "checked" : ""}><i></i>🛒 يتقترح في السلة</label>
         <label class="switch" title="لو هامش المنتج قليل اقفله: طلباته مش بتدّي نقط للداعم"><input type="checkbox" data-pts="${i}" ${!(D.settings.noPoints || []).includes(p.id) ? "checked" : ""}><i></i>🎁 بيكسب نقط</label>
         ${tintable(p) ? `<label class="switch" title="العميل يقدر يختار «لون» بدل «أبيض» والسعر يتأكد معاه"><input type="checkbox" data-tint="${i}" ${canTint(p) ? "checked" : ""}><i></i>🎨 يتلوّن</label>` : ""}
       </div>
@@ -836,6 +848,7 @@ function productFields(p) {
     <div class="grid g2">
       <label class="f"><span><b>الاسم بالعربي</b></span><input class="in" data-f="ar" value="${esc(p.ar)}"></label>
       <label class="f"><span>الاسم بالإنجليزي</span><input class="in" data-f="en" dir="ltr" value="${esc(p.en || "")}"></label>
+      <label class="f"><span>الماركة <span class="hint">(Jotun أو اكتب ماركة تانية للمستلزمات)</span></span><input class="in" data-f="brand" list="brandList" value="${esc(p.brand || "Jotun")}"><datalist id="brandList">${[...new Set(["Jotun", ...D.products.map(x => x.brand).filter(Boolean)])].map(b => `<option value="${esc(b)}">`).join("")}</datalist></label>
       <label class="f"><span>القسم</span>${optSelect("cats", p.cat, 'data-f="cat"')}</label>
       <label class="f"><span>الوحدة</span>${optSelect("units", p.u || "لتر", 'data-f="u"')}</label>
     </div>
@@ -847,6 +860,7 @@ function productFields(p) {
     <div class="sec-t">الصورة</div>
     <div class="grid g2">
       <label class="f"><span>رقم صورة جوتن الرسمية</span><input class="in" type="number" data-f="img" data-t="num" value="${p.img ?? ""}"><span class="hint">بيتجاب تلقائي لو أضفت المنتج من رابط جوتن</span></label>
+      <label class="f"><span>📷 ارفع صورة من جهازك</span><input class="in" type="file" accept="image/*" id="pImgUp"><span class="hint" id="pImgSt">بتتصغّر لوحدها وتتحفظ في المتجر</span></label>
       <label class="f"><span>أو رابط صورة من أي مكان</span><input class="in" dir="ltr" data-f="image" value="${esc(p.image || "")}" placeholder="https://…"></label>
       <label class="f"><span>لون بديل لو مفيش صورة</span><input class="in" type="color" data-f="col" value="${esc(p.col || "#8fa3b5")}" style="height:44px;padding:4px"></label>
     </div>
@@ -871,6 +885,13 @@ function openEditor(i) {
   $("#dTitle").textContent = "تعديل: " + p.ar;
   $("#dBody").innerHTML = productFields(p);
   renderPackEd(p);
+  const up = $("#pImgUp"); if (up) up.onchange = async () => {
+    const f = up.files[0]; if (!f) return; if (!SBC) return toast("رفع الصور محتاج اللوحة تكون متصلة بـ Supabase");
+    const st = $("#pImgSt"); st.textContent = "جاري الرفع…";
+    try { const b = await shrinkPhoto(f, 1000), r = await api("upimg", {folder: "products", file: new File([b], "p.jpg", {type: "image/jpeg"})}); if (!r.ok) throw new Error(r.error);
+      p.image = r.url; const inp = $('[data-f="image"]'); if (inp) inp.value = r.url; $("#edPrevIm").innerHTML = `<img src="${esc(r.url)}">`; st.textContent = "✓ اترفعت – متنساش «حفظ على الموقع»"; changed() }
+    catch (e) { st.textContent = "ما اترفعتش: " + (e.message || "جرّب تاني") }
+  };
   $("#dFoot").innerHTML = `<button class="btn" id="dDone">تم</button><a class="btn light" target="_blank" href="https://evreststore2020.github.io/everest-paints.github.io/everest-store/index.html?preview=1#shop" id="dPrev">معاينة على الموقع</a>`;
   $("#dBody").oninput = e => {
     const el = e.target.closest("[data-f]"); if (!el) return;
@@ -1113,6 +1134,7 @@ add() {
         <div class="grid g2">
           <label class="f"><span>القسم</span>${optSelect("cats", "interior", 'id="qCat"')}</label>
           <label class="f"><span>الوحدة</span>${optSelect("units", "لتر", 'id="qU"')}</label>
+          <label class="f"><span>الماركة</span><input class="in" id="qBrand" value="Jotun" list="qBrandList"><datalist id="qBrandList">${[...new Set(["Jotun", ...D.products.map(x => x.brand).filter(Boolean)])].map(b => `<option value="${esc(b)}">`).join("")}</datalist></label>
           <label class="f"><span><b>السعر لكل وحدة</b></span><input class="in" id="qPrice" type="number" min="0" step="0.5" placeholder="فاضي = عند الطلب"></label>
           <label class="f"><span>أحجام العبوات</span><input class="in" id="qSizes" placeholder="مثال: 1, 4, 18"></label>
         </div>
@@ -1122,6 +1144,31 @@ add() {
         <p class="hint">أو انسخ منتج موجود من صفحة المنتجات (زرار "نسخ") وعدّل عليه.</p>
       </div>
     </div>
+  </div>`;
+},
+cats() {
+  const L = catList(), used = id => D.products.filter(p => p.cat === id).length, SG = (D.settings.suggest || []).map(id => D.products.find(p => p.id === id)).filter(Boolean);
+  const thumb = c => c.image ? c.image : CAT_IMG[c.id] ? IMG(CAT_IMG[c.id], 120) : "";
+  const ACC = [["acc-materials", "مواد مساعدة"], ["acc-tools", "أدوات الدهان"], ["acc-protect", "الحماية والتغطية"], ["acc-safety", "السلامة"]].filter(([id]) => !L.some(c => c.id === id));
+  return `<div class="card" style="margin-bottom:16px"><h3>🗂️ أقسام المتجر <span class="hint" style="margin-inline-start:auto;font-weight:400">الترتيب هنا هو ترتيب العرض – التعديلات بتشتغل بعد «حفظ على الموقع»</span></h3>
+    ${L.map((c, i) => `<div class="ed-item" style="display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center">
+      <div style="width:64px;height:64px;background:#f1f1f1 center/contain no-repeat;${thumb(c) ? `background-image:url('${esc(thumb(c))}')` : ""}"></div>
+      <div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="in" data-cn="${i}" value="${esc(c.name || "")}" style="max-width:240px;font-weight:700" aria-label="اسم القسم">
+        <span class="hint">${num(used(c.id))} منتج</span>
+        <label class="switch"><input type="checkbox" data-cnav="${i}" ${c.nav ? "checked" : ""}><i></i>في القايمة الزرقا</label>
+        <label class="switch"><input type="checkbox" data-chide="${i}" ${c.hide ? "" : "checked"}><i></i>ظاهر</label>
+        <span style="margin-inline-start:auto;display:flex;gap:6px"><button class="btn light sm" data-cmv="${i}:-1" ${i ? "" : "disabled"}>↑</button><button class="btn light sm" data-cmv="${i}:1" ${i < L.length - 1 ? "" : "disabled"}>↓</button>
+        <button class="btn red sm" data-cdel="${i}" ${used(c.id) ? 'disabled title="فيه منتجات في القسم ده – انقلها الأول"' : ""}>حذف</button></span></div>
+        <label class="hint" style="display:inline-flex;gap:6px;align-items:center;margin-top:6px">صورة القسم: <input type="file" accept="image/*" data-cimg="${i}" style="font-size:12px">${c.image ? `<button class="btn light sm" data-cimgx="${i}">شيل الصورة</button>` : ""}</label></div>
+    </div>`).join("")}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><input class="in" id="cNew" placeholder="اسم قسم جديد (مثلاً: أدوات الدهان)" style="max-width:280px"><button class="btn" id="cAdd">＋ إضافة قسم</button>
+      ${ACC.length ? `<button class="btn light" id="cAcc">＋ الأقسام المقترحة للمستلزمات (${ACC.map(a => a[1]).join("، ")})</button>` : ""}</div>
+    <p class="hint" style="margin-top:8px">لما تضيف منتج مستلزمات: اختار القسم بتاعه، واكتب ماركته الحقيقية في خانة «الماركة» (مش Jotun)، وارفع صورته.</p></div>
+  <div class="card"><h3>🛒 اقتراحات السلة</h3>
+    <p class="hint">لما العميل يكون شاري دهان، بيظهرله في السلة لحد 4 منتجات من دول يضيفها بضغطة. اختارها من مفتاح «🛒 يتقترح في السلة» في كارت كل منتج في «المنتجات والأسعار».</p>
+    <div class="grid g2">${fld("settings.suggestTitle", "العنوان اللي بيظهر للعميل", D.settings.suggestTitle || "ما تنساش مستلزمات الدهان")}</div>
+    ${SG.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${SG.map(p => `<span class="pill blue">${esc(p.ar)}</span>`).join("")}</div>` : `<p class="hint">لسه ما اخترتش منتجات.</p>`}
   </div>`;
 },
 partners() {
@@ -1527,10 +1574,25 @@ add() {
     const ar = $("#qAr").value.trim(); if (!ar) return toast("اكتب اسم المنتج");
     const en = $("#qEn").value.trim(), cat = $("#qCat").value, sizes = $("#qSizes").value.split(/[,،\s]+/).map(Number).filter(n => n > 0).sort((a, b) => a - b);
     const u = $("#qU").value, unit = $("#qPrice").value === "" ? null : +$("#qPrice").value;
-    D.products.push({id: uniqueId(en || "product"), active: true, cat, line: en.split(" ")[0] || "Jotun", ar, en, d: $("#qD").value.trim(), f: [], img: null, image: $("#qImg").value.trim() || null, col: "#8fa3b5",
+    const brand = ($("#qBrand") && $("#qBrand").value.trim()) || "Jotun", jb = /^(jotun|جوتن)$/i.test(brand);
+    D.products.push({id: uniqueId(en || "product"), active: true, cat, brand: jb ? null : brand.slice(0, 40), line: jb ? (en.split(" ")[0] || "Jotun") : "", ar, en, d: $("#qD").value.trim(), f: [], img: null, image: $("#qImg").value.trim() || null, col: "#8fa3b5",
       price: sizes.length ? null : unit, u, sizes: null, packs: sizes.length ? sizes.map(s => ({s, u, p: unit != null ? Math.round(unit * s) : null})) : null, cov: cat === "exterior" ? 9 : 11, url: null, best: false});
     changed(); toast("تمت الإضافة ✓"); pFilter = "all"; go("products"); openEditor(D.products.length - 1);
   };
+},
+cats() {
+  const edit = fn => { ensureCats(); fn(D.settings.cats); changed(); go("cats") };
+  $$("[data-cn]").forEach(i => i.onchange = () => { const v = i.value.trim().slice(0, 40); if (!v) return toast("اكتب اسم"); edit(C => C[+i.dataset.cn].name = v) });
+  $$("[data-cnav]").forEach(c => c.onchange = () => edit(C => C[+c.dataset.cnav].nav = c.checked));
+  $$("[data-chide]").forEach(c => c.onchange = () => edit(C => C[+c.dataset.chide].hide = !c.checked));
+  $$("[data-cmv]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.cmv.split(":").map(Number); edit(C => { [C[i], C[i + d]] = [C[i + d], C[i]] }) });
+  $$("[data-cdel]").forEach(b => b.onclick = () => { if (confirm("حذف القسم؟")) edit(C => C.splice(+b.dataset.cdel, 1)) });
+  $$("[data-cimgx]").forEach(b => b.onclick = () => edit(C => delete C[+b.dataset.cimgx].image));
+  $$("[data-cimg]").forEach(inp => inp.onchange = async () => { const f = inp.files[0]; if (!f) return; if (!SBC) return toast("رفع الصور محتاج Supabase");
+    try { const b = await shrinkPhoto(f, 400), r = await api("upimg", {folder: "cats", file: new File([b], "c.jpg", {type: "image/jpeg"})}); if (!r.ok) throw new Error(r.error); edit(C => C[+inp.dataset.cimg].image = r.url); toast("الصورة اتحطت ✓ متنساش «حفظ على الموقع»") } catch (e) { toast("ما اترفعتش: " + (e.message || "")) } });
+  const add = (id, name) => edit(C => { if (!C.some(c => c.id === id)) C.push({id, name}) });
+  $("#cAdd").onclick = () => { const n = $("#cNew").value.trim().slice(0, 40); if (!n) return toast("اكتب اسم القسم"); add("c-" + Date.now().toString(36), n) };
+  const acc = $("#cAcc"); if (acc) acc.onclick = () => edit(C => [["acc-materials", "مواد مساعدة"], ["acc-tools", "أدوات الدهان"], ["acc-protect", "الحماية والتغطية"], ["acc-safety", "السلامة"]].forEach(([id, name]) => { if (!C.some(c => c.id === id)) C.push({id, name}) }));
 },
 partners() {
   if (!SBC) return;
@@ -1689,6 +1751,10 @@ function bindProducts() {
     el.closest(".price-in").style.cssText = p.packs[j].p == null ? "border-color:#e9b949;background:#fffbf0" : "";
     el.closest(".pc").classList.toggle("missing", p.active !== false && !priced(p));
     changed();
+  });
+  $$("[data-psug]").forEach(el => el.onchange = () => {
+    const s = D.settings, id = D.products[+el.dataset.psug].id;
+    s.suggest = (Array.isArray(s.suggest) ? s.suggest : []).filter(x => x !== id); if (el.checked) s.suggest.push(id); changed();
   });
   $$("[data-pts]").forEach(el => el.onchange = () => {
     const s = D.settings, id = D.products[+el.dataset.pts].id;
