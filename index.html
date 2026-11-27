@@ -1245,7 +1245,8 @@ settings() {
       ${fld("settings.whatsapp", "رقم واتساب الطلبات (بالصيغة الدولية بدون +)", s.whatsapp, "text", 'dir="ltr"')}
       ${fld("settings.phoneDisplay", "رقم الهاتف كما يظهر", s.phoneDisplay, "text", 'dir="ltr"')}
       ${fld("settings.phone", "رقم الهاتف الدولي (للاتصال)", s.phone, "text", 'dir="ltr"')}
-      ${fld("settings.samplePrice", "سعر عيّنة اللون (فاضي = مجاناً)", s.samplePrice, "number", 'data-null="1"')}
+      <div class="f">${fld("settings.samplePrice", s.sampleByColour ? "سعر العيّنة «يبدأ من» (اختياري)" : "سعر عيّنة اللون (فاضي = مجاناً)", s.samplePrice, "number", 'data-null="1"')}
+        <label class="switch" style="margin-top:6px"><input type="checkbox" data-p="settings.sampleByColour" ${s.sampleByColour ? "checked" : ""}><i></i>السعر حسب اللون <span class="hint">(بيتأكد مع العميل قبل الدفع)</span></label></div>
       <label class="f" style="grid-column:1/-1"><span>ملاحظة الأسعار اللي بتظهر للعملاء</span><input class="in" data-p="settings.priceNote" value="${esc(s.priceNote || "")}"></label>
     </div></div>
     ${(() => { const P = payCfg(), age = daysSince(s.priceUpdated), sw = (k, label, hint) => `<label class="switch pay-sw"><input type="checkbox" data-p="settings.pay.${k}" ${P[k] !== false ? "checked" : ""}><i></i><span><b>${label}</b>${hint ? `<small>${hint}</small>` : ""}</span></label>`;
