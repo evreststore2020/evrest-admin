@@ -953,6 +953,16 @@ const slug = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").repl
 const uniqueId = base => { let id = slug(base), n = 2; while (D.products.some(p => p.id === id)) id = slug(base) + "-" + n++; return id };
 
 /* ================= عناصر قابلة للتعديل (باقات/آراء/أكواد/إعدادات) ================= */
+/* اختيار الساعة بالصبح وبالليل بدل نظام 24 ساعة (كل نص ساعة) */
+const hourLbl = h => { h = ((+h % 24) + 24) % 24; const H = Math.floor(h), M = Math.round((h - H) * 60), t = (H % 12 || 12) + ":" + String(M).padStart(2, "0"); return H === 0 && !M ? "12:00 منتصف الليل" : H === 12 && !M ? "12:00 الضهر" : t + (H < 12 ? " الصبح" : H < 17 ? " العصر" : " بالليل") };
+const hourOpts = cur => Array.from({length: 48}, (_, i) => i / 2).map(h => `<option value="${h}" ${+cur === h ? "selected" : ""}>${hourLbl(h)}</option>`).join("");
+document.addEventListener("change", e => {
+  const t = e.target; if (!D || !t.dataset) return;
+  if (t.dataset.dopen != null) { const d = +t.dataset.dopen, s = D.settings; s.closedDays = (s.closedDays || []).filter(x => x !== d); if (!t.checked) s.closedDays.push(d); changed(); go("settings") }
+  else if (t.dataset.dh) { const [d, k] = t.dataset.dh.split(":"), s = D.settings, H = s.dayHours = s.dayHours || {}, x = H[d] = H[d] || {}; x[k] = +t.value;
+    if ((x.o ?? s.openHour) === s.openHour && (x.c ?? s.closeHour) === s.closeHour) delete H[d]; changed() }
+});
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-dreset]"); if (b && D) { delete (D.settings.dayHours || {})[b.dataset.dreset]; changed(); go("settings") } });
 function setPath(path, val) { const k = path.split("."); let o = D; for (let i = 0; i < k.length - 1; i++) o = o[k[i]] = o[k[i]] || {}; o[k[k.length - 1]] = val }
 const fld = (path, label, val, type = "text", extra = "") => `<label class="f"><span>${label}</span><input class="in" type="${type}" data-p="${path}" ${type === "number" ? 'data-t="num"' : ""} value="${esc(val ?? "")}" ${extra}></label>`;
 document.addEventListener("input", e => {
@@ -1445,9 +1455,15 @@ settings() {
           return `<label class="f"><span>${n} ${v && !bad ? `<b style="color:var(--ok)">✓ شغال</b>` : bad ? `<b style="color:var(--red)">الرابط لازم يبدأ بـ https://</b>` : `<span style="color:#999">– مش متضاف</span>`}</span><input class="in" dir="ltr" data-p="settings.social.${k}" data-social="1" value="${esc(v)}" placeholder="${ph}"></label>` }).join("")}
       </div></div>
     <div class="card" style="margin-bottom:16px"><h3>المواعيد والحجز</h3><div class="grid g3">
-      ${fld("settings.openHour", "ساعة الفتح (0-23)", s.openHour, "number")}${fld("settings.closeHour", "ساعة الإغلاق (0-23)", s.closeHour, "number")}${fld("settings.bookingDaysAhead", "عدد أيام الحجز المتاحة", s.bookingDaysAhead, "number")}
+      <label class="f"><span>بيفتح الساعة (لكل الأيام)</span><select class="in" data-p="settings.openHour" data-t="num">${hourOpts(s.openHour ?? 9)}</select></label>
+      <label class="f"><span>بيقفل الساعة (لكل الأيام)</span><select class="in" data-p="settings.closeHour" data-t="num">${hourOpts(s.closeHour ?? 21)}</select></label>
+      ${fld("settings.bookingDaysAhead", "عدد أيام الحجز المتاحة", s.bookingDaysAhead, "number")}
+      <div class="f" style="grid-column:1/-1"><span>مواعيد كل يوم <span class="hint">(اقفل اليوم لو إجازة، أو غيّر مواعيده لو مختلفة عن الباقي)</span></span>
+        <div class="tbl-wrap"><table style="width:100%;border-collapse:collapse;font-size:14px">${[6, 0, 1, 2, 3, 4, 5].map(d => { const off = (s.closedDays || []).includes(d), x = (s.dayHours || {})[d] || {}; return `<tr style="border-top:1px solid var(--line)">
+          <td style="padding:6px;width:110px"><b>${DN[d]}</b></td>
+          <td style="padding:6px;width:120px"><label class="switch"><input type="checkbox" data-dopen="${d}" ${off ? "" : "checked"}><i></i>${off ? "إجازة" : "شغال"}</label></td>
+          <td style="padding:6px"><span data-drow="${d}" style="display:${off ? "none" : "flex"};gap:6px;align-items:center;flex-wrap:wrap">من <select class="in" data-dh="${d}:o" style="width:auto">${hourOpts(x.o ?? s.openHour ?? 9)}</select> لحد <select class="in" data-dh="${d}:c" style="width:auto">${hourOpts(x.c ?? s.closeHour ?? 21)}</select>${x.o != null || x.c != null ? ` <button class="btn light sm" data-dreset="${d}">زي باقي الأيام</button>` : ""}</span></td></tr>` }).join("")}</table></div></div>
       <label class="f" style="grid-column:1/-1"><span>مواعيد المعاينة المتاحة (مفصولة بفاصلة)</span><input class="in" dir="ltr" data-p="settings.bookingSlots" data-t="slots" value="${esc((s.bookingSlots || []).join(", "))}"></label>
-      <div class="f daysel" style="grid-column:1/-1"><span>أيام الإجازة</span><div style="display:flex;gap:14px;flex-wrap:wrap;color:var(--ink)">${DN.map((d, i) => `<label class="switch"><input type="checkbox" value="${i}" data-p="settings.closedDays" data-t="days" ${(s.closedDays || []).includes(i) ? "checked" : ""}><i></i>${d}</label>`).join("")}</div></div>
     </div></div>
     <div class="card" style="margin-bottom:16px"><h3>جوجل والإعلانات</h3><div class="grid g3">
       ${fld("settings.siteUrl", "دومين الموقع (مهم لجوجل)", s.siteUrl, "text", 'dir="ltr"')}
