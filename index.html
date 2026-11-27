@@ -215,6 +215,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="cats"><span class="ic">🗂️</span>الأقسام والمستلزمات</button>
       <button data-v="videos"><span class="ic">▶</span>الفيديوهات</button>
       <button data-v="photos"><span class="ic">📸</span>صور أعمالنا</button>
+      <button data-v="catalogs"><span class="ic">📚</span>الكتالوجات والأفكار</button>
       <button data-v="packages"><span class="ic">🏠</span>الباقات</button>
       <button data-v="reviews"><span class="ic">★</span>آراء العملاء</button>
       <button data-v="codes"><span class="ic">%</span>أكواد الخصم</button>
@@ -483,6 +484,8 @@ async function sbApi(action, x = {}) {
         for (const r of rows || []) for (const p of Object.values(r.docs || {})) { try { await SBC.removeFile("docs", p) } catch (e) {} }
         await SBC.del("members", "phone=eq." + encodeURIComponent(x.phone)); return {ok: true};
       }
+      case "catUpload": { const ext = x.file.type === "application/pdf" ? "pdf" : x.file.type === "image/png" ? "png" : x.file.type === "image/webp" ? "webp" : "jpg", path = "files/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + "." + ext; await SBC.upload("catalogs", path, x.file, x.onProgress); return {ok: true, url: SBC.publicUrl("catalogs", path)} }
+      case "catDel": { const pre = SBC.publicUrl("catalogs", ""); if (String(x.url || "").startsWith(pre)) { try { await SBC.removeFile("catalogs", x.url.slice(pre.length)) } catch (e) {} } return {ok: true} }
       case "upimg": { const path = String(x.folder || "misc").replace(/[^a-z-]/g, "") + "/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + ".jpg"; await SBC.upload("photos", path, x.file); return {ok: true, url: SBC.publicUrl("photos", path)} }
       case "partners": { const [pros, works, reviews] = await Promise.all([sbAll("pros", "sort.asc,created_at.asc"), sbAll("works", "created_at.desc,id.desc"), sbAll("reviews", "created_at.desc,id.desc")]); return {ok: true, pros, works, reviews} }
       case "proAdd": await SBC.insert("pros", x.row); return {ok: true};
@@ -736,7 +739,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -1269,6 +1272,43 @@ sponsors() {
       ${L.length ? L.map(card).join("") : `<p class="hint">${all.length ? "مفيش نتايج." : "لسه مفيش طلبات جاية عن طريق داعم. ابعت لكل نقاش أو عميل رابط الدعوة بتاعه، وأول ما حد يطلب عن طريقه هيظهر هنا."}</p>`}
     </div>`;
 },
+catalogs() {
+  const L = D.settings.catalogs || [], TP = {pdf: "PDF", image: "صورة", link: "لينك"};
+  const tags = [...new Set(["تشطيب", "ديكور", "ألوان", "أرضيات", "واجهات", ...L.map(c => c.tag).filter(Boolean)])];
+  const cov = c => c.cover || (c.type === "image" ? c.url : "");
+  return `<div class="add-ways" style="margin-bottom:20px">
+    <div class="card"><h3>⬆️ رفع كتالوج من جهازك (PDF أو صورة)</h3><div class="grid">
+      <label class="f"><span><b>الملف</b> (PDF أو صورة – لحد 50 ميجا)</span><input class="in" type="file" id="ctFile" accept="application/pdf,image/jpeg,image/png,image/webp"></label>
+      <label class="f"><span>العنوان</span><input class="in" id="ctTitle" placeholder="مثال: كتالوج جوتن ٢٠٢٧ – ألوان الداخلي"></label>
+      <label class="f"><span>وصف قصير (اختياري)</span><input class="in" id="ctDesc"></label>
+      <div class="grid g2"><label class="f"><span>التصنيف</span><input class="in" id="ctTag" list="ctTags" placeholder="تشطيب / ديكور…"></label>
+      <label class="f"><span>صورة الغلاف (اختياري)</span><input class="in" type="file" id="ctCover" accept="image/*"></label></div>
+      <button class="btn" id="ctUp">رفع الكتالوج</button><div class="hint" id="ctProg"></div>
+      <p class="hint">لو الملف أكبر من 50 ميجا ارفعه على Google Drive وضيفه كلينك من الكارت اللي جنبه.</p></div></div>
+    <div class="card"><h3>🔗 إضافة لينك</h3><div class="grid">
+      <label class="f"><span><b>اللينك</b></span><input class="in" id="clUrl" dir="ltr" placeholder="https://… (كتالوج جوتن، Pinterest، Google Drive، يوتيوب…)"></label>
+      <label class="f"><span>العنوان</span><input class="in" id="clTitle"></label>
+      <label class="f"><span>وصف قصير (اختياري)</span><input class="in" id="clDesc"></label>
+      <div class="grid g2"><label class="f"><span>التصنيف</span><input class="in" id="clTag" list="ctTags"></label>
+      <label class="f"><span>صورة الغلاف (اختياري)</span><input class="in" type="file" id="clCover" accept="image/*"></label></div>
+      <button class="btn" id="clAdd">إضافة اللينك</button></div></div>
+  </div>
+  <datalist id="ctTags">${tags.map(t => `<option value="${esc(t)}">`).join("")}</datalist>
+  <div class="card"><h3>الكتالوجات على المتجر (${num(L.length)}) <span class="hint" style="margin-inline-start:auto;font-weight:400">الترتيب هنا هو ترتيب العرض</span></h3>
+    <div class="grid g2" style="margin-bottom:12px">${fld("settings.catalogsTitle", "عنوان القسم في المتجر", D.settings.catalogsTitle || "كتالوجات التشطيب والديكور")}
+      <label class="switch" style="align-self:end;margin-bottom:10px"><input type="checkbox" data-p="settings.catalogsNav" ${D.settings.catalogsNav !== false ? "checked" : ""}><i></i>لينك «الكتالوجات» في القايمة الزرقا</label></div>
+    ${L.length ? L.map((c, i) => `<div class="ed-item" style="display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start">
+      <div style="aspect-ratio:4/3;background:#eef1f7 center/cover no-repeat;${cov(c) ? `background-image:url('${esc(cov(c))}')` : ""};display:grid;place-items:center;font-size:34px">${cov(c) ? "" : c.type === "pdf" ? "📄" : "🔗"}</div>
+      <div><div class="hd" style="margin-bottom:8px;flex-wrap:wrap;gap:6px"><span class="pill grey">${TP[c.type] || "لينك"}</span>
+        <label class="switch"><input type="checkbox" data-p="settings.catalogs.${i}.active" ${c.active !== false ? "checked" : ""}><i></i>ظاهر</label>
+        <button class="btn light sm" data-ctmv="${i}:-1" ${i ? "" : "disabled"}>↑</button><button class="btn light sm" data-ctmv="${i}:1" ${i < L.length - 1 ? "" : "disabled"}>↓</button>
+        <a class="btn light sm" href="${esc(c.url)}" target="_blank" rel="noopener">فتح ↗</a>
+        <label class="btn light sm" style="cursor:pointer">🖼️ غلاف<input type="file" accept="image/*" data-ctcov="${i}" hidden></label>
+        <button class="btn red sm" data-ctdel="${i}">حذف</button></div>
+        <div class="grid g3">${fld(`settings.catalogs.${i}.title`, "العنوان", c.title)}${fld(`settings.catalogs.${i}.desc`, "الوصف", c.desc)}${fld(`settings.catalogs.${i}.tag`, "التصنيف", c.tag, "text", 'list="ctTags"')}</div></div>
+    </div>`).join("") : `<p class="hint">لسه مفيش كتالوجات. القسم مش هيظهر في المتجر غير لما تضيف واحد.</p>`}
+  </div>`;
+},
 photos() {
   const L = D.settings.projects || [];
   return `<div class="card" style="margin-bottom:20px"><h3>📸 رفع صور من شغلكم الحقيقي</h3>
@@ -1648,6 +1688,34 @@ sponsors() {
     const note = prompt("السبب:", "") ?? ""; move(b.dataset.radj, n, "adjust", note);
   });
   $$("[data-rwdel]").forEach(b => b.onclick = async () => { if (!confirm("حذف الحركة دي من السجل؟")) return; try { await api("rewardDel", {id: b.dataset.rwdel}); REWARDS = null; loadRewards(); toast("اتمسحت ✓") } catch (e) { toast("ما اتمسحتش") } });
+},
+catalogs() {
+  const publish = async () => { try { const s = await api("save", {data: D}); if (s.ok) { PUB = JSON.stringify(D); ls.del(DRAFT); refreshTop() } } catch (e) {} };
+  const okU = u => /^https?:\/\/[^\s"'<>]+$/.test(u);
+  const coverOf = async inp => { const f = inp && inp.files[0]; if (!f) return null; const b = await shrinkPhoto(f, 900), r = await api("upimg", {folder: "covers", file: new File([b], "c.jpg", {type: "image/jpeg"})}); if (!r.ok) throw new Error(r.error); return r.url };
+  const add = async c => { (D.settings.catalogs = D.settings.catalogs || []).unshift(Object.assign({id: "ct" + Date.now().toString(36), active: true}, c)); changed(); await publish(); toast("اتضاف ✓ وظاهر في المتجر"); go("catalogs") };
+  $("#ctUp").onclick = async () => {
+    const f = $("#ctFile").files[0], prog = $("#ctProg"), b = $("#ctUp"); if (!f) return toast("اختار الملف الأول"); if (!SBC) return toast("الرفع محتاج Supabase");
+    const pdf = f.type === "application/pdf"; if (!pdf && !/^image\//.test(f.type)) return toast("الملف لازم يكون PDF أو صورة"); if (f.size > 50 * 1048576) return toast("الملف أكبر من 50 ميجا – ارفعه على Google Drive وضيفه كلينك");
+    b.disabled = true; prog.textContent = "جاري التجهيز…";
+    try {
+      const file = pdf ? f : new File([await shrinkPhoto(f, 2200)], "i.jpg", {type: "image/jpeg"});
+      const r = await api("catUpload", {file, onProgress: p => prog.textContent = `جاري الرفع… ${num(p)}٪ – سيب الصفحة مفتوحة`}); if (!r.ok) throw new Error(r.error);
+      const cover = await coverOf($("#ctCover"));
+      await add({type: pdf ? "pdf" : "image", url: r.url, cover: cover || (pdf ? null : r.url), title: $("#ctTitle").value.trim().slice(0, 100) || f.name.replace(/\.[^.]+$/, ""), desc: $("#ctDesc").value.trim().slice(0, 200), tag: $("#ctTag").value.trim().slice(0, 30)});
+    } catch (e) { toast("ما اترفعش: " + (e.message || "جرّب تاني")) }
+    b.disabled = false; prog.textContent = "";
+  };
+  $("#clAdd").onclick = async () => {
+    const u = $("#clUrl").value.trim(); if (!okU(u)) return toast("اكتب لينك صحيح يبدأ بـ https://");
+    const b = $("#clAdd"); b.disabled = true;
+    try { const cover = await coverOf($("#clCover")); await add({type: "link", url: u, cover, title: $("#clTitle").value.trim().slice(0, 100) || "كتالوج", desc: $("#clDesc").value.trim().slice(0, 200), tag: $("#clTag").value.trim().slice(0, 30)}) } catch (e) { toast("ما اتضافش: " + (e.message || "")) }
+    b.disabled = false;
+  };
+  $$("[data-ctmv]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.ctmv.split(":").map(Number), A = D.settings.catalogs; [A[i], A[i + d]] = [A[i + d], A[i]]; changed(); go("catalogs") });
+  $$("[data-ctcov]").forEach(inp => inp.onchange = async () => { try { const u = await coverOf(inp); if (u) { D.settings.catalogs[+inp.dataset.ctcov].cover = u; changed(); go("catalogs"); toast("الغلاف اتغير ✓ متنساش «حفظ على الموقع»") } } catch (e) { toast("ما اترفعش") } });
+  $$("[data-ctdel]").forEach(b => b.onclick = async () => { const i = +b.dataset.ctdel, c = D.settings.catalogs[i]; if (!confirm(`حذف «${c.title || "الكتالوج"}» من المتجر نهائياً؟`)) return;
+    D.settings.catalogs.splice(i, 1); changed(); go("catalogs"); if (SBC && c.type !== "link") { try { await api("catDel", {url: c.url}) } catch (e) {} } await publish(); toast("اتمسح ✓") });
 },
 photos() {
   const up = $("#phUp"), prog = $("#phProg");
