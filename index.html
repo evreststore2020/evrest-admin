@@ -209,6 +209,7 @@ button.kpi:hover{border-color:var(--ink)}
       <button data-v="customers"><span class="ic">👤</span>العملاء المسجلين<span class="badge" id="bdCust" hidden></span></button>
       <button data-v="club"><span class="ic">🏅</span>نادي إفرست والشركاء<span class="badge" id="bdClub" hidden></span></button>
       <button data-v="sponsors"><span class="ic">🎁</span>الداعمين والنقط</button>
+      <button data-v="marketing"><span class="ic">📣</span>التسويق والعروض<span class="badge" id="bdMkt" hidden></span></button>
       <button data-v="partners"><span class="ic">⭐</span>الشركاء والتقييمات<span class="badge" id="bdPart" hidden></span></button>
       <button data-v="products"><span class="ic">🎨</span>المنتجات والأسعار<span class="badge warn" id="bdMissing" hidden></span></button>
       <button data-v="add"><span class="ic">＋</span>إضافة منتج</button>
@@ -390,6 +391,22 @@ function sponsorList() {
   return [...map.values()].sort((a, b) => b.balance - a.balance || b.sales - a.sales);
 }
 let spQ = "";
+/* ================= التسويق: شريط العرض + السلات المتروكة + طلب تقييم جوجل ================= */
+let CARTS = null, CARTS_ERR = false;
+async function loadCarts() { if (!SBC) return; try { const r = await api("carts"); if (r.ok) { CARTS = r.carts || []; CARTS_ERR = false } else throw 0 } catch (e) { CARTS = CARTS || []; CARTS_ERR = true } refreshBadges(); if (view === "marketing") go("marketing") }
+const fillT = (t, v) => String(t).replace(/\{(\w+)\}/g, (m, k) => v[k] ?? "");
+const MSG_CART = "أهلاً {name}\nلاحظنا إن فيه منتجات مستنياك في سلتك على متجر إفرست:\n{items}\nلو محتاج مساعدة في اختيار اللون أو عندك سؤال عن التوصيل إحنا معاك. تقدر تكمّل طلبك من هنا: {link}";
+const MSG_REV = "أهلاً {name}\nشكراً إنك اخترت إفرست للدهانات. لو عجبتك الخدمة، تقييمك على جوجل بيفرق معانا جداً (دقيقة واحدة):\n{google}\nوتقدر كمان تقيّمنا على الموقع: {site}";
+const googleLink = () => D.settings.googleReviewUrl || "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("إفرست للدهانات المرج");
+const reviewAsk = e => waLink(e.phone, fillT(D.settings.reviewMsg || MSG_REV, {name: String(e.name || "").split(" ")[0], google: googleLink(), site: STORE_BASE + "#reviews"}));
+const ASKED = "everest-asked-reviews";
+/* سلة متروكة = عدّى عليها ساعة ومفيش طلب من نفس الرقم بعدها */
+function abandoned() {
+  const ords = (EVENTS || []).filter(e => e.type === "order");
+  return (CARTS || []).map(c => Object.assign({}, c, {done: ords.some(o => nph(o.phone) === nph(c.phone) && new Date(o.date) >= new Date(c.updated_at))}))
+    .filter(c => !c.done && Date.now() - new Date(c.updated_at) > 3600e3 && Date.now() - new Date(c.updated_at) < 30 * 864e5 && (c.items || []).length);
+}
+const toLocalDT = iso => { if (!iso) return ""; const d = new Date(iso); if (isNaN(d)) return ""; const p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}` };
 /* ================= شركاء النادي: صفحاتهم + صور شغلهم + تقييمات العملاء ================= */
 let PARTS = null, PARTS_ERR = false, ptab = "works", wSt = "جديد", rvT = "all";
 async function loadParts() {
@@ -449,7 +466,7 @@ const SBC = window.supaConfigured && window.supaConfigured() ? window.Supa(windo
 /* Supabase بيرجّع 1000 صف بالكتير في المرة: بنجيب على دفعات */
 async function sbAll(table, order, max = 50000) {
   const out = new Map();
-  for (let o = 0; o < max; o += 1000) { const r = await SBC.select(table, `select=*&order=${order}&limit=1000&offset=${o}`) || []; r.forEach(x => out.set(x.id ?? x.key, x)); if (r.length < 1000) break }
+  for (let o = 0; o < max; o += 1000) { const r = await SBC.select(table, `select=*&order=${order}&limit=1000&offset=${o}`) || []; r.forEach(x => out.set(x.id ?? x.key ?? x.phone, x)); if (r.length < 1000) break }
   return [...out.values()];
 }
 async function sbApi(action, x = {}) {
@@ -487,6 +504,9 @@ async function sbApi(action, x = {}) {
       case "catUpload": { const ext = x.file.type === "application/pdf" ? "pdf" : x.file.type === "image/png" ? "png" : x.file.type === "image/webp" ? "webp" : "jpg", path = "files/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + "." + ext; await SBC.upload("catalogs", path, x.file, x.onProgress); return {ok: true, url: SBC.publicUrl("catalogs", path)} }
       case "catDel": { const pre = SBC.publicUrl("catalogs", ""); if (String(x.url || "").startsWith(pre)) { try { await SBC.removeFile("catalogs", x.url.slice(pre.length)) } catch (e) {} } return {ok: true} }
       case "upimg": { const path = String(x.folder || "misc").replace(/[^a-z-]/g, "") + "/" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + ".jpg"; await SBC.upload("photos", path, x.file); return {ok: true, url: SBC.publicUrl("photos", path)} }
+      case "carts": return {ok: true, carts: await sbAll("carts", "updated_at.desc,phone.asc")};
+      case "cartSet": await SBC.update("carts", "phone=eq." + encodeURIComponent(x.phone), x.patch); return {ok: true};
+      case "cartDel": await SBC.del("carts", "phone=eq." + encodeURIComponent(x.phone)); return {ok: true};
       case "partners": { const [pros, works, reviews] = await Promise.all([sbAll("pros", "sort.asc,created_at.asc"), sbAll("works", "created_at.desc,id.desc"), sbAll("reviews", "created_at.desc,id.desc")]); return {ok: true, pros, works, reviews} }
       case "proAdd": await SBC.insert("pros", x.row); return {ok: true};
       case "proSet": await SBC.update("pros", "id=eq." + encodeURIComponent(x.id), x.patch); return {ok: true};
@@ -711,6 +731,7 @@ function refreshBadges() {
   const n = EVENTS ? EVS().filter(e => e.status === "جديد").length : 0; $("#bdEvents").hidden = !n; $("#bdEvents").textContent = num(n);
   const c = EVENTS ? EVENTS.filter(e => e.type === "signup" && e.status === "جديد").length : 0; $("#bdCust").hidden = !c; $("#bdCust").textContent = num(c);
   const cl = MEMBERS ? clubList().filter(m => m.status === "جديد").length : 0; $("#bdClub").hidden = !cl; $("#bdClub").textContent = num(cl);
+  const ab = CARTS && EVENTS ? abandoned().filter(c => !c.contacted_at).length : 0; $("#bdMkt").hidden = !ab; $("#bdMkt").textContent = num(ab);
   const pw = PARTS ? PARTS.works.filter(w => w.status === "جديد").length : 0; $("#bdPart").hidden = !pw; $("#bdPart").textContent = num(pw);
 }
 function validate() {
@@ -739,7 +760,7 @@ $("#previewBtn").onclick = () => { const err = validate(); if (err) return toast
 addEventListener("beforeunload", e => { if (D && MODE === "api" && dirty()) { e.preventDefault(); e.returnValue = "" } });
 
 /* ================= التنقل ================= */
-const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
+const TITLES = {home: "الرئيسية", events: "الطلبات والنشاط", customers: "العملاء المسجلين", club: "نادي إفرست والشركاء", sponsors: "الداعمين والنقط", partners: "الشركاء والتقييمات", marketing: "التسويق والعروض",products: "المنتجات والأسعار", add: "إضافة منتج", videos: "الفيديوهات", photos: "صور أعمالنا", catalogs: "الكتالوجات والأفكار", cats: "الأقسام والمستلزمات", packages: "الباقات", reviews: "آراء العملاء", codes: "أكواد الخصم", settings: "الإعدادات", guide: "الاستضافة والمساعدة"};
 function go(v) {
   if (!TITLES[v]) v = "home"; view = v; location.hash = v;
   $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
@@ -752,10 +773,12 @@ $("#menuT").onclick = () => $("#side").classList.toggle("open");
 document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); if (g.dataset.filter) pFilter = g.dataset.filter; if (g.dataset.etype) eType = g.dataset.etype; go(g.dataset.go) } });
 
 /* ================= الأحداث ================= */
+/* علامة «اتطلب تقييم» (على الجهاز ده) */
+document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("[data-asked]"); if (a) { const s = new Set(ls.get(ASKED, []) || []); s.add(a.dataset.asked); ls.set(ASKED, [...s].slice(-500)); setTimeout(() => { if (view === "marketing") go("marketing") }, 600) } });
 async function loadEvents() {
   if (MODE !== "api") return;
   try { const r = await api("events", {limit: 2000}); if (r.ok) EVENTS = r.events } catch (e) {}
-  refreshBadges(); if (view === "events" || view === "home" || view === "customers" || view === "sponsors") go(view);
+  refreshBadges(); if (view === "events" || view === "home" || view === "customers" || view === "sponsors" || view === "marketing") go(view);
 }
 const ago = iso => { const d = new Date(iso), s = (Date.now() - d) / 1000; if (s < 60) return "الآن"; if (s < 3600) return `منذ ${num(Math.floor(s / 60))} دقيقة`; if (s < 86400) return `منذ ${num(Math.floor(s / 3600))} ساعة`; if (s < 7 * 86400) return `منذ ${num(Math.floor(s / 86400))} يوم`; return d.toLocaleDateString("ar-EG", {day: "numeric", month: "long"}) };
 const waLink = (phone, msg) => { let p = String(phone || "").replace(/[^\d]/g, ""); if (p.startsWith("0")) p = "2" + p; return `https://wa.me/${p}?text=${encodeURIComponent(String(msg).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, "").replace(/[ \t]{2,}/g, " ").trim())}` };
@@ -771,6 +794,7 @@ function evCard(e) {
     </div>
     <div class="acts">
       <select class="in" data-status="${esc(e.id)}">${STATUSES.map(s => `<option ${s === e.status ? "selected" : ""}>${s}</option>`).join("")}</select>
+      ${e.phone && e.type === "order" && e.status === "مكتمل" ? `<a class="btn sm" target="_blank" href="${reviewAsk(e)}" data-asked="${esc(e.id)}">⭐ اطلب تقييم</a>` : ""}
       ${e.phone ? `<a class="btn green sm" target="_blank" href="${waLink(e.phone, `أهلاً ${e.name || ""}، معاك إفرست للدهانات بخصوص ${t[1]} اللي بعته من الموقع.`)}">واتساب العميل</a><a class="btn light sm" href="tel:${esc(e.phone)}">اتصال</a>` : ""}
     </div>
   </div>`;
@@ -1183,6 +1207,33 @@ cats() {
     <div class="grid g2">${fld("settings.suggestTitle", "العنوان اللي بيظهر للعميل", D.settings.suggestTitle || "ما تنساش مستلزمات الدهان")}</div>
     ${SG.length ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${SG.map(p => `<span class="pill blue">${esc(p.ar)}</span>`).join("")}</div>` : `<p class="hint">لسه ما اخترتش منتجات.</p>`}
   </div>`;
+},
+marketing() {
+  const P = D.settings.promo || {}, A = CARTS && EVENTS ? abandoned() : null, asked = new Set(ls.get(ASKED, []) || []);
+  const done = (EVENTS || []).filter(e => e.type === "order" && e.status === "مكتمل" && e.phone && Date.now() - new Date(e.date) < 90 * 864e5);
+  const live = P.on && P.text && !(P.until && new Date(P.until) < Date.now());
+  return `<div class="card" style="margin-bottom:16px"><h3>📣 شريط العرض فوق الصفحة ${live ? '<span class="pill ok">ظاهر دلوقتي</span>' : '<span class="pill grey">مش ظاهر</span>'}</h3>
+      <label class="switch" style="margin-bottom:10px"><input type="checkbox" data-p="settings.promo.on" ${P.on ? "checked" : ""}><i></i><b>شغّل الشريط</b></label>
+      <div class="grid g2">
+        <label class="f" style="grid-column:1/-1"><span>نص العرض</span><input class="in" data-p="settings.promo.text" maxlength="140" value="${esc(P.text || "")}" placeholder="مثال: 🚚 توصيل مجاني للطلبات فوق 3,000 ج.م لحد آخر الشهر"></label>
+        <label class="f"><span>ينتهي في (اختياري – بيظهر عدّاد تنازلي)</span><input class="in" type="datetime-local" data-promo-until value="${esc(toLocalDT(P.until))}"></label>
+        <label class="f"><span>اللون</span><select class="in" data-p="settings.promo.color">${[["gold", "أصفر"], ["red", "أحمر"], ["blue", "أزرق غامق"], ["green", "أخضر"]].map(([k, n]) => `<option value="${k}" ${(P.color || "gold") === k ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+        <label class="f"><span>كلمة الزرار (اختياري)</span><input class="in" data-p="settings.promo.cta" maxlength="30" value="${esc(P.cta || "")}" placeholder="اطلب دلوقتي"></label>
+        <label class="f"><span>الزرار بيودّي على (اختياري)</span><input class="in" dir="ltr" data-p="settings.promo.link" value="${esc(P.link || "")}" placeholder="#shop أو ?cat=acc-tools#shop أو https://…"></label>
+      </div>
+      <p class="hint">الشريط بيختفي لوحده لما الوقت يخلص. العميل يقدر يقفله بـ ✕. التعديلات بتشتغل بعد «حفظ على الموقع».</p></div>
+    <div class="card" style="margin-bottom:16px"><h3>🛒 السلات المتروكة ${A ? `<span class="pill ${A.length ? "warn" : "grey"}">${num(A.length)}</span>` : ""}<button class="btn light sm" id="mkRefresh" style="margin-inline-start:auto">↻ تحديث</button></h3>
+      <p class="hint">عملاء متسجّلين حطّوا منتجات في السلة من أكتر من ساعة وما طلبوش. ابعتلهم رسالة تفكير – ناس كتير بتكمّل الطلب بعدها.</p>
+      ${CARTS_ERR ? `<div class="notice warn">⚠ جدول السلات مش متجهز – شغّل ملف supabase-marketing.sql في Supabase.</div>` : !A ? `<div class="empty">جاري التحميل…</div>` : A.length ? A.map(c => `<div class="ed-item" style="${c.contacted_at ? "opacity:.65" : ""}"><div class="hd" style="flex-wrap:wrap;gap:8px"><b>${esc(c.name || "عميل")}</b><span class="hint" dir="ltr">${esc(c.phone)}</span><span class="hint">· ${ago(c.updated_at)}</span>${c.total ? `<span class="pill grey">${money(c.total)}</span>` : ""}${c.contacted_at ? `<span class="pill ok">✓ اتبعتله ${ago(c.contacted_at)}</span>` : ""}
+          <span style="margin-inline-start:auto;display:flex;gap:6px"><a class="btn green sm" target="_blank" rel="noopener" data-cartwa="${esc(c.phone)}" href="${waLink(c.phone, fillT(D.settings.cartMsg || MSG_CART, {name: String(c.name || "").split(" ")[0], items: c.items.map(i => "- " + (i.name || i.id) + (i.n > 1 ? " × " + i.n : "")).join("\n"), link: STORE_BASE}))}">📲 فكّره على واتساب</a><button class="btn red sm" data-cartdel="${esc(c.phone)}">🗑</button></span></div>
+        <div class="hint" style="margin-top:6px">${c.items.map(i => esc(i.name || i.id) + (i.n > 1 ? " × " + num(i.n) : "")).join(" · ")}</div></div>`).join("") : `<p class="hint">مفيش سلات متروكة دلوقتي 👌</p>`}
+      <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">✏️ تعديل نص رسالة التفكير</summary><label class="f" style="margin-top:8px"><span>المتغيرات: {name} الاسم · {items} المنتجات · {link} لينك المتجر</span><textarea class="in" rows="5" data-p="settings.cartMsg">${esc(D.settings.cartMsg || MSG_CART)}</textarea></label></details></div>
+    <div class="card"><h3>⭐ اطلب تقييم جوجل من العملاء</h3>
+      <p class="hint">تقييمات جوجل هي أكتر حاجة بتجيب عملاء جداد من البحث والخرايط. بعد ما الطلب يتسلّم (حالته «مكتمل») ابعت للعميل رسالة شكر ولينك التقييم.</p>
+      <div class="grid g2">${fld("settings.googleReviewUrl", "لينك تقييم جوجل بتاع المحل (من Google Business ← «اطلب تقييمات»)", D.settings.googleReviewUrl, "text", 'dir="ltr" placeholder="https://g.page/r/…/review"')}</div>
+      ${D.settings.googleReviewUrl ? "" : `<p class="hint" style="color:var(--red)">لحد ما تحط لينك التقييم، الرسالة هتبعت لينك بحث على خرايط جوجل.</p>`}
+      ${!EVENTS ? `<div class="empty">جاري التحميل…</div>` : done.length ? done.map(e => `<div class="ed-item" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;${asked.has(e.id) ? "opacity:.6" : ""}"><b>${esc(e.name || "عميل")}</b><span class="hint" dir="ltr">${esc(e.phone)}</span><span class="hint">${esc((e.pay && e.pay.no) || "")} · ${ago(e.date)}</span>${asked.has(e.id) ? '<span class="pill ok">✓ اتطلب</span>' : ""}<a class="btn sm" style="margin-inline-start:auto" target="_blank" rel="noopener" href="${reviewAsk(e)}" data-asked="${esc(e.id)}">⭐ اطلب تقييم</a></div>`).join("") : `<p class="hint">مفيش طلبات «مكتمل» في آخر 3 شهور. غيّر حالة الطلب لـ «مكتمل» بعد التسليم وهيظهر هنا.</p>`}
+      <details style="margin-top:10px"><summary class="hint" style="cursor:pointer">✏️ تعديل نص رسالة التقييم</summary><label class="f" style="margin-top:8px"><span>المتغيرات: {name} الاسم · {google} لينك جوجل · {site} لينك التقييم على الموقع</span><textarea class="in" rows="5" data-p="settings.reviewMsg">${esc(D.settings.reviewMsg || MSG_REV)}</textarea></label></details></div>`;
 },
 partners() {
   if (!SBC) return `<div class="notice blue">الشركاء والتقييمات بيشتغلوا لما اللوحة تكون متوصّلة بـ Supabase.</div>`;
@@ -1649,6 +1700,13 @@ cats() {
   const add = (id, name) => edit(C => { if (!C.some(c => c.id === id)) C.push({id, name}) });
   $("#cAdd").onclick = () => { const n = $("#cNew").value.trim().slice(0, 40); if (!n) return toast("اكتب اسم القسم"); add("c-" + Date.now().toString(36), n) };
   const acc = $("#cAcc"); if (acc) acc.onclick = () => edit(C => [["acc-materials", "مواد مساعدة"], ["acc-tools", "أدوات الدهان"], ["acc-protect", "الحماية والتغطية"], ["acc-safety", "السلامة"]].forEach(([id, name]) => { if (!C.some(c => c.id === id)) C.push({id, name}) }));
+},
+marketing() {
+  if (!EVENTS) loadEvents(); if (!CARTS && SBC) loadCarts();
+  const u = $("[data-promo-until]"); if (u) u.onchange = () => { D.settings.promo = D.settings.promo || {}; D.settings.promo.until = u.value ? new Date(u.value).toISOString() : null; changed() };
+  const rf = $("#mkRefresh"); if (rf) rf.onclick = () => { CARTS = null; go("marketing"); loadCarts(); loadEvents() };
+  $$("[data-cartwa]").forEach(a => a.addEventListener("click", async () => { try { await api("cartSet", {phone: a.dataset.cartwa, patch: {contacted_at: new Date().toISOString()}}) } catch (e) {} setTimeout(loadCarts, 800) }));
+  $$("[data-cartdel]").forEach(b => b.onclick = async () => { if (!confirm("مسح السلة دي من القايمة؟")) return; try { await api("cartDel", {phone: b.dataset.cartdel}) } catch (e) {} loadCarts() });
 },
 partners() {
   if (!SBC) return;
