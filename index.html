@@ -848,6 +848,8 @@ function validate() {
 }
 $("#publishBtn").onclick = async () => {
   const err = validate(); if (err) return toast(err);
+  /* نسبة خصم الترحيب بتتاخد من الكود نفسه (لو اتعدّلت في «أكواد الخصم») */
+  if (D.settings.welcome && D.settings.welcome.code) { const c = (D.discountCodes || []).find(x => x.code === D.settings.welcome.code); D.settings.welcome.pct = c && c.active ? +c.percent : null }
   if (MODE === "file") {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(D, null, 2)], {type: "application/json"})); a.download = "store.json"; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1500);
@@ -1421,6 +1423,15 @@ marketing() {
         <label class="f"><span>الزرار بيودّي على (اختياري)</span><input class="in" dir="ltr" data-p="settings.promo.link" value="${esc(P.link || "")}" placeholder="#shop أو ?cat=acc-tools#shop أو https://…"></label>
       </div>
       <p class="hint">الشريط بيختفي لوحده لما الوقت يخلص. العميل يقدر يقفله بـ ✕. التعديلات بتشتغل بعد «حفظ على الموقع».</p></div>` : ""}
+    ${ADM() ? (() => { const W = D.settings.welcome || {}, C = (D.discountCodes || []).filter(c => c.code), cur = C.find(c => c.code === W.code); return `<div class="card" style="margin-bottom:16px"><h3>🎁 خصم الترحيب للمسجّلين الجداد ${W.on && cur && cur.active ? '<span class="pill ok">شغّال</span>' : '<span class="pill grey">مقفول</span>'}</h3>
+      <p class="hint">الزائر الجديد بيشوف في شاشة التسجيل «سجّل وخد خصم»، وبعد ما يسجّل الكود يظهرله ويتطبق على سلته تلقائي. والزائر اللي دخل من غير تسجيل بتظهرله رسالة صغيرة تفكّره بعد كام ثانية.</p>
+      <label class="switch" style="margin-bottom:10px"><input type="checkbox" data-p="settings.welcome.on" ${W.on ? "checked" : ""}><i></i><b>شغّل خصم الترحيب</b></label>
+      <div class="grid g2">
+        <label class="f"><span>كود الخصم (من «أكواد الخصم»)</span><select class="in" id="welCode"><option value="">— اختار كود —</option>${C.map(c => `<option value="${esc(c.code)}" ${c.code === W.code ? "selected" : ""}>${esc(c.code)} – ${num(c.percent)}٪${c.active ? "" : " (مش مفعّل)"}${c.first ? " – لأول طلب" : ""}</option>`).join("")}</select></label>
+        ${fld("settings.welcome.delay", "رسالة التذكير تظهر للزائر بعد (ثانية)", W.delay ?? 20, "number", 'min="3" max="120"')}
+      </div>
+      ${!C.length ? '<p class="hint" style="color:var(--red)">لسه مفيش أكواد – اعمل كود من «% أكواد الخصم» الأول (مثلاً EVEREST5 بنسبة 5٪) وعلّم عليه «لأول طلب بس».</p>' : cur && !cur.first ? '<p class="hint" style="color:var(--warn)">⚠ الكود ده مش متعلّم عليه «لأول طلب بس» – العميل يقدر يستخدمه في كل طلب. علّم عليه من «% أكواد الخصم».</p>' : cur && !cur.active ? '<p class="hint" style="color:var(--red)">⚠ الكود ده مش مفعّل – فعّله من «% أكواد الخصم».</p>' : ""}
+      <p class="hint">التعديلات بتشتغل بعد «حفظ على الموقع».</p></div>` })() : ""}
     <div class="card" style="margin-bottom:16px"><h3>🛒 السلات المتروكة ${A ? `<span class="pill ${A.length ? "warn" : "grey"}">${num(A.length)}</span>` : ""}<button class="btn light sm" id="mkRefresh" style="margin-inline-start:auto">↻ تحديث</button></h3>
       <p class="hint">عملاء متسجّلين حطّوا منتجات في السلة من أكتر من ساعة وما طلبوش. ابعتلهم رسالة تفكير – ناس كتير بتكمّل الطلب بعدها.</p>
       ${CARTS_ERR ? `<div class="notice warn">⚠ جدول السلات مش متجهز – شغّل ملف supabase-marketing.sql في Supabase.</div>` : !A ? `<div class="empty">جاري التحميل…</div>` : A.length ? A.map(c => `<div class="ed-item" style="${c.contacted_at ? "opacity:.65" : ""}"><div class="hd" style="flex-wrap:wrap;gap:8px"><b>${esc(c.name || "عميل")}</b><span class="hint" dir="ltr">${esc(c.phone)}</span><span class="hint">· ${ago(c.updated_at)}</span>${c.total ? `<span class="pill grey">${money(c.total)}</span>` : ""}${c.contacted_at ? `<span class="pill ok">✓ اتبعتله ${ago(c.contacted_at)}</span>` : ""}
@@ -1665,7 +1676,7 @@ reviews() {
 },
 codes() {
   return `<div class="notice warn">الأكواد مكتوبة داخل ملفات الموقع، فأي حد فاهم ممكن يشوفها. استخدمها كتسهيل للمقاولين وراجع الخصم عند تأكيد الطلب، وغيّرها كل فترة.</div>` +
-  (D.discountCodes || []).map((c, i) => `<div class="ed-item"><div class="hd"><b dir="ltr">${esc(c.code || "كود جديد")}</b><label class="switch"><input type="checkbox" data-p="discountCodes.${i}.active" ${c.active ? "checked" : ""}><i></i>مفعّل</label><button class="btn red sm" data-delitem="discountCodes.${i}">حذف</button></div>
+  (D.discountCodes || []).map((c, i) => `<div class="ed-item"><div class="hd"><b dir="ltr">${esc(c.code || "كود جديد")}</b><label class="switch"><input type="checkbox" data-p="discountCodes.${i}.active" ${c.active ? "checked" : ""}><i></i>مفعّل</label><label class="switch" title="لو العميل طلب قبل كده بنفس رقمه، الخصم مش هيتطبق"><input type="checkbox" data-p="discountCodes.${i}.first" ${c.first ? "checked" : ""}><i></i>لأول طلب بس</label><button class="btn red sm" data-delitem="discountCodes.${i}">حذف</button></div>
     <div class="grid g3">${fld(`discountCodes.${i}.code`, "الكود", c.code, "text", 'dir="ltr"')}${fld(`discountCodes.${i}.percent`, "نسبة الخصم ٪", c.percent, "number", 'min="1" max="50"')}${fld(`discountCodes.${i}.label`, "الوصف اللي يظهر للعميل", c.label)}</div></div>`).join("") +
   `<button class="btn" data-additem="code">＋ إضافة كود</button>`;
 },
@@ -1933,6 +1944,7 @@ accounts() {
 },
 marketing() {
   if (!EVENTS) loadEvents(); if (!CARTS && SBC) loadCarts();
+  const wc = $("#welCode"); if (wc) wc.onchange = () => { const c = (D.discountCodes || []).find(x => x.code === wc.value); D.settings.welcome = Object.assign(D.settings.welcome || {}, {code: wc.value || null, pct: c ? +c.percent : null}); changed(); go("marketing") };
   const u = $("[data-promo-until]"); if (u) u.onchange = () => { D.settings.promo = D.settings.promo || {}; D.settings.promo.until = u.value ? new Date(u.value).toISOString() : null; changed() };
   const rf = $("#mkRefresh"); if (rf) rf.onclick = () => { CARTS = null; go("marketing"); loadCarts(); loadEvents() };
   $$("[data-cartwa]").forEach(a => a.addEventListener("click", async () => { try { await api("cartSet", {phone: a.dataset.cartwa, patch: {contacted_at: new Date().toISOString()}}) } catch (e) {} setTimeout(loadCarts, 800) }));
